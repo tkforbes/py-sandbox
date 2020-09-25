@@ -11,6 +11,11 @@ try:
 except:
     print("An exception occurred")
 
+altMax=-10000
+altMin=+10000
+alt=0
+altitudeOberservations=0
+
 nmea = open('data.nmea', 'r')
 
 for line in nmea:
@@ -27,7 +32,7 @@ for line in nmea:
         print("**bad nmea sentence. something wrong error**")
         continue
 
-    #print(repr(msg))
+    print(repr(msg))
     #print(type(msg))
     #print(msg.sentence_type)
     if (type(msg) is pynmea2.nmea.ProprietarySentence):
@@ -46,8 +51,16 @@ for line in nmea:
         #for property, value in vars(msg).items():
         #    print(property, ":", value)
 
-    elif (msg.sentence_type == 'RMC' or msg.sentence_type == 'GGA' ):
+    elif (msg.sentence_type == 'RMC'):
         print(msg.sentence_type, msg.timestamp)
+    elif (msg.sentence_type == 'GGA' ):
+        print(msg.sentence_type, msg.timestamp, "alt: ", msg.altitude)
+        if (msg.altitude is not None and int(msg.num_sats) > 4):
+            alt += msg.altitude
+            altitudeOberservations += 1
+            if (int(msg.altitude) > altMax ): altMax = msg.altitude
+            if (int(msg.altitude) < altMin ): altMin = msg.altitude
+
     #elif (msg.sentence_type == 'GGA'):
     #    print(msg.sentence_type, msg.timestamp)
     #else:
@@ -68,3 +81,7 @@ for line in nmea:
     # - elevation
     # - ground speed
     # - direction
+
+print("alt max", altMax)
+print("alt min", altMin)
+print ("alt avg:", alt/altitudeOberservations, "from", altitudeOberservations, "observations")
