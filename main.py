@@ -7,9 +7,12 @@ import pynmea2
 import math
 
 from airfield import Airfield
+from aircraft import Aircraft
 
 kars = Airfield(81, 45.062101, 075.374431)
-
+aircraft = Aircraft("TUB")
+print(aircraft.status)
+print(aircraft.getSpeed())
 
 def is_integer(n):
     try:
@@ -68,11 +71,16 @@ for line in nmea:
 
     elif (msg.sentence_type == 'RMC'):
         print(msg.sentence_type, msg.timestamp)
+        datestamp = msg.datestamp
+        kars.setDatestamp(datestamp)
+        #print(repr(msg))
     elif (msg.sentence_type == 'GGA' ):
         print("*******")
         kars.set(msg)
+        """
         print(type(msg))
         print(msg.sentence_type, msg.timestamp, "alt: ", msg.altitude)
+        """
         if (msg.altitude is not None and is_integer(msg.altitude) and int(msg.num_sats) > 4):
             alt += int(msg.altitude)
             altitudeOberservations += 1
@@ -104,3 +112,5 @@ for line in nmea:
 print("alt max", altMax)
 print("alt min", altMin)
 print ("alt avg:", alt/altitudeOberservations, "from", altitudeOberservations, "observations")
+
+print(kars.altitude, kars.lat, kars.lon, kars.datestamp, kars.timestamp)

@@ -3,6 +3,8 @@ class Airfield:
         self.altitude = alt
         self.lat = lat
         self.lon = lon
+        self.datestamp= 0
+        self.timestamp = 0
 
     """
     this doesn't belong here.
@@ -15,7 +17,6 @@ class Airfield:
             return False
 
     def isvalid(nmea_gga):
-        print("validating")
         if (nmea_gga.altitude is None):
             print("none prob")
             return False
@@ -30,16 +31,26 @@ class Airfield:
 
         return True
 
-    def set(self, nmea_gga):
-        print("KARS", nmea_gga)
-        if (Airfield.isvalid(nmea_gga)):
-            print("valid")
-            print(repr(nmea_gga))
-            self.altitude = nmea_gga.altitude
-            self.lat = nmea_gga.lat
-            self.lon = nmea_gga.lon
-        else:
-            return False
+    def set(self, nmea):
+        if (nmea.sentence_type == 'GGA'):
+            gga = nmea
+            if (Airfield.isvalid(gga)):
+                #print("valid")
+                #print(repr(nmea))
+                self.altitude = gga.altitude
+                self.lat = gga.lat
+                self.lon = gga.lon
+                self.timestamp = gga.timestamp
+        elif (nmea_gga.sentence_type == 'RMC'):
+            rmc = nmea
+            self.datestamp = rmc.datestamp
+
+
+    def setDatestamp(self, datestamp):
+        self.datestamp = datestamp
+
+    def getTimestamp(self):
+        return self.timestamp
 
 
 
