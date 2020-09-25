@@ -40,7 +40,8 @@ for line in nmea:
                 n= abs(int(msg.data[2]))
                 e= abs(int(msg.data[3]))
                 print("distance", int(math.sqrt( n*n+e*e)))
-                print("relativeVertical", msg.data[3])
+                print("relativeVertical", msg.data[4])
+                print("gnd speed kph", int(int(msg.data[9])*3.6))
 
         #for property, value in vars(msg).items():
         #    print(property, ":", value)
