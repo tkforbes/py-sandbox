@@ -6,6 +6,11 @@ import pynmea2
 
 import math
 
+from airfield import Airfield
+
+kars = Airfield(81, 45.062101, 075.374431)
+
+
 def is_integer(n):
     try:
         int(n)
@@ -44,7 +49,7 @@ for line in nmea:
     #print(type(msg))
 
     #print(msg.sentence_type)
-    
+
     if (type(msg) is pynmea2.nmea.ProprietarySentence):
         if (msg.manufacturer == "FLA"):
             if (msg.data[0] == 'U'):
@@ -64,10 +69,14 @@ for line in nmea:
     elif (msg.sentence_type == 'RMC'):
         print(msg.sentence_type, msg.timestamp)
     elif (msg.sentence_type == 'GGA' ):
+        print("*******")
+        kars.set(msg)
+        print(type(msg))
         print(msg.sentence_type, msg.timestamp, "alt: ", msg.altitude)
         if (msg.altitude is not None and is_integer(msg.altitude) and int(msg.num_sats) > 4):
             alt += int(msg.altitude)
             altitudeOberservations += 1
+            print(msg)
             if (int(msg.altitude) > altMax ): altMax = msg.altitude
             if (int(msg.altitude) < altMin ): altMin = msg.altitude
 
