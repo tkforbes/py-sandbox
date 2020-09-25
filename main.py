@@ -6,6 +6,13 @@ import pynmea2
 
 import math
 
+def is_integer(n):
+    try:
+        int(n)
+        return True
+    except ValueError:
+        return False
+
 try:
     print(x)
 except:
@@ -32,9 +39,12 @@ for line in nmea:
         print("**bad nmea sentence. something wrong error**")
         continue
 
-    print(repr(msg))
+    #print(repr(msg))
+
     #print(type(msg))
+
     #print(msg.sentence_type)
+    
     if (type(msg) is pynmea2.nmea.ProprietarySentence):
         if (msg.manufacturer == "FLA"):
             if (msg.data[0] == 'U'):
@@ -55,8 +65,8 @@ for line in nmea:
         print(msg.sentence_type, msg.timestamp)
     elif (msg.sentence_type == 'GGA' ):
         print(msg.sentence_type, msg.timestamp, "alt: ", msg.altitude)
-        if (msg.altitude is not None and int(msg.num_sats) > 4):
-            alt += msg.altitude
+        if (msg.altitude is not None and is_integer(msg.altitude) and int(msg.num_sats) > 4):
+            alt += int(msg.altitude)
             altitudeOberservations += 1
             if (int(msg.altitude) > altMax ): altMax = msg.altitude
             if (int(msg.altitude) < altMin ): altMin = msg.altitude
