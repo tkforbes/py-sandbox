@@ -9,10 +9,8 @@ import math
 from airfield import Airfield
 from aircraft import Aircraft
 
-kars = Airfield(81, 45.062101, 075.374431)
-aircraft = Aircraft("TUB")
-print(aircraft.status)
-print(aircraft.getSpeed())
+theAirfield = Airfield(81, 45.062101, 075.374431)
+theAircraft = Aircraft("C-FXYZ")
 
 def is_integer(n):
     try:
@@ -38,13 +36,13 @@ for line in nmea:
     try:
         msg = pynmea2.parse(line)
     except pynmea2.ChecksumError:
-        print("**bad nmea sentence. checksum error**")
+        #print("**bad nmea sentence. checksum error**")
         continue
     except pynmea2.ParseError:
-        print("**bad nmea sentence. parse error**")
+        #print("**bad nmea sentence. parse error**")
         continue
     except:
-        print("**bad nmea sentence. something wrong error**")
+        #print("**bad nmea sentence. something wrong error**")
         continue
 
     #print(repr(msg))
@@ -58,25 +56,32 @@ for line in nmea:
             if (msg.data[0] == 'U'):
                 pass
             elif (msg.data[0] == 'A'):
-                print(msg.data)
+                #print(msg.data)
                 # distance
                 n= abs(int(msg.data[2]))
                 e= abs(int(msg.data[3]))
-                print("distance", int(math.sqrt( n*n+e*e)))
-                print("relativeVertical", msg.data[4])
-                print("gnd speed kph", int(int(msg.data[9])*3.6))
-
+                if (msg.data[6] == "C04E3F!FLR_C04E3F"):
+                    theAircraft.set(theAirfield.timestamp, msg)
+                    theAircraft.print()
+                    """
+                    int(msg.data[9]) > 0 and
+                    int(msg.data[9]) < 40):
+                    print("aircraft", msg.data[6])
+                    print("time", theAirfield.timestamp )
+                    print("distance", int(math.sqrt( n*n+e*e)))
+                    print("relativeVertical", msg.data[4])
+                    print("gnd speed kph", int(int(msg.data[9])*3.6))
+                    """
         #for property, value in vars(msg).items():
         #    print(property, ":", value)
 
     elif (msg.sentence_type == 'RMC'):
-        print(msg.sentence_type, msg.timestamp)
+        #print(msg.sentence_type, msg.timestamp)
         datestamp = msg.datestamp
-        kars.setDatestamp(datestamp)
+        theAirfield.setDatestamp(datestamp)
         #print(repr(msg))
     elif (msg.sentence_type == 'GGA' ):
-        print("*******")
-        kars.set(msg)
+        theAirfield.set(msg)
         """
         print(type(msg))
         print(msg.sentence_type, msg.timestamp, "alt: ", msg.altitude)
@@ -84,7 +89,7 @@ for line in nmea:
         if (msg.altitude is not None and is_integer(msg.altitude) and int(msg.num_sats) > 4):
             alt += int(msg.altitude)
             altitudeOberservations += 1
-            print(msg)
+            #print(msg)
             if (int(msg.altitude) > altMax ): altMax = msg.altitude
             if (int(msg.altitude) < altMin ): altMin = msg.altitude
 
@@ -113,4 +118,9 @@ print("alt max", altMax)
 print("alt min", altMin)
 print ("alt avg:", alt/altitudeOberservations, "from", altitudeOberservations, "observations")
 
-print(kars.altitude, kars.lat, kars.lon, kars.datestamp, kars.timestamp)
+print("")
+print("min alt:", theAirfield.elevationMin, "max alt:", theAirfield.elevationMax, "curr alt", theAirfield.elevation)
+print("average elevation", theAirfield.averageElevation())
+print("lat:", theAirfield.lat, "lon:", theAirfield.lon)
+print("date:", theAirfield.datestamp, "time:", theAirfield.timestamp)
+print("observations:", theAirfield.observations)
