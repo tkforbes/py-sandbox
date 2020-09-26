@@ -1,8 +1,10 @@
 import math
 
-class Aircraft:
+from registrations import Registration
+
+class AircraftPosition:
     def __init__(self, id):
-        self.id = id
+        self.id = ""
         self.status = "unknown"
         self.relativeNorth = 0.0
         self.relativeEast = 0.0
@@ -14,9 +16,12 @@ class Aircraft:
         self.timestamp = 0
 
     def set(self, timestamp, nmea_flaa, ):
-        #print(nmea_flaa)
+        temp_str= nmea_flaa.data[6]
+        reg = Registration
+        #self.id = acid[temp_str[0:temp_str.find("!")]]
+        self.id = Registration.get(temp_str[0:temp_str.find("!")])
         self.timestamp = timestamp
-        self.id = nmea_flaa.data[6]
+
         #self.status = "unknown"
         self.relativeNorth = int(nmea_flaa.data[2])
         self.relativeEast = int(nmea_flaa.data[3])

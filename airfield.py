@@ -24,6 +24,11 @@ class Airfield:
         except ValueError:
             return False
 
+    def validDatestamp(self):
+        if (self.datestamp == 0): return False
+
+        return True
+
     def isvalid(nmea_gga):
 
         if (nmea_gga.altitude is None):
