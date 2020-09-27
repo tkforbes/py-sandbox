@@ -2,22 +2,34 @@ from registrations import OgnRegistration
 
 class Priority:
     def __init__(self):
+        aircraftId = ''
+        timestamp = 0
         relativeBearing = 0
         relativeVertical = 0
         relativeDistance = 0
-        id = ''
 
-
-    def set(self, nmea):
-        print
+    def set(self, timestamp, nmea):
 
         #if (nmea.sentence_type == 'ProprietarySentence'):
         #    print(True)
         #    prop = nmea
 
-        id = nmea.data[10]
-        if (len(id) > 0):
-            registration = OgnRegistration()
-            radio = registration.getAircraft(nmea.data[10])
-            self.id = radio.get()
-            print(self.id)
+        #print("nmea:", nmea)
+        theOgnReg = OgnRegistration()
+        aircraftId = theOgnReg.getAircraft(nmea.data[10])
+        if not (aircraftId == "not found"):
+            self.aircraftId = aircraftId
+
+        self.timestamp = timestamp
+
+        self.relativeBearing = nmea.data[6]
+        self.relativeVertical = nmea.data[8]
+        self.relativeDistance = nmea.data[9]
+
+        print(
+            self.aircraftId,
+            self.timestamp,
+            "dist:", self.relativeDistance,
+            "alt AGL:", self.relativeVertical,
+            "bearing:", self.relativeBearing
+            )

@@ -6,6 +6,8 @@ import pynmea2
 
 import math
 
+import sys
+
 from airfield import Airfield
 from aircraft import AircraftPosition
 from registrations import OgnRegistration
@@ -15,6 +17,10 @@ theAirfield = Airfield(81, 45.062101, 075.374431)
 theAircraftPosition = AircraftPosition("C-FXYZ")
 theOgnReg = OgnRegistration()
 thePriority = Priority()
+
+print(theOgnReg.getAircraft('000368'))
+#sys.exit()
+
 
 def is_integer(n):
     try:
@@ -36,7 +42,7 @@ altitudeOberservations=0
 nmea = open('data.nmea', 'r')
 
 for line in nmea:
-    line = nmea.readline()
+    #line = nmea.readline()
     try:
         msg = pynmea2.parse(line)
     except pynmea2.ChecksumError:
@@ -59,17 +65,17 @@ for line in nmea:
         theAirfield.validDatestamp()):
         if (msg.manufacturer == "FLA"):
             if (msg.data[0] == 'U'):
-                print(repr(msg))
+                #print(repr(msg))
                 ognReg = OgnRegistration()
                 #self.id = acid[temp_str[0:temp_str.find("!")]]
                 #self.id = Registration.get(temp_str[0:temp_str.find("!")])
-                thePriority.set(msg)
+                thePriority.set(theAirfield.timestamp, msg)
                 pass
             elif (msg.data[0] == 'A'):
                 #print(msg.data)
                 # distance
                 theAircraftPosition.set(theAirfield.timestamp, msg)
-                if (theAircraftPosition.aircraft == "C-GDQK"):
+                if (theAircraftPosition.aircraftId == "C-GDQK"):
                     theAircraftPosition.print()
         #for property, value in vars(msg).items():
         #    print(property, ":", value)

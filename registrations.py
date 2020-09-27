@@ -11,12 +11,14 @@ class OgnRegistration:
             for detail in ognRegistrations:
                 #.split(",")
                 values = detail.strip().split(",")
-                print("**", values[1].strip("\'"), values[3].strip("\'"))
-                self.OgnDict[values[1].strip("\'")] = values[3].strip("\'")
+
+                radioId = values[1].strip("\'")
+                aircraftId = values[3].strip("\'")
+
+                # append
+                self.OgnDict[radioId] = aircraftId
                 #print(detail[1], detail[3])
-        print(self.OgnDict)
+        #print(self.OgnDict)
 
     def getAircraft(self, radioId):
-        pass
-        #print(self.OgnDict[radioId])
-        #return self.OgnDict[radioId]
+        return self.OgnDict.get(radioId, "not found")
