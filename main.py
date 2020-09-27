@@ -14,7 +14,7 @@ from ognRegistrations import OgnRegistration
 from priority import Priority
 
 theAirfield = Airfield(81, 45.062101, 075.374431)
-theAircraftPosition = AircraftPosition("C-FXYZ")
+theAircraftPosition = AircraftPosition()
 theOgnReg = OgnRegistration()
 thePriority = Priority()
 

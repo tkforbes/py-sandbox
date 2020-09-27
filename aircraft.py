@@ -3,7 +3,7 @@ import math
 from ognRegistrations import OgnRegistration
 
 class AircraftPosition:
-    def __init__(self, id):
+    def __init__(self):
         self.aircraftId = ''
         self.status = "unknown"
         self.relativeNorth = 0.0
@@ -14,7 +14,6 @@ class AircraftPosition:
         self.climbRate = 0.0
         self.type = 0
         self.timestamp = 0
-        #self.ogn = OgnRegistration
         self.radioId = ''
 
     def set(self, timestamp, nmea_flaa, ):
