@@ -1,4 +1,5 @@
-
+#
+# TODO : currently loads from file every time instaniated. Fix.
 
 class OgnRegistration:
     def __init__(self):
