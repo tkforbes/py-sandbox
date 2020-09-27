@@ -8,12 +8,12 @@ import math
 
 from airfield import Airfield
 from aircraft import AircraftPosition
-from registrations import Registration
+from registrations import OgnRegistration
 from priority import Priority
 
 theAirfield = Airfield(81, 45.062101, 075.374431)
 theAircraftPosition = AircraftPosition("C-FXYZ")
-theReg = Registration()
+theOgnReg = OgnRegistration()
 thePriority = Priority()
 
 def is_integer(n):
@@ -60,8 +60,7 @@ for line in nmea:
         if (msg.manufacturer == "FLA"):
             if (msg.data[0] == 'U'):
                 print(repr(msg))
-                registration = Registration()
-                reg = Registration
+                ognReg = OgnRegistration()
                 #self.id = acid[temp_str[0:temp_str.find("!")]]
                 #self.id = Registration.get(temp_str[0:temp_str.find("!")])
                 thePriority.set(msg)
@@ -70,7 +69,7 @@ for line in nmea:
                 #print(msg.data)
                 # distance
                 theAircraftPosition.set(theAirfield.timestamp, msg)
-                if (theAircraftPosition.id == "C-GDQK"):
+                if (theAircraftPosition.aircraft == "C-GDQK"):
                     theAircraftPosition.print()
         #for property, value in vars(msg).items():
         #    print(property, ":", value)

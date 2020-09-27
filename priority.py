@@ -1,4 +1,4 @@
-from registrations import Registration
+from registrations import OgnRegistration
 
 class Priority:
     def __init__(self):
@@ -17,7 +17,7 @@ class Priority:
 
         id = nmea.data[10]
         if (len(id) > 0):
-            registration = Registration()
-            radio = registration.get(nmea.data[10])
+            registration = OgnRegistration()
+            radio = registration.getAircraft(nmea.data[10])
             self.id = radio.get()
             print(self.id)

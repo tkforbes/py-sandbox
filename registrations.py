@@ -1,23 +1,22 @@
-acid = {
-         '000368': 'C-GORE',
-         '003974': 'C-GFOP',
-         'DF1221': 'C-GKAK',
-         'DF15D5': 'C-GEOD',
-         'F91642': 'C-FZJD',
-         'FEA728': 'C-FBON',
-         'FF4A68': 'C-GINY'
-}
 
-class Registration:
+
+class OgnRegistration:
     def __init__(self):
+        self.OgnDict = {
+#                 '000368': 'C-GORE',
+#                 '003974': 'C-GFOP',
+#                 'FF4A68': 'C-GINY'
+        }
         with open('aircraft.canada', 'r') as ognRegistrations:
             for detail in ognRegistrations:
                 #.split(",")
                 values = detail.strip().split(",")
-                print(values[1], values[3])
+                print("**", values[1].strip("\'"), values[3].strip("\'"))
+                self.OgnDict[values[1].strip("\'")] = values[3].strip("\'")
                 #print(detail[1], detail[3])
+        print(self.OgnDict)
 
-
-
-    def get(radio_id):
-        return acid[radio_id]
+    def getAircraft(self, radioId):
+        pass
+        #print(self.OgnDict[radioId])
+        #return self.OgnDict[radioId]

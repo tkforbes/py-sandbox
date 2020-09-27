@@ -1,10 +1,10 @@
 import math
 
-from registrations import Registration
+from registrations import OgnRegistration
 
 class AircraftPosition:
     def __init__(self, id):
-        self.id = ""
+        self.aircraft = ''
         self.status = "unknown"
         self.relativeNorth = 0.0
         self.relativeEast = 0.0
@@ -14,12 +14,15 @@ class AircraftPosition:
         self.climbRate = 0.0
         self.type = 0
         self.timestamp = 0
+        self.ogn = OgnRegistration
+        self.radioId = ''
 
     def set(self, timestamp, nmea_flaa, ):
         temp_str= nmea_flaa.data[6]
-        reg = Registration
         #self.id = acid[temp_str[0:temp_str.find("!")]]
-        self.id = Registration.get(temp_str[0:temp_str.find("!")])
+        self.radioId = temp_str[0:temp_str.find("!")]
+        print("radio id:", self.radioId)
+        #self.aircraft = self.ogn.getAircraft(self.radioId)
         self.timestamp = timestamp
 
         #self.status = "unknown"
