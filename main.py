@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 import io
 
 import pynmea2
@@ -8,9 +9,12 @@ import math
 from airfield import Airfield
 from aircraft import AircraftPosition
 from registrations import Registration
+from priority import Priority
 
 theAirfield = Airfield(81, 45.062101, 075.374431)
 theAircraftPosition = AircraftPosition("C-FXYZ")
+theReg = Registration()
+thePriority = Priority()
 
 def is_integer(n):
     try:
@@ -55,10 +59,12 @@ for line in nmea:
         theAirfield.validDatestamp()):
         if (msg.manufacturer == "FLA"):
             if (msg.data[0] == 'U'):
-                #print(repr(msg))
+                print(repr(msg))
                 registration = Registration()
-                radio = msg.data[10]
-                #print(registration.get(radio))
+                reg = Registration
+                #self.id = acid[temp_str[0:temp_str.find("!")]]
+                #self.id = Registration.get(temp_str[0:temp_str.find("!")])
+                thePriority.set(msg)
                 pass
             elif (msg.data[0] == 'A'):
                 #print(msg.data)
