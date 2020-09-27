@@ -18,7 +18,6 @@ theAircraftPosition = AircraftPosition("C-FXYZ")
 theOgnReg = OgnRegistration()
 thePriority = Priority()
 
-print(theOgnReg.getAircraft('000368'))
 #sys.exit()
 
 
@@ -29,10 +28,10 @@ def is_integer(n):
     except ValueError:
         return False
 
-try:
-    print(x)
-except:
-    print("An exception occurred")
+#try:
+#    print(x)
+#except:
+#    print("An exception occurred")
 
 altMax=-10000
 altMin=+10000
@@ -75,8 +74,8 @@ for line in nmea:
                 #print(msg.data)
                 # distance
                 theAircraftPosition.set(theAirfield.timestamp, msg)
-                if (theAircraftPosition.aircraftId == "C-GDQK"):
-                    theAircraftPosition.print()
+                #if (theAircraftPosition.aircraftId == "C-GDQK"):
+                theAircraftPosition.print()
         #for property, value in vars(msg).items():
         #    print(property, ":", value)
 
