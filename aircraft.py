@@ -1,6 +1,6 @@
 import math
 
-from registrations import OgnRegistration
+from ognRegistrations import OgnRegistration
 
 class AircraftPosition:
     def __init__(self, id):

@@ -10,7 +10,7 @@ import sys
 
 from airfield import Airfield
 from aircraft import AircraftPosition
-from registrations import OgnRegistration
+from ognRegistrations import OgnRegistration
 from priority import Priority
 
 theAirfield = Airfield(81, 45.062101, 075.374431)

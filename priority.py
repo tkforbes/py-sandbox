@@ -1,4 +1,4 @@
-from registrations import OgnRegistration
+from ognRegistrations import OgnRegistration
 
 class Priority:
     def __init__(self):
