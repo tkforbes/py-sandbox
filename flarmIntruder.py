@@ -15,6 +15,8 @@ class FlarmIntruder:
         self.type = 0
         self.timestamp = 0
         self.radioId = ''
+        self.observations = 0
+        self.maxDistance = 0
 
     def set(self, timestamp, nmea_flaa, ):
         temp_str= nmea_flaa.data[6]
@@ -32,6 +34,17 @@ class FlarmIntruder:
         self.track = int(nmea_flaa.data[7])
         self.speed = int(nmea_flaa.data[9])
         self.climbRate = nmea_flaa.data[10]
+
+        self.observations += 1
+        if (self.getDistance() > self.maxDistance ):
+            self.maxDistance = self.getDistance()
+
+    def report(self):
+        print("Intruder")
+        print("========")
+        print("observations:%6d" % self.observations,
+            "max distance:%6d" % self.maxDistance
+            )
 
     def print(self):
         """
