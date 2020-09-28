@@ -93,3 +93,7 @@ for line in nmea:
 
 print()
 print(theAirfield.report())
+print()
+print(theFlarmIntruder.report())
+print()
+print(theFlarmPriority.report())
