@@ -9,7 +9,7 @@ import math
 import sys
 
 from airfield import Airfield
-from aircraft import AircraftPosition
+from aircraftPosition import AircraftPosition
 from ognRegistrations import OgnRegistration
 from priority import Priority
 
