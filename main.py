@@ -18,6 +18,7 @@ theAircraftPosition = AircraftPosition()
 theOgnReg = OgnRegistration()
 thePriority = Priority()
 
+
 #sys.exit()
 
 
@@ -92,10 +93,4 @@ for line in nmea:
 
 
 print()
-print("Airfield report")
-print("===============")
-print("min alt:", theAirfield.elevationMin, "max alt:", theAirfield.elevationMax, "curr alt", theAirfield.elevation)
-print("average elevation", theAirfield.averageElevation())
-print("lat:", theAirfield.lat, "lon:", theAirfield.lon)
-print("date:", theAirfield.datestamp, "time:", theAirfield.timestamp)
-print("observations:", theAirfield.observations)
+print(theAirfield.report())

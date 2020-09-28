@@ -75,30 +75,22 @@ class Airfield:
     def averageElevation(self):
         return self.elevationCumulative / self.observations
 
+    def report(self):
+
+        if (self.observations == 0):
+            avg= 0
+        else:
+            avg = self.averageElevation()
 
 
-"""
-        if (msg.altitude is not None and is_integer(msg.altitude) and int(msg.num_sats) > 4):
-            alt += int(msg.altitude)
-            altitudeOberservations += 1
-            print(msg)
-            if (int(msg.altitude) > altMax ): altMax = msg.altitude
-            if (int(msg.altitude) < altMin ): altMin = msg.altitude
-
-
-        print(msg.sentence_type, msg.timestamp, "alt: ", msg.altitude)
-        if (msg.altitude is not None and is_integer(msg.altitude) and int(msg.num_sats) > 4):
-            alt += int(msg.altitude)
-            altitudeOberservations += 1
-            print(msg)
-            if (int(msg.altitude) > altMax ): altMax = msg.altitude
-            if (int(msg.altitude) < altMin ): altMin = msg.altitude
-
-    altitude = 0
-    latitude = 0.0
-    longitude = 0.0
-
-    altMax = 0.0
-    altMin = 0.0
-    altitudeOberservations = 0
-"""
+        print()
+        print("Airfield report")
+        print("===============")
+        print("date:", self.datestamp, "time:", self.timestamp)
+        print("lat:", self.lat, "lon:", self.lon)
+        print("Elevation",
+                "min:%.1f" % self.elevationMin,
+                "max:%.1f" % self.elevationMax,
+                "curr:%.1f" % self.elevation,
+                "avg:%.1f" % avg)
+        print("observations:", self.observations)
