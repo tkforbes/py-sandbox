@@ -2,7 +2,7 @@ import math
 
 from ognRegistrations import OgnRegistration
 
-class AircraftPosition:
+class FlarmIntruder:
     def __init__(self):
         self.aircraftId = ''
         self.status = "unknown"
@@ -41,11 +41,12 @@ class AircraftPosition:
         """
 
         print(self.aircraftId,
-            self.timestamp,
+            "%-17s" % self.timestamp,
             "dist:%5d" % self.getDistance(),
             "alt AGL:%4d" % self.getAltitudeAGL(),
             "speed: %3d" % self.getSpeed(),
-            "track: %3d" % self.track
+            "track: %3d" % self.track,
+            "climb: %3s" % self.climbRate
             )
 
     def getSpeed(self):

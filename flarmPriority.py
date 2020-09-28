@@ -1,6 +1,6 @@
 from ognRegistrations import OgnRegistration
 
-class Priority:
+class FlarmPriority:
     def __init__(self):
         aircraftId = ''
         timestamp = 0
@@ -39,7 +39,7 @@ class Priority:
         print(
             self.aircraftId,
             self.timestamp,
-            "dist:%5d" % int(self.relativeDistance),
+            "\t dist:%5d" % int(self.relativeDistance),
             "alt AGL:%4d" % self.relativeVertical,
-            "bearing:", self.relativeBearing
+            "\t\t\t\tbearing:%s" % self.relativeBearing
             )

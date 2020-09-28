@@ -9,14 +9,14 @@ import math
 import sys
 
 from airfield import Airfield
-from aircraftPosition import AircraftPosition
+from flarmIntruder import FlarmIntruder
 from ognRegistrations import OgnRegistration
-from priority import Priority
+from flarmPriority import FlarmPriority
 
 theAirfield = Airfield(81, 45.062101, 075.374431)
-theAircraftPosition = AircraftPosition()
+theFlarmIntruder = FlarmIntruder()
 theOgnReg = OgnRegistration()
-thePriority = Priority()
+theFlarmPriority = FlarmPriority()
 
 
 #sys.exit()
@@ -69,13 +69,13 @@ for line in nmea:
                 ognReg = OgnRegistration()
                 #self.id = acid[temp_str[0:temp_str.find("!")]]
                 #self.id = Registration.get(temp_str[0:temp_str.find("!")])
-                thePriority.set(theAirfield.timestamp, msg)
+                theFlarmPriority.set(theAirfield.timestamp, msg)
             elif (msg.data[0] == 'A'):
                 #print(msg.data)
                 # distance
-                theAircraftPosition.set(theAirfield.timestamp, msg)
-                #if (theAircraftPosition.aircraftId == "C-GDQK"):
-                theAircraftPosition.print()
+                theFlarmIntruder.set(theAirfield.timestamp, msg)
+                #if (theFlarmIntruder.aircraftId == "C-GDQK"):
+                theFlarmIntruder.print()
         #for property, value in vars(msg).items():
         #    print(property, ":", value)
 
