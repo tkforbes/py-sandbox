@@ -70,7 +70,6 @@ for line in nmea:
                 #self.id = acid[temp_str[0:temp_str.find("!")]]
                 #self.id = Registration.get(temp_str[0:temp_str.find("!")])
                 thePriority.set(theAirfield.timestamp, msg)
-                pass
             elif (msg.data[0] == 'A'):
                 #print(msg.data)
                 # distance
@@ -81,7 +80,7 @@ for line in nmea:
         #    print(property, ":", value)
 
     elif (msg.sentence_type == 'RMC'):
-        # this sentence has the airfield datestamp
+        # this sentence contains the current date
 
         # set the date in the airfield. the date is very important!
         datestamp = msg.datestamp
