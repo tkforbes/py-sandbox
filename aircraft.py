@@ -40,9 +40,12 @@ class AircraftPosition:
         if (self.getSpeed() < 5): return
         """
 
-        print(self.aircraftId, self.timestamp, "dist:", self.getDistance(),
-            "alt AGL:", self.getAltitudeAGL(), "speed:", self.getSpeed(),
-            "track", self.track
+        print(self.aircraftId,
+            self.timestamp,
+            "dist:%5d" % self.getDistance(),
+            "alt AGL:%4d" % self.getAltitudeAGL(),
+            "speed: %3d" % self.getSpeed(),
+            "track: %3d" % self.track
             )
 
     def getSpeed(self):

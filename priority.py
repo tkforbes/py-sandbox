@@ -23,13 +23,23 @@ class Priority:
         self.timestamp = timestamp
 
         self.relativeBearing = nmea.data[6]
-        self.relativeVertical = nmea.data[8]
-        self.relativeDistance = nmea.data[9]
+
+        relVert = nmea.data[8]
+        if (len(relVert) == 0):
+            self.relativeVertical = 0
+        else:
+            self.relativeVertical = 0
+
+        relDist = nmea.data[9]
+        if (len(relDist) == 0):
+            self.relativeDistance = 0
+        else:
+            self.relativeDistance = relDist
 
         print(
             self.aircraftId,
             self.timestamp,
-            "dist:", self.relativeDistance,
-            "alt AGL:", self.relativeVertical,
+            "dist:%5d" % int(self.relativeDistance),
+            "alt AGL:%4d" % self.relativeVertical,
             "bearing:", self.relativeBearing
             )
