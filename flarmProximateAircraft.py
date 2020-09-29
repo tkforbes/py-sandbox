@@ -225,6 +225,8 @@ class FlarmProximateAircraft:
         if (self.getDistance() > self.maxDistance ):
             self.maxDistance = self.getDistance()
 
+        return True
+
     def report(self):
         print("")
         print("Proximiate aircraft")
