@@ -40,18 +40,31 @@ class FlarmPriority:
             print(nmea, ":", e)
             sys.exit()
 
-        #rx positive integer 0 to 99
+        # rx
+        # Decimal integer value. Range: from 0 to 99.
+        #
+        # Number of devices with unique IDs currently received regardless
+        # of the horizontal or vertical separation.
+        # Because the processing might be based on extrapolated historical
+        # data, <Rx>might be lower than the number of aircraft in range,
+        # i.e. there might be other traffic around (even if the number is
+        # zero).
+        #
+        # Do not expect to receive <Rx> PFLAAsentences, because the number
+        # of aircraft being processed might be higher or lower.
         try:
             ndx = priorityIndex.get('rx')
             int(ndx)
             rx = int(nmea.data[ndx])
-            if (rx < 0 or rx > 99):
+            if not (rx >= 0 and rx <= 99):
                 raise Exception("rx out of range")
         except Exception as e:
             print(nmea, ":", e)
             sys.exit()
 
-        # tx 0 or 1
+        # tx
+        # Decimal integer value. Range: from 0 to 1.Transmission status: 1 for
+        # OK and 0 for no transmission
         try:
             ndx = priorityIndex.get('tx')
             int(ndx)
@@ -62,19 +75,29 @@ class FlarmPriority:
             print(nmea, ":", e)
             sys.exit()
 
-        # gps 0 or 1 or 2
+        # gps
+        # Decimal integer value. Range: from 0 to 2.
+        # GPS status:
+        #       0 = no GPS reception
+        #       1 = 3d-fix on ground, i.e. not airborne
+        #       2 = 3d-fix when airborne
+        #
+        # If <GPS>goes to 0, FLARM will not work. Nevertheless, wait for
+        # some seconds to issue any warnings.
         try:
             ndx = priorityIndex.get('gps')
             int(ndx)
             gps = int(nmea.data[ndx])
-            if (gps < 0 or gps > 2):
+            if not (gps >= 0 and gps <= 2):
                 msg = "gps value " + str(gps) + ": out of range"
                 raise Exception(msg)
         except Exception as e:
             print(nmea, ":", e)
             sys.exit()
 
-        # power 0 or 1
+        # power
+        # Decimal integer value. Range: from 0 to 1.
+        # Power status: 1 for OK and 0 for under-or over-voltage.
         try:
             ndx = priorityIndex.get('power')
             int(ndx)
@@ -86,31 +109,53 @@ class FlarmPriority:
             sys.exit()
 
 
-        # alarm level 0 to 3
+        # alarm level
+        # Decimal integer value. Range: from 0 to 3.
+        # Alarm level as assessed by FLARM:
+        #   0 = no alarm (also used for no-alarm traffic information)
+        #   1 = alarm, 13-18 seconds to impact
+        #   2 = alarm, 9-12 seconds to impact
+        #   3 = alarm, 0-8 seconds to impact
+        #
+        # Note: For Alert Zone alarm the alarm level cannot be more
+        # than 1. Every 16 seconds for 4 seconds when inside the zone
+        # alarm level is 1, otherwise is 0.
         try:
             ndx = priorityIndex.get('alarmLevel')
             int(ndx)
             alarmLevel = int(nmea.data[ndx])
-            if (alarmLevel < 0 or alarmLevel > 3):
+            if not (alarmLevel >= 0 and alarmLevel <= 3):
                 msg = "alarm level. value " + str(alarmLevel) + ": out of range"
                 raise Exception(msg)
         except Exception as e:
             print(nmea, ":", e)
             sys.exit()
 
-        # alarmtype - hex 0 to ff. values 0, 2, 3
-        # - process this ahead of relative bearing because
-        #   its value may cause relative bearing to be empty
+        # alarmtype
+        # special note: process this ahead of relative bearing etc because
+        #   its alarm type zerio causes relative bearing etc to be empty!
+        #
+        # Hexadecimal value. Range: from 0 to FF.
+        # Type of alarm as assessed by FLARM
+        #   0 = no aircraft within range or no-alarm traffic information
+        #   2 = aircraft alarm
+        #   3 = obstacle/Alert Zone alarm
+        #
+        # When data port >=7, the type of Alert Zone is sent as <AlarmType>
+        # in the range 10..FF. Refer to the <ZoneType>parameter in the
+        # PFLAOsentence for a description.
         try:
             ndx = priorityIndex.get('AlarmType')
-
-            # this is not strictly a good test, according to spec.
-            # however, only three values are presently permitted and they
-            # each fall within int range.
             int(ndx)
-            alarmType = int(nmea.data[ndx])
-            if not (alarmType == 0 or alarmType == 2 or alarmType == 3):
-                msg = "alarmType. value " + str(alarmType) + ": invalid."
+
+            # get alarm type. convert from hex but retain string form
+            # in case it is required for printing.
+            alarmTypeAsStr = nmea.data[ndx]
+            alarmType = int(alarmTypeAsStr, 16)
+            if not (alarmType == 0x00 or
+                alarmType == 0x02 or
+                alarmType == 0x03):
+                msg = "alarmType. value " + alarmTypeAsStr + ": invalid."
                 raise Exception(msg)
         except Exception as e:
             print(nmea, ":", e)
@@ -122,8 +167,14 @@ class FlarmPriority:
         # zero records...
         if (alarmType == 0): return False
 
-        # relativeBearing. when alarm type is not zero, valid
-        # range is -180 to 180
+        # relativeBearing.
+        # Decimal integer value. Range: -180 to 180.
+        # Relative bearing in degrees from true ground track to the
+        # intruder’s position. Positive values are clockwise. 0°
+        # indicates that the object is exactly ahead. Field is empty
+        # for non-directional targets or when no aircraft are within
+        # range. For obstacle alarm and Alert Zone alarm, this field
+        # is 0.
         try:
             ndx = priorityIndex.get('relativeBearing')
             int(ndx)
@@ -135,8 +186,12 @@ class FlarmPriority:
             print(nmea, ":", e)
             sys.exit()
 
-        # relativeVertical. when alarm type is not zero, valid
-        # range is -32768 to 32767
+        # relativeVertical.
+        # Decimal integer value. Range:from -32768 to 32767.
+        # Relative vertical separation in meters above own position. Negative
+        # values indicate that the other aircraft or obstacle is lower.
+        # Field is empty when no aircraft are within rangeFor Alert Zone
+        # and obstacle warnings, this field is 0.
         try:
             ndx = priorityIndex.get('relativeVertical')
             int(ndx)
@@ -148,8 +203,13 @@ class FlarmPriority:
             print(nmea, ":", e)
             sys.exit()
 
-        # relativeDistance. when alarm type is not zero, valid
-        # range is 0 to 2147483647.
+        # relativeDistance.
+        # Decimal integer value. Range: from 0 to 2147483647.
+        # Relative horizontal distance in meters to the target or
+        # obstacle. For non-directional targets this value is estimated
+        # based on signal strength.
+        # Field is empty when no aircraft are within range and no alarms
+        # are generated.For Alert Zone, this field is 0.
         try:
             ndx = priorityIndex.get('relativeDistance')
             int(ndx)
@@ -162,7 +222,19 @@ class FlarmPriority:
             sys.exit()
 
 
-        # id (radio id) - six digit hex
+        # id (radio id)
+        # The field is omitted for protocol version < 4.
+        # 6-digit hexadecimal value (e.g. “5A77B1”) as configured in the
+        # target’s PFLAC,,ID.
+        # The interpretation is only delivered in <ID-Type>in the
+        # PFLAAsentence (if received for the same aircraft).
+        # The <ID>field is the ICAO 24-bit addressfor Mode-S targets and
+        # a FLARM-generated ID for Mode-C targets. The ID for Mode-C
+        # targets may change at any time.
+        # Field is empty when no aircraft are within range and no alarms
+        # are generated.
+        # For obstacles this field is set to FFFFFF. In case of Alert Zone
+        # warning, the FLARM ID of the Alert Zone station is output.
         try:
             ndx = priorityIndex.get('radioId')
             int(ndx)
@@ -175,11 +247,6 @@ class FlarmPriority:
             print(nmea, ":", e)
             sys.exit()
 
-        #if (nmea.sentence_type == 'ProprietarySentence'):
-        #    print(True)
-        #    prop = nmea
-
-        #print("nmea:", nmea)
         aircraftId = OgnRegistration().getAircraft(radioId)
         if (aircraftId == None):
             return False
