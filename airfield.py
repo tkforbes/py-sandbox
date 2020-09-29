@@ -73,14 +73,12 @@ class Airfield:
         return self.timestamp
 
     def averageElevation(self):
+        if (self.observations == 0): return 0
         return self.elevationCumulative / self.observations
 
     def report(self):
 
-        if (self.observations == 0):
-            avg= 0
-        else:
-            avg = self.averageElevation()
+        avg = self.averageElevation()
 
         print("")
         print("Airfield report")
