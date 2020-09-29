@@ -58,3 +58,20 @@ class FlarmPriority:
         print("observations:%6d" % self.observations,
             "max distance:%6d" % self.maxDistance
             )
+
+valid
+
+PFLAU,<RX>,<TX>,<GPS>,<Power>,<AlarmLevel>,<RelativeBearing>,
+<AlarmType>,<RelativeVertical>,<RelativeDistance>,<ID>
+
+checksum
+rx positive integer 0 to 99
+tx 0 or 1
+gps 0 or 1 or 2
+power 0 or 1
+alarm level 1 or 2 or 3
+relativeBearing -180 to 180
+alarmtype - hex 0 to ff. values 0, 2, 3
+relativeVertical - -32768 to 32767
+relativeDistance - 0 to 2147483647.
+id - six digit hex
