@@ -61,8 +61,7 @@ for line in nmea:
         # update the date in the airfield. the date is very important!
         datestamp = msg.datestamp
         airfield.setDatestamp(datestamp)
-    elif (msg.sentence_type == 'GGA' and
-        airfield.validDatestamp()):
+    elif (msg.sentence_type == 'GGA' and airfield.validDatestamp()):
         # this sentence has the airfield timestamp, lat, lon, elevation
         airfield.set(msg)
 
