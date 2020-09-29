@@ -88,8 +88,31 @@ class FlarmPriority:
             print(nmea, ":", e)
             sys.exit()
 
+        # alarmtype - hex 0 to ff. values 0, 2, 3
+        # - process this ahead of relative bearing because
+        #   its value may cause relative bearing to be empty
+        try:
+            ndx = priorityIndex.get('AlarmType')
 
-        # relativeBearing -180 to 180
+            # this is not strictly a good test, according to spec.
+            # however, only three values are presently permitted and they
+            # each fall within int range.
+            int(ndx)
+            alarmType = int(nmea.data[ndx])
+            if not (alarmType == 0 or alarmType == 2 or alarmType == 3):
+                msg = "alarmType. value " + str(alarmType) + ": invalid."
+                raise Exception(msg)
+        except Exception as e:
+            print(nmea, ":", e)
+            sys.exit()
+
+        # alarm type is zero when no aircraft are in range. In that case,
+        # there would not be a value for relative bearing, relative vertical
+        # or relative distance. nothing else to do...
+        if (alarmType == 0): return
+
+        # relativeBearing. when alarm type is not zero, valid
+        # range is -180 to 180
         try:
             ndx = priorityIndex.get('relativeBearing')
             int(ndx)
@@ -101,14 +124,45 @@ class FlarmPriority:
             print(nmea, ":", e)
             sys.exit()
 
+        # relativeVertical. when alarm type is not zero, valid
+        # range is -32768 to 32767
+        try:
+            ndx = priorityIndex.get('relativeVertical')
+            int(ndx)
+            relativeVertical = int(nmea.data[ndx])
+            if not (relativeVertical >= -32768 and relativeVertical <= 32767):
+                msg = "relativeVertical. value " + str(relativeVertical) + ": out of range"
+                raise Exception(msg)
+        except Exception as e:
+            print(nmea, ":", e)
+            sys.exit()
+
+        # relativeDistance. when alarm type is not zero, valid
+        # range is 0 to 2147483647.
+        try:
+            ndx = priorityIndex.get('relativeDistance')
+            int(ndx)
+            relativeDistance = int(nmea.data[ndx])
+            if not (relativeDistance >= 0 and relativeDistance <= 2147483647):
+                msg = "relativeDistance. value " + str(relativeDistance) + ": out of range"
+                raise Exception(msg)
+        except Exception as e:
+            print(nmea, ":", e)
+            sys.exit()
 
 
-        """
-        alarmtype - hex 0 to ff. values 0, 2, 3
-        relativeVertical - -32768 to 32767
-        relativeDistance - 0 to 2147483647.
-        id - six digit hex
-        """
+        # id (radio id) - six digit hex
+        try:
+            ndx = priorityIndex.get('radioId')
+            int(ndx)
+            radioId = nmea.data[ndx]
+            if (len(radioId) != 6):
+                msg = "radio id must be 6 chars in length. " + radioId
+                raise Exception(msg)
+            hex(int(radioId, 16)) # ensure radio id can convert to hex.
+        except Exception as e:
+            print(nmea, ":", e)
+            sys.exit()
 
         #if (nmea.sentence_type == 'ProprietarySentence'):
         #    print(True)
