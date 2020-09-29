@@ -25,6 +25,18 @@ class FlarmIntruder:
         self.maxDistance = 0
 
     def set(self, timestamp, nmea_flaa, ):
+
+        # PFLAA
+        # must be a PFLAA sentence type i.e. value must be 'A'
+        try:
+            ndx = proximateAircraftIndex.get('proximateRecordIndicator')
+            sentenceType = nmea_flaa.data[ndx]
+            if not (sentenceType == 'A'):
+                raise Exception("not a PFLAA record")
+        except Exception as e:
+            print(nmea_flaa, ":", e)
+            sys.exit()
+
         # alarm level. valid values: 0 - 3
         try:
             ndx = proximateAircraftIndex.get('alarmLevel')

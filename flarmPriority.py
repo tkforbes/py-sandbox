@@ -3,6 +3,7 @@ from ognRegistrations import OgnRegistration
 import sys
 
 priorityIndex = {
+    'priorityRecordIndicator' : 0,  # PFLAU
     'rx' : 1,
     'tx' : 2,
     'gps' : 3,
@@ -27,6 +28,17 @@ class FlarmPriority:
         self.aircraftId = ''
 
     def set(self, timestamp, nmea):
+
+        # PFLAU
+        # must be a PFLAU sentence type i.e. value must be 'U'
+        try:
+            ndx = priorityIndex.get('priorityRecordIndicator')
+            sentenceType = nmea.data[ndx]
+            if not (sentenceType == 'U'):
+                raise Exception("not a PFLAU record")
+        except Exception as e:
+            print(nmea, ":", e)
+            sys.exit()
 
         #rx positive integer 0 to 99
         try:
