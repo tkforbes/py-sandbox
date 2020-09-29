@@ -11,12 +11,12 @@ import sys
 from airfield import Airfield
 from flarmProximateAircraft import FlarmProximateAircraft
 from ognRegistrations import OgnRegistration
-from flarmPriority import FlarmPriority
+from flarmPriorityIntruder import FlarmPriorityIntruder
 
 theAirfield = Airfield(81, 45.062101, 075.374431)
-theFlarmIntruder = FlarmProximateAircraft()
+proximateAircraft = FlarmProximateAircraft()
 theOgnReg = OgnRegistration()
-flarmPriority = FlarmPriority()
+priorityIntruder = FlarmPriorityIntruder()
 
 
 #sys.exit()
@@ -66,14 +66,13 @@ for line in nmea:
         if (msg.manufacturer == "FLA"):
             if (msg.data[0] == 'U'):
                 #print(repr(msg))
-                if (flarmPriority.set(theAirfield.timestamp, msg)):
-                    flarmPriority.print()
+                if (priorityIntruder.set(theAirfield.timestamp, msg)):
+                    priorityIntruder.print()
             elif (msg.data[0] == 'A'):
                 #print(msg.data)
                 # distance
-                theFlarmIntruder.set(theAirfield.timestamp, msg)
-                #if (theFlarmIntruder.aircraftId == "C-GDQK"):
-                theFlarmIntruder.print()
+                proximateAircraft.set(theAirfield.timestamp, msg)
+                proximateAircraft.print()
         #for property, value in vars(msg).items():
         #    print(property, ":", value)
 
@@ -92,6 +91,6 @@ for line in nmea:
 print()
 print(theAirfield.report())
 print()
-print(theFlarmIntruder.report())
+print(proximateAircraft.report())
 print()
-print(flarmPriority.report())
+print(priorityIntruder.report())

@@ -17,7 +17,7 @@ priorityIndex = {
 }
 
 
-class FlarmPriority:
+class FlarmPriorityIntruder:
     def __init__(self):
         self.maxDistance = 0
         self.observations = 0
