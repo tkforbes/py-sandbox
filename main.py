@@ -50,10 +50,10 @@ for line in nmea:
         airfield.validDatestamp()):
         if (msg.manufacturer == "FLA"):
             # this is a Flarm sentence. try to set it.
-            if (priorityIntruder.set(airfield.timestamp, msg)):
-                priorityIntruder.print()
             if (proximateAircraft.set(airfield.timestamp, msg)):
                 proximateAircraft.print()
+            elif (priorityIntruder.set(airfield.timestamp, msg)):
+                priorityIntruder.print()
 
     elif (msg.sentence_type == 'RMC'):
         # this sentence contains the current date
