@@ -1,5 +1,21 @@
 from ognRegistrations import OgnRegistration
 
+import sys
+
+priorityIndex = {
+    'rx' : 1,
+    'tx' : 2,
+    'gps' : 3,
+    'power' : 4,
+    'alarmLevel' : 5,
+    'relativeBearing' : 6,
+    'AlarmType' : 7,
+    'relativeVertical' : 8,
+    'relativeDistance' : 9,
+    'radioId' : 10
+}
+
+
 class FlarmPriority:
     def __init__(self):
         aircraftId = ''
@@ -13,6 +29,86 @@ class FlarmPriority:
         self.maxDistance = 0
 
     def set(self, timestamp, nmea):
+
+        #rx positive integer 0 to 99
+        try:
+            ndx = priorityIndex.get('rx')
+            int(ndx)
+            rx = int(nmea.data[ndx])
+            if (rx < 0 or rx > 99):
+                raise Exception("rx out of range")
+        except Exception as e:
+            print(nmea, ":", e)
+            sys.exit()
+
+        # tx 0 or 1
+        try:
+            ndx = priorityIndex.get('tx')
+            int(ndx)
+            tx = int(nmea.data[ndx])
+            if not (tx == 0 or tx == 1):
+                raise Exception("tx out of range")
+        except Exception as e:
+            print(nmea, ":", e)
+            sys.exit()
+
+        # gps 0 or 1 or 2
+        try:
+            ndx = priorityIndex.get('gps')
+            int(ndx)
+            gps = int(nmea.data[ndx])
+            if (gps < 0 or gps > 2):
+                msg = "gps value " + str(gps) + ": out of range"
+                raise Exception(msg)
+        except Exception as e:
+            print(nmea, ":", e)
+            sys.exit()
+
+        # power 0 or 1
+        try:
+            ndx = priorityIndex.get('power')
+            int(ndx)
+            power = int(nmea.data[ndx])
+            if not (power == 0 or power == 1):
+                raise Exception("power out of range")
+        except Exception as e:
+            print(nmea, ":", e)
+            sys.exit()
+
+
+        # alarm level 0 to 3
+        try:
+            ndx = priorityIndex.get('alarmLevel')
+            int(ndx)
+            alarmLevel = int(nmea.data[ndx])
+            if (alarmLevel < 0 or alarmLevel > 3):
+                msg = "alarm level. value " + str(alarmLevel) + ": out of range"
+                raise Exception(msg)
+        except Exception as e:
+            print(nmea, ":", e)
+            sys.exit()
+
+
+        # relativeBearing -180 to 180
+        try:
+            ndx = priorityIndex.get('relativeBearing')
+            int(ndx)
+            relativeBearing = int(nmea.data[ndx])
+            if not (relativeBearing >= -180 and relativeBearing <= 180):
+                msg = "relativeBearing. value " + str(relativeBearing) + ": out of range"
+                raise Exception(msg)
+        except Exception as e:
+            print(nmea, ":", e)
+            sys.exit()
+
+
+
+        """
+        alarmtype - hex 0 to ff. values 0, 2, 3
+        relativeVertical - -32768 to 32767
+        relativeDistance - 0 to 2147483647.
+        id - six digit hex
+        """
 
         #if (nmea.sentence_type == 'ProprietarySentence'):
         #    print(True)
@@ -59,6 +155,7 @@ class FlarmPriority:
             "max distance:%6d" % self.maxDistance
             )
 
+"""
 valid
 
 PFLAU,<RX>,<TX>,<GPS>,<Power>,<AlarmLevel>,<RelativeBearing>,
@@ -75,3 +172,4 @@ alarmtype - hex 0 to ff. values 0, 2, 3
 relativeVertical - -32768 to 32767
 relativeDistance - 0 to 2147483647.
 id - six digit hex
+"""
