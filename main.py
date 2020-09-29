@@ -51,15 +51,11 @@ for line in nmea:
     if (type(msg) is pynmea2.nmea.ProprietarySentence and
         airfield.validDatestamp()):
         if (msg.manufacturer == "FLA"):
-            if (msg.data[0] == 'U'):
-                #print(repr(msg))
-                if (priorityIntruder.set(airfield.timestamp, msg)):
-                    priorityIntruder.print()
-            elif (msg.data[0] == 'A'):
-                if (proximateAircraft.set(airfield.timestamp, msg)):
-                    proximateAircraft.print()
-        #for property, value in vars(msg).items():
-        #    print(property, ":", value)
+            # this is a Flarm sentence. try to set it.
+            if (priorityIntruder.set(airfield.timestamp, msg)):
+                priorityIntruder.print()
+            if (proximateAircraft.set(airfield.timestamp, msg)):
+                proximateAircraft.print()
 
     elif (msg.sentence_type == 'RMC'):
         # this sentence contains the current date

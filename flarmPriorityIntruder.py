@@ -34,11 +34,12 @@ class FlarmPriorityIntruder:
         try:
             ndx = priorityIndex.get('priorityRecordIndicator')
             sentenceType = nmea.data[ndx]
-            if not (sentenceType == 'U'):
-                raise Exception("not a PFLAU record")
         except Exception as e:
             print(nmea, ":", e)
             sys.exit()
+
+        # hey, I can't set this sentence.
+        if not (sentenceType == 'U'): return False
 
         # rx
         # Decimal integer value. Range: from 0 to 99.

@@ -31,11 +31,12 @@ class FlarmProximateAircraft:
         try:
             ndx = proximateAircraftIndex.get('proximateRecordIndicator')
             sentenceType = nmea_flaa.data[ndx]
-            if not (sentenceType == 'A'):
-                raise Exception("not a PFLAA record")
         except Exception as e:
             print(nmea_flaa, ":", e)
             sys.exit()
+
+        # hey, I can't set this sentence.
+        if not (sentenceType == 'A'): return False
 
         # alarm level. valid values: 0 - 3
         try:
