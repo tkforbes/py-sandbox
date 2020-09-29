@@ -31,20 +31,18 @@ for line in nmea:
     try:
         msg = pynmea2.parse(line)
     except pynmea2.ChecksumError:
-        #print("**bad nmea sentence. checksum error**")
+        # ignore sentences that produce a checksum error
         continue
     except pynmea2.ParseError:
-        #print("**bad nmea sentence. parse error**")
+        # ignore sentences that can't be parsed
         continue
     except:
-        #print("**bad nmea sentence. something wrong error**")
+        # ignore sentences that raise any other error
         continue
 
     #print(repr(msg))
 
     #print(type(msg))
-
-    #print(msg.sentence_type)
 
     # don't do anything with Flarm sentences until the airfield
     # has a valid datestamp.
