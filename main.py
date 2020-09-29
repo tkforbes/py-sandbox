@@ -46,6 +46,8 @@ for line in nmea:
 
     #print(msg.sentence_type)
 
+    # don't do anything with Flarm sentences until the airfield
+    # has a valid datestamp.
     if (type(msg) is pynmea2.nmea.ProprietarySentence and
         airfield.validDatestamp()):
         if (msg.manufacturer == "FLA"):
@@ -54,17 +56,15 @@ for line in nmea:
                 if (priorityIntruder.set(airfield.timestamp, msg)):
                     priorityIntruder.print()
             elif (msg.data[0] == 'A'):
-                #print(msg.data)
-                # distance
-                proximateAircraft.set(airfield.timestamp, msg)
-                proximateAircraft.print()
+                if (proximateAircraft.set(airfield.timestamp, msg)):
+                    proximateAircraft.print()
         #for property, value in vars(msg).items():
         #    print(property, ":", value)
 
     elif (msg.sentence_type == 'RMC'):
         # this sentence contains the current date
 
-        # set the date in the airfield. the date is very important!
+        # update the date in the airfield. the date is very important!
         datestamp = msg.datestamp
         airfield.setDatestamp(datestamp)
     elif (msg.sentence_type == 'GGA' and
