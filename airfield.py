@@ -82,8 +82,7 @@ class Airfield:
         else:
             avg = self.averageElevation()
 
-
-        print()
+        print("")
         print("Airfield report")
         print("===============")
         print("date:", self.datestamp, "time:", self.timestamp)

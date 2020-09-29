@@ -225,6 +225,7 @@ class FlarmProximateAircraft:
             self.maxDistance = self.getDistance()
 
     def report(self):
+        print("")
         print("Proximiate aircraft")
         print("===================")
         print("observations:%6d" % self.observations,

@@ -276,8 +276,10 @@ class FlarmPriorityIntruder:
             )
 
     def report(self):
-        print("Priority")
-        print("========")
+        print("")
+        print("Priority Intruder")
+        print("=================")
         print("observations:%6d" % self.observations,
             "max distance:%6d" % self.maxDistance
             )
+        return
