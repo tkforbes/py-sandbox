@@ -9,12 +9,12 @@ import math
 import sys
 
 from airfield import Airfield
-from flarmIntruder import FlarmIntruder
+from flarmProximateAircraft import FlarmProximateAircraft
 from ognRegistrations import OgnRegistration
 from flarmPriority import FlarmPriority
 
 theAirfield = Airfield(81, 45.062101, 075.374431)
-theFlarmIntruder = FlarmIntruder()
+theFlarmIntruder = FlarmProximateAircraft()
 theOgnReg = OgnRegistration()
 flarmPriority = FlarmPriority()
 

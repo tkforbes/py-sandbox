@@ -19,7 +19,7 @@ proximateAircraftIndex = {
     'aircraftType' : 11
 }
 
-class FlarmIntruder:
+class FlarmProximateAircraft:
     def __init__(self):
         self.observations = 0
         self.maxDistance = 0
@@ -225,8 +225,8 @@ class FlarmIntruder:
             self.maxDistance = self.getDistance()
 
     def report(self):
-        print("Intruder")
-        print("========")
+        print("Proximiate aircraft")
+        print("===================")
         print("observations:%6d" % self.observations,
             "max distance:%6d" % self.maxDistance
             )
