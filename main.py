@@ -16,7 +16,7 @@ from flarmPriority import FlarmPriority
 theAirfield = Airfield(81, 45.062101, 075.374431)
 theFlarmIntruder = FlarmIntruder()
 theOgnReg = OgnRegistration()
-theFlarmPriority = FlarmPriority()
+flarmPriority = FlarmPriority()
 
 
 #sys.exit()
@@ -66,10 +66,8 @@ for line in nmea:
         if (msg.manufacturer == "FLA"):
             if (msg.data[0] == 'U'):
                 #print(repr(msg))
-                ognReg = OgnRegistration()
-                #self.id = acid[temp_str[0:temp_str.find("!")]]
-                #self.id = Registration.get(temp_str[0:temp_str.find("!")])
-                theFlarmPriority.set(theAirfield.timestamp, msg)
+                if (flarmPriority.set(theAirfield.timestamp, msg)):
+                    flarmPriority.print()
             elif (msg.data[0] == 'A'):
                 #print(msg.data)
                 # distance
@@ -96,4 +94,4 @@ print(theAirfield.report())
 print()
 print(theFlarmIntruder.report())
 print()
-print(theFlarmPriority.report())
+print(flarmPriority.report())

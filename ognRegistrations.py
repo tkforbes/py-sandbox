@@ -20,4 +20,4 @@ with open('aircraft.canada', 'r') as ognRegistrations:
 
 class OgnRegistration:
     def getAircraft(self, radioId):
-        return OgnDict.get(radioId, "not found")
+        return OgnDict.get(radioId)

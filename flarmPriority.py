@@ -18,15 +18,13 @@ priorityIndex = {
 
 class FlarmPriority:
     def __init__(self):
-        aircraftId = ''
-        timestamp = 0
-        relativeBearing = 0
-        relativeVertical = 0
-        relativeDistance = 0
-
-        self.relativeDistance = 0
-        self.observations = 0
         self.maxDistance = 0
+        self.observations = 0
+        self.timestamp = 0
+        self.relativeDistance = 0
+        self.relativeVertical = 0
+        self.relativeBearing = 0
+        self.aircraftId = ''
 
     def set(self, timestamp, nmea):
 
@@ -108,8 +106,9 @@ class FlarmPriority:
 
         # alarm type is zero when no aircraft are in range. In that case,
         # there would not be a value for relative bearing, relative vertical
-        # or relative distance. nothing else to do...
-        if (alarmType == 0): return
+        # or relative distance. we won't pay any attention to type
+        # zero records...
+        if (alarmType == 0): return False
 
         # relativeBearing. when alarm type is not zero, valid
         # range is -180 to 180
@@ -169,37 +168,32 @@ class FlarmPriority:
         #    prop = nmea
 
         #print("nmea:", nmea)
-        theOgnReg = OgnRegistration()
-        aircraftId = theOgnReg.getAircraft(nmea.data[10])
-        if not (aircraftId == "not found"):
+        aircraftId = OgnRegistration().getAircraft(radioId)
+        if (aircraftId == None):
+            return False
+        else:
             self.aircraftId = aircraftId
 
         self.timestamp = timestamp
+        self.relativeBearing = relativeBearing
+        self.relativeVertical = relativeVertical
 
-        self.relativeBearing = nmea.data[6]
+        self.relativeDistance = relativeDistance
+        if (self.relativeDistance > self.maxDistance):
+            self.maxDistance = self.relativeDistance
 
-        relVert = nmea.data[8]
-        if (len(relVert) == 0):
-            self.relativeVertical = 0
-        else:
-            self.relativeVertical = relVert
-
-        relDist = nmea.data[9]
-        if (len(relDist) == 0):
-            self.relativeDistance = 0
-        else:
-            self.relativeDistance = int(relDist)
-            if (self.relativeDistance > self.maxDistance):
-                self.maxDistance = self.relativeDistance
-
+        self.relativeBearing = relativeBearing
         self.observations += 1
 
+        return True
+
+    def print(self):
         print(
             self.aircraftId,
             self.timestamp,
-            "\t dist:%5d" % int(self.relativeDistance),
+            "\t dist:%5d" % self.relativeDistance,
             "alt AGL:%4s" % self.relativeVertical,
-            "\t\t\t\tbearing:%s" % self.relativeBearing
+            "\t\t\t\t\tbearing:%s" % self.relativeBearing
             )
 
     def report(self):
@@ -208,22 +202,3 @@ class FlarmPriority:
         print("observations:%6d" % self.observations,
             "max distance:%6d" % self.maxDistance
             )
-
-"""
-valid
-
-PFLAU,<RX>,<TX>,<GPS>,<Power>,<AlarmLevel>,<RelativeBearing>,
-<AlarmType>,<RelativeVertical>,<RelativeDistance>,<ID>
-
-checksum
-rx positive integer 0 to 99
-tx 0 or 1
-gps 0 or 1 or 2
-power 0 or 1
-alarm level 1 or 2 or 3
-relativeBearing -180 to 180
-alarmtype - hex 0 to ff. values 0, 2, 3
-relativeVertical - -32768 to 32767
-relativeDistance - 0 to 2147483647.
-id - six digit hex
-"""
