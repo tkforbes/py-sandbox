@@ -1,3 +1,5 @@
+import sys
+
 class Airfield:
     def __init__(self, elevation, lat, lon):
         self.elevation = elevation
@@ -68,6 +70,17 @@ class Airfield:
 
     def setDatestamp(self, datestamp):
         self.datestamp = datestamp
+
+    def setCourseTrue(self, courseTrue):
+        # don't accept nonesense course
+        try:
+            float(courseTrue)
+        except Exception as e:
+            return
+
+        # round the course, then convert to integer
+        courseTrue += .5
+        self.courseTrue = int(courseTrue)
 
     def getTimestamp(self):
         return self.timestamp

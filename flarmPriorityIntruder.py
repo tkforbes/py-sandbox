@@ -267,14 +267,90 @@ class FlarmPriorityIntruder:
 
         return True
 
-    def print(self):
+    def print(self, airfield):
+        bearing = airfield.courseTrue + self.relativeBearing
+        if (bearing < 0):
+            bearing +=360
+        elif (bearing > 359):
+            bearing -=360
+
+        if not (bearing >= 0 and bearing <= 359):
+            print("problem. bearing/course/distance", bearing)
+
         print(
             self.aircraftId,
             self.timestamp,
             "\t dist:%5d" % self.relativeDistance,
             "alt AGL:%4s" % self.relativeVertical,
-            "\t\t\t\t\tbearing:%s" % self.relativeBearing
+            "\t\t\t\t\trel brng:%s" % self.relativeBearing,
+            "\tbearing:%s" % bearing,
+            FlarmPriorityIntruder.sixteenWindCompassPoint(bearing)
             )
+
+    def sixteenWindCompassPoint(bearing):
+        points = 16         # number of points on this compass
+        incr= 360/points    # increment by this amount for every miss
+        deg = incr/2        # first comparison at this number of degrees
+
+        int(bearing/16)
+
+        points = {
+            1: "N",
+            2: "NNE",
+            3: "NE",
+            4: "ENE",
+            5: "E",
+            6: "ESE",
+            7: "SE",
+            8: "SSE",
+            9: "S",
+            10: "SSW",
+            11: "SW",
+            12: "WSW",
+            13: "W",
+            14: "WNW",
+            15: "NW",
+            16: "NNW",
+            17: "N"
+        }
+        # =INT(($D$45+11)/360*16+1)
+
+
+        if (bearing <= deg): return "N"
+        deg += incr
+        if (bearing <= deg): return "NNE"
+        deg += incr
+        if (bearing <= deg): return "NE"
+        deg += incr
+        if (bearing <= deg): return "ENE"
+        deg += incr
+        if (bearing <= deg): return "E"
+        deg += incr
+        if (bearing <= deg): return "ESE"
+        deg += incr
+        if (bearing <= deg): return "SE"
+        deg += incr
+        if (bearing <= deg): return "SSE"
+        deg += incr
+        if (bearing <= deg): return "S"
+        deg += incr
+        if (bearing <= deg): return "SSW"
+        deg += incr
+        if (bearing <= deg): return "SW"
+        deg += incr
+        if (bearing <= deg): return "WSW"
+        deg += incr
+        if (bearing <= deg): return "W"
+        deg += incr
+        if (bearing <= deg): return "WNW"
+        deg += incr
+        if (bearing <= deg): return "NW"
+        deg += incr
+        if (bearing <= deg): return "NNW"
+        deg += incr
+        if (bearing <= deg): return "N"
+
+        print("something is wrong")
 
     def report(self):
         print("")

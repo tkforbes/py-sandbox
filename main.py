@@ -53,14 +53,15 @@ for line in nmea:
             if (proximateAircraft.set(airfield.timestamp, msg)):
                 proximateAircraft.print()
             elif (priorityIntruder.set(airfield.timestamp, msg)):
-                priorityIntruder.print()
+                priorityIntruder.print(airfield)
 
     elif (msg.sentence_type == 'RMC'):
         # this sentence contains the current date
 
         # update the date in the airfield. the date is very important!
-        datestamp = msg.datestamp
-        airfield.setDatestamp(datestamp)
+        airfield.setDatestamp(msg.datestamp)
+        airfield.setCourseTrue(msg.true_course)
+        #print("course true:", msg.true_course)
     elif (msg.sentence_type == 'GGA' and airfield.validDatestamp()):
         # this sentence has the airfield timestamp, lat, lon, elevation
         airfield.set(msg)
