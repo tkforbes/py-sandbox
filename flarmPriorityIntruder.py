@@ -2,22 +2,44 @@ from ognRegistrations import OgnRegistration
 
 import sys
 
-priorityIndex = {
-    'priorityRecordIndicator' : 0,  # PFLAU
-    'rx' : 1,
-    'tx' : 2,
-    'gps' : 3,
-    'power' : 4,
-    'alarmLevel' : 5,
-    'relativeBearing' : 6,
-    'AlarmType' : 7,
-    'relativeVertical' : 8,
-    'relativeDistance' : 9,
-    'radioId' : 10
-}
-
-
 class FlarmPriorityIntruder:
+
+    priorityIndex = {
+        'priorityRecordIndicator' : 0,  # PFLAU
+        'rx' : 1,
+        'tx' : 2,
+        'gps' : 3,
+        'power' : 4,
+        'alarmLevel' : 5,
+        'relativeBearing' : 6,
+        'AlarmType' : 7,
+        'relativeVertical' : 8,
+        'relativeDistance' : 9,
+        'radioId' : 10
+    }
+
+
+    cardinalDirection = [
+        "N",
+        "NNE",
+        "NE",
+        "ENE",
+        "E",
+        "ESE",
+        "SE",
+        "SSE",
+        "S",
+        "SSW",
+        "SW",
+        "WSW",
+        "W",
+        "WNW",
+        "NW",
+        "NNW",
+        "N"
+    ]
+
+
     def __init__(self):
         self.maxDistance = 0
         self.observations = 0
@@ -32,7 +54,7 @@ class FlarmPriorityIntruder:
         # PFLAU
         # must be a PFLAU sentence type i.e. value must be 'U'
         try:
-            ndx = priorityIndex.get('priorityRecordIndicator')
+            ndx = FlarmPriorityIntruder.priorityIndex.get('priorityRecordIndicator')
             sentenceType = nmea.data[ndx]
         except Exception as e:
             print(nmea, ":", e)
@@ -54,7 +76,7 @@ class FlarmPriorityIntruder:
         # Do not expect to receive <Rx> PFLAAsentences, because the number
         # of aircraft being processed might be higher or lower.
         try:
-            ndx = priorityIndex.get('rx')
+            ndx = FlarmPriorityIntruder.priorityIndex.get('rx')
             int(ndx)
             rx = int(nmea.data[ndx])
             if not (rx >= 0 and rx <= 99):
@@ -67,7 +89,7 @@ class FlarmPriorityIntruder:
         # Decimal integer value. Range: from 0 to 1.Transmission status: 1 for
         # OK and 0 for no transmission
         try:
-            ndx = priorityIndex.get('tx')
+            ndx = FlarmPriorityIntruder.priorityIndex.get('tx')
             int(ndx)
             tx = int(nmea.data[ndx])
             if not (tx == 0 or tx == 1):
@@ -86,7 +108,7 @@ class FlarmPriorityIntruder:
         # If <GPS>goes to 0, FLARM will not work. Nevertheless, wait for
         # some seconds to issue any warnings.
         try:
-            ndx = priorityIndex.get('gps')
+            ndx = FlarmPriorityIntruder.priorityIndex.get('gps')
             int(ndx)
             gps = int(nmea.data[ndx])
             if not (gps >= 0 and gps <= 2):
@@ -100,7 +122,7 @@ class FlarmPriorityIntruder:
         # Decimal integer value. Range: from 0 to 1.
         # Power status: 1 for OK and 0 for under-or over-voltage.
         try:
-            ndx = priorityIndex.get('power')
+            ndx = FlarmPriorityIntruder.priorityIndex.get('power')
             int(ndx)
             power = int(nmea.data[ndx])
             if not (power == 0 or power == 1):
@@ -122,7 +144,7 @@ class FlarmPriorityIntruder:
         # than 1. Every 16 seconds for 4 seconds when inside the zone
         # alarm level is 1, otherwise is 0.
         try:
-            ndx = priorityIndex.get('alarmLevel')
+            ndx = FlarmPriorityIntruder.priorityIndex.get('alarmLevel')
             int(ndx)
             alarmLevel = int(nmea.data[ndx])
             if not (alarmLevel >= 0 and alarmLevel <= 3):
@@ -146,7 +168,7 @@ class FlarmPriorityIntruder:
         # in the range 10..FF. Refer to the <ZoneType>parameter in the
         # PFLAOsentence for a description.
         try:
-            ndx = priorityIndex.get('AlarmType')
+            ndx = FlarmPriorityIntruder.priorityIndex.get('AlarmType')
             int(ndx)
 
             # get alarm type. convert from hex but retain string form
@@ -177,7 +199,7 @@ class FlarmPriorityIntruder:
         # range. For obstacle alarm and Alert Zone alarm, this field
         # is 0.
         try:
-            ndx = priorityIndex.get('relativeBearing')
+            ndx = FlarmPriorityIntruder.priorityIndex.get('relativeBearing')
             int(ndx)
             relativeBearing = int(nmea.data[ndx])
             if not (relativeBearing >= -180 and relativeBearing <= 180):
@@ -194,7 +216,7 @@ class FlarmPriorityIntruder:
         # Field is empty when no aircraft are within rangeFor Alert Zone
         # and obstacle warnings, this field is 0.
         try:
-            ndx = priorityIndex.get('relativeVertical')
+            ndx = FlarmPriorityIntruder.priorityIndex.get('relativeVertical')
             int(ndx)
             relativeVertical = int(nmea.data[ndx])
             if not (relativeVertical >= -32768 and relativeVertical <= 32767):
@@ -212,7 +234,7 @@ class FlarmPriorityIntruder:
         # Field is empty when no aircraft are within range and no alarms
         # are generated.For Alert Zone, this field is 0.
         try:
-            ndx = priorityIndex.get('relativeDistance')
+            ndx = FlarmPriorityIntruder.priorityIndex.get('relativeDistance')
             int(ndx)
             relativeDistance = int(nmea.data[ndx])
             if not (relativeDistance >= 0 and relativeDistance <= 2147483647):
@@ -237,7 +259,7 @@ class FlarmPriorityIntruder:
         # For obstacles this field is set to FFFFFF. In case of Alert Zone
         # warning, the FLARM ID of the Alert Zone station is output.
         try:
-            ndx = priorityIndex.get('radioId')
+            ndx = FlarmPriorityIntruder.priorityIndex.get('radioId')
             int(ndx)
             radioId = nmea.data[ndx]
             if (len(radioId) != 6):
@@ -267,7 +289,7 @@ class FlarmPriorityIntruder:
 
         return True
 
-    def print(self, airfield):
+    def printt(self, airfield):
         bearing = airfield.courseTrue + self.relativeBearing
         if (bearing < 0):
             bearing +=360
@@ -288,69 +310,24 @@ class FlarmPriorityIntruder:
             )
 
     def sixteenWindCompassPoint(bearing):
-        points = 16         # number of points on this compass
-        incr= 360/points    # increment by this amount for every miss
-        deg = incr/2        # first comparison at this number of degrees
+        try:
+            int(bearing)
+            if not (bearing >= 0 and bearing < 360):
+                raise Exception("bearing is out of range 0 - 359")
+        except Exception as e:
+            print(bearing, ":", e)
+            sys.exit()
 
-        int(bearing/16)
+        points = 16           # number of points on this compass
+        degreesPerPoint = 360/points
+        offset = (degreesPerPoint/2)*-1  # first comparison at this number of degrees
 
-        points = {
-            1: "N",
-            2: "NNE",
-            3: "NE",
-            4: "ENE",
-            5: "E",
-            6: "ESE",
-            7: "SE",
-            8: "SSE",
-            9: "S",
-            10: "SSW",
-            11: "SW",
-            12: "WSW",
-            13: "W",
-            14: "WNW",
-            15: "NW",
-            16: "NNW",
-            17: "N"
-        }
-        # =INT(($D$45+11)/360*16+1)
+        if (bearing + offset < 0):
+            bearing += 360
 
-
-        if (bearing <= deg): return "N"
-        deg += incr
-        if (bearing <= deg): return "NNE"
-        deg += incr
-        if (bearing <= deg): return "NE"
-        deg += incr
-        if (bearing <= deg): return "ENE"
-        deg += incr
-        if (bearing <= deg): return "E"
-        deg += incr
-        if (bearing <= deg): return "ESE"
-        deg += incr
-        if (bearing <= deg): return "SE"
-        deg += incr
-        if (bearing <= deg): return "SSE"
-        deg += incr
-        if (bearing <= deg): return "S"
-        deg += incr
-        if (bearing <= deg): return "SSW"
-        deg += incr
-        if (bearing <= deg): return "SW"
-        deg += incr
-        if (bearing <= deg): return "WSW"
-        deg += incr
-        if (bearing <= deg): return "W"
-        deg += incr
-        if (bearing <= deg): return "WNW"
-        deg += incr
-        if (bearing <= deg): return "NW"
-        deg += incr
-        if (bearing <= deg): return "NNW"
-        deg += incr
-        if (bearing <= deg): return "N"
-
-        print("something is wrong")
+        bearing += offset
+        ndx = int(bearing/degreesPerPoint)+1
+        return FlarmPriorityIntruder.cardinalDirection[ndx]
 
     def report(self):
         print("")
