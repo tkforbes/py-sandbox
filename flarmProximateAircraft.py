@@ -235,7 +235,7 @@ class FlarmProximateAircraft:
             "max distance:%6d" % self.maxDistance
             )
 
-    def print(self):
+    def printt(self):
         """
         if (self.getDistance() > 3000): return
         if (self.getAltitudeAGL() > 40): return
