@@ -14,6 +14,10 @@ priorityIntruder = FlarmPriorityIntruder()
 aircraftSeen = {
 }
 
+from aircraft import Aircraft
+
+myAircraft = Aircraft("C-FTUB")
+sentenceList = []
 
 #answer = FlarmPriorityIntruder.sixteenWindCompassPoint(1)
 #print("bearing: ", bearing, "ans:", answer)
@@ -52,14 +56,21 @@ for line in nmea:
         if sentence.manufacturer == "FLA":
             # this is a Flarm sentence. try to set it.
 
+
             if proximateAircraft.set(airfield.timestamp, sentence):
                 aircraftId = proximateAircraft.getAircraftId()
-                aircraftSeen[aircraftId] = True
+                aircraftSeen[aircraftId] = Aircraft(aircraftId)
+                aircraftSeen[aircraftId].append(sentence)
                 proximateAircraft.printt()
+                sentenceList.append(sentence)
             elif priorityIntruder.set(airfield.timestamp, sentence):
                 aircraftId = priorityIntruder.getAircraftId()
-                aircraftSeen[aircraftId] = 3
+                aircraftSeen[aircraftId] = Aircraft(aircraftId)
+                aircraftSeen[aircraftId].append(sentence)
                 priorityIntruder.printt(airfield)
+                sentenceList.append(sentence)
+
+
 
     elif sentence.sentence_type == 'RMC':
         # this sentence contains the current date
@@ -72,7 +83,11 @@ for line in nmea:
         # this sentence has the airfield timestamp, lat, lon, elevation
         airfield.set(sentence)
 
-print(aircraftSeen)
+#print(aircraftSeen)
+print(aircraftSeen['C-GDQK'].getAircraftId())
+print(len(aircraftSeen['C-GDQK'].getSentences()))
 airfield.report()
 proximateAircraft.report()
 priorityIntruder.report()
+
+#print(sentenceList)
