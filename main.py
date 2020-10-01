@@ -6,12 +6,13 @@ from flarmProximateAircraft import FlarmProximateAircraft
 from ognRegistrations import OgnRegistration
 from flarmPriorityIntruder import FlarmPriorityIntruder
 
-r = OgnRegistration ()
-print(r.getAircraft('r'))
-
 airfield = Airfield(81, 45.062101, 075.374431)
 proximateAircraft = FlarmProximateAircraft()
 priorityIntruder = FlarmPriorityIntruder()
+
+
+aircraftSeen = {
+}
 
 
 #answer = FlarmPriorityIntruder.sixteenWindCompassPoint(1)
@@ -50,9 +51,14 @@ for line in nmea:
             airfield.validDatestamp()):
         if msg.manufacturer == "FLA":
             # this is a Flarm sentence. try to set it.
+
             if proximateAircraft.set(airfield.timestamp, msg):
+                aircraftId = proximateAircraft.getAircraftId()
+                aircraftSeen[aircraftId] = True
                 proximateAircraft.printt()
             elif priorityIntruder.set(airfield.timestamp, msg):
+                aircraftId = priorityIntruder.getAircraftId()
+                aircraftSeen[aircraftId] = 3
                 priorityIntruder.printt(airfield)
 
     elif msg.sentence_type == 'RMC':
@@ -66,7 +72,7 @@ for line in nmea:
         # this sentence has the airfield timestamp, lat, lon, elevation
         airfield.set(msg)
 
-
+print(aircraftSeen)
 airfield.report()
 proximateAircraft.report()
 priorityIntruder.report()

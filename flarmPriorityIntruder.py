@@ -346,3 +346,6 @@ class FlarmPriorityIntruder:
             "max distance:%6d" % self.maxDistance
             )
         return
+
+    def getAircraftId(self):
+        return self.aircraftId

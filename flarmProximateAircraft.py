@@ -265,3 +265,6 @@ class FlarmProximateAircraft:
         n = abs(self.relativeNorth)
         e = abs(self.relativeEast)
         return int(math.sqrt( n*n+e*e))
+
+    def getAircraftId(self):
+        return self.aircraftId
