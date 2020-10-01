@@ -299,14 +299,23 @@ class FlarmPriorityIntruder:
         if not (bearing >= 0 and bearing <= 359):
             print("problem. bearing/course/distance", bearing)
 
+        if (airfield.courseTrue == 0):
+            cardinalDirection = FlarmPriorityIntruder.sixteenWindCompassPoint(bearing)
+        else:
+            cardinalDirection = ''
+
         print(
             self.aircraftId,
             self.timestamp,
-            "\t dist:%5d" % self.relativeDistance,
-            "alt AGL:%4s" % self.relativeVertical,
-            "\t\t\t\t\trel brng:%s" % self.relativeBearing,
-            "\tbearing:%s" % bearing,
-            FlarmPriorityIntruder.sixteenWindCompassPoint(bearing)
+            #"\t dist:%5d" % self.relativeDistance,
+            "\t%6dm" % self.relativeDistance,
+            "%s" % cardinalDirection,
+            "(%ddeg)" % bearing,
+            "%4sm above" % self.relativeVertical
+            #"alt AGL:%4s" % self.relativeVertical,
+            # "\t\t\t\t\trel brng:%s" % self.relativeBearing,
+            #"brng:%s" % bearing
+            # FlarmPriorityIntruder.sixteenWindCompassPoint(bearing)
             )
 
     def sixteenWindCompassPoint(bearing):

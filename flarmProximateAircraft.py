@@ -244,11 +244,14 @@ class FlarmProximateAircraft:
 
         print(self.aircraftId,
             "%-17s" % self.timestamp,
-            "dist:%5d" % self.getDistance(),
-            "alt AGL:%4d" % self.getAltitudeAGL(),
-            "speed: %3d" % self.getSpeed(),
-            "track: %3d" % self.track,
-            "climb: %3s" % self.climbRate
+            #"dist:%5d" % self.getDistance(),
+            "%5dm" % self.getDistance(),
+            "%10s" % "",
+            #"alt AGL:%4d" % self.getAltitudeAGL(),
+            "%4dm above" % self.getAltitudeAGL(),
+            "%3dkph" % self.getSpeed(),
+            "@%03ddeg" % self.track,
+            "\tasc: %3s" % self.climbRate
             )
 
     def getSpeed(self):
