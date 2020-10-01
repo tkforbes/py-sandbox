@@ -30,7 +30,7 @@ nmea = open('data.nmea', 'r')
 for line in nmea:
     #line = nmea.readline()
     try:
-        msg = pynmea2.parse(line)
+        sentence = pynmea2.parse(line)
     except pynmea2.ChecksumError:
         # ignore sentences that produce a checksum error
         continue
@@ -41,36 +41,36 @@ for line in nmea:
     #     # ignore sentences that raise any other error
     #     continue
 
-    #print(repr(msg))
+    #print(repr(sentence))
 
-    #print(type(msg))
+    #print(type(sentence))
 
     # don't do anything with Flarm sentences until the airfield
     # has a valid datestamp.
-    if (isinstance(msg, pynmea2.nmea.ProprietarySentence) and
+    if (isinstance(sentence, pynmea2.nmea.ProprietarySentence) and
             airfield.validDatestamp()):
-        if msg.manufacturer == "FLA":
+        if sentence.manufacturer == "FLA":
             # this is a Flarm sentence. try to set it.
 
-            if proximateAircraft.set(airfield.timestamp, msg):
+            if proximateAircraft.set(airfield.timestamp, sentence):
                 aircraftId = proximateAircraft.getAircraftId()
                 aircraftSeen[aircraftId] = True
                 proximateAircraft.printt()
-            elif priorityIntruder.set(airfield.timestamp, msg):
+            elif priorityIntruder.set(airfield.timestamp, sentence):
                 aircraftId = priorityIntruder.getAircraftId()
                 aircraftSeen[aircraftId] = 3
                 priorityIntruder.printt(airfield)
 
-    elif msg.sentence_type == 'RMC':
+    elif sentence.sentence_type == 'RMC':
         # this sentence contains the current date
 
         # update the date in the airfield. the date is very important!
-        airfield.setDatestamp(msg.datestamp)
-        airfield.setCourseTrue(msg.true_course)
-        #print("course true:", msg.true_course)
-    elif msg.sentence_type == 'GGA' and airfield.validDatestamp():
+        airfield.setDatestamp(sentence.datestamp)
+        airfield.setCourseTrue(sentence.true_course)
+        #print("course true:", sentence.true_course)
+    elif sentence.sentence_type == 'GGA' and airfield.validDatestamp():
         # this sentence has the airfield timestamp, lat, lon, elevation
-        airfield.set(msg)
+        airfield.set(sentence)
 
 print(aircraftSeen)
 airfield.report()
