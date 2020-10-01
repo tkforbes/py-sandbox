@@ -20,4 +20,9 @@ with open('aircraft.canada', 'r') as ognRegistrations:
 
 class OgnRegistration:
     def getAircraft(self, radioId):
-        return OgnDict.get(radioId)
+        ac = OgnDict.get(radioId)
+        if ac is None:
+            # when registration is not found, return the radio id.
+            ac = radioId
+
+        return ac
