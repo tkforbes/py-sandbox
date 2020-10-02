@@ -50,10 +50,12 @@ class FlarmPriorityIntruder:
         self.relativeBearing = 0
         self.aircraftId = ''
 
+    def getSource(self):
+        return self.source
 
-    def setMaxDistance(self, distance):
-        if (distance > self.maxDistance):
-            self.maxDistance = distance
+    def setMaxDistance(self):
+        if (self.relativeDistance > self.maxDistance):
+            self.maxDistance = self.relativeDistance
 
     #
     def set(self, timestamp, nmea):
@@ -277,6 +279,8 @@ class FlarmPriorityIntruder:
 
         ## end of field validation. now set values as appropriate.
 
+        self.source = 'PFLAU'
+
         # will be set to radioId if aircraft not found.
         self.aircraftId = OgnRegistration().getAircraft(radioId)
         self.timestamp = timestamp
@@ -284,7 +288,7 @@ class FlarmPriorityIntruder:
         self.relativeVertical = relativeVertical
 
         self.relativeDistance = relativeDistance
-        self.setMaxDistance(self.relativeDistance)
+        self.setMaxDistance()
 
         self.relativeBearing = relativeBearing
         self.observations += 1
@@ -317,8 +321,8 @@ class FlarmPriorityIntruder:
             #"\t dist:%5d" % self.relativeDistance,
             "\t%6dm" % self.relativeDistance,
             "%s" % cardinalDirection,
-            "(%ddeg)" % bearing,
-            "%4sm above" % self.relativeVertical
+            "(%3ddeg) " % bearing,
+            "%4dm above" % self.relativeVertical
             #"alt AGL:%4s" % self.relativeVertical,
             # "\t\t\t\t\trel brng:%s" % self.relativeBearing,
             #"brng:%s" % bearing
