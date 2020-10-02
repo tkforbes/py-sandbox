@@ -59,13 +59,15 @@ for line in nmea:
 
             if proximateAircraft.set(airfield.timestamp, sentence):
                 aircraftId = proximateAircraft.getAircraftId()
-                aircraftSeen[aircraftId] = Aircraft(aircraftId)
+                if not (aircraftId in aircraftSeen):
+                    aircraftSeen[aircraftId] = Aircraft(aircraftId)
                 aircraftSeen[aircraftId].append(sentence)
                 proximateAircraft.printt()
                 sentenceList.append(sentence)
             elif priorityIntruder.set(airfield.timestamp, sentence):
                 aircraftId = priorityIntruder.getAircraftId()
-                aircraftSeen[aircraftId] = Aircraft(aircraftId)
+                if not (aircraftId in aircraftSeen):
+                    aircraftSeen[aircraftId] = Aircraft(aircraftId)
                 aircraftSeen[aircraftId].append(sentence)
                 priorityIntruder.printt(airfield)
                 sentenceList.append(sentence)
@@ -83,9 +85,11 @@ for line in nmea:
         # this sentence has the airfield timestamp, lat, lon, elevation
         airfield.set(sentence)
 
-#print(aircraftSeen)
+print(aircraftSeen)
 print(aircraftSeen['C-GDQK'].getAircraftId())
 print(len(aircraftSeen['C-GDQK'].getSentences()))
+print(aircraftSeen['C-GDQK'].getSentences())
+
 airfield.report()
 proximateAircraft.report()
 priorityIntruder.report()
