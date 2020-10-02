@@ -4,6 +4,7 @@ import sys
 
 class FlarmPriorityIntruder:
 
+    # the fields of an NMEA PFLAU sentence
     priorityIndex = {
         'priorityRecordIndicator' : 0,  # PFLAU
         'rx' : 1,
@@ -18,7 +19,7 @@ class FlarmPriorityIntruder:
         'radioId' : 10
     }
 
-
+    # these are the cardinal directions of a 16-point compass
     cardinalDirection = [
         "N",
         "NNE",
@@ -39,7 +40,7 @@ class FlarmPriorityIntruder:
         "N"
     ]
 
-
+    #
     def __init__(self):
         self.maxDistance = 0
         self.observations = 0
@@ -49,6 +50,12 @@ class FlarmPriorityIntruder:
         self.relativeBearing = 0
         self.aircraftId = ''
 
+
+    def setMaxDistance(self, distance):
+        if (distance > self.maxDistance):
+            self.maxDistance = distance
+
+    #
     def set(self, timestamp, nmea):
 
         # PFLAU
@@ -79,7 +86,7 @@ class FlarmPriorityIntruder:
             ndx = FlarmPriorityIntruder.priorityIndex.get('rx')
             int(ndx)
             rx = int(nmea.data[ndx])
-            if not (rx >= 0 and rx <= 99):
+            if not (0 <= rx <= 99):
                 raise Exception("rx out of range")
         except Exception as e:
             print(nmea, ":", e)
@@ -92,7 +99,7 @@ class FlarmPriorityIntruder:
             ndx = FlarmPriorityIntruder.priorityIndex.get('tx')
             int(ndx)
             tx = int(nmea.data[ndx])
-            if not (tx == 0 or tx == 1):
+            if not (tx in [0, 1]):
                 raise Exception("tx out of range")
         except Exception as e:
             print(nmea, ":", e)
@@ -111,7 +118,7 @@ class FlarmPriorityIntruder:
             ndx = FlarmPriorityIntruder.priorityIndex.get('gps')
             int(ndx)
             gps = int(nmea.data[ndx])
-            if not (gps >= 0 and gps <= 2):
+            if not (gps in [0, 1, 2]):
                 msg = "gps value " + str(gps) + ": out of range"
                 raise Exception(msg)
         except Exception as e:
@@ -125,7 +132,7 @@ class FlarmPriorityIntruder:
             ndx = FlarmPriorityIntruder.priorityIndex.get('power')
             int(ndx)
             power = int(nmea.data[ndx])
-            if not (power == 0 or power == 1):
+            if not (power in [0, 1]):
                 raise Exception("power out of range")
         except Exception as e:
             print(nmea, ":", e)
@@ -147,7 +154,7 @@ class FlarmPriorityIntruder:
             ndx = FlarmPriorityIntruder.priorityIndex.get('alarmLevel')
             int(ndx)
             alarmLevel = int(nmea.data[ndx])
-            if not (alarmLevel >= 0 and alarmLevel <= 3):
+            if not (alarmLevel in [0, 1, 2, 3]):
                 msg = "alarm level. value " + str(alarmLevel) + ": out of range"
                 raise Exception(msg)
         except Exception as e:
@@ -175,9 +182,7 @@ class FlarmPriorityIntruder:
             # in case it is required for printing.
             alarmTypeAsStr = nmea.data[ndx]
             alarmType = int(alarmTypeAsStr, 16)
-            if not (alarmType == 0x00 or
-                alarmType == 0x02 or
-                alarmType == 0x03):
+            if not (alarmType in [0x00, 0x02, 0x03]):
                 msg = "alarmType. value " + alarmTypeAsStr + ": invalid."
                 raise Exception(msg)
         except Exception as e:
@@ -202,7 +207,7 @@ class FlarmPriorityIntruder:
             ndx = FlarmPriorityIntruder.priorityIndex.get('relativeBearing')
             int(ndx)
             relativeBearing = int(nmea.data[ndx])
-            if not (relativeBearing >= -180 and relativeBearing <= 180):
+            if not (-180 <= relativeBearing <= 180):
                 msg = "relativeBearing. value " + str(relativeBearing) + ": out of range"
                 raise Exception(msg)
         except Exception as e:
@@ -219,7 +224,7 @@ class FlarmPriorityIntruder:
             ndx = FlarmPriorityIntruder.priorityIndex.get('relativeVertical')
             int(ndx)
             relativeVertical = int(nmea.data[ndx])
-            if not (relativeVertical >= -32768 and relativeVertical <= 32767):
+            if not (-32768 <= relativeVertical <= 32767):
                 msg = "relativeVertical. value " + str(relativeVertical) + ": out of range"
                 raise Exception(msg)
         except Exception as e:
@@ -237,7 +242,7 @@ class FlarmPriorityIntruder:
             ndx = FlarmPriorityIntruder.priorityIndex.get('relativeDistance')
             int(ndx)
             relativeDistance = int(nmea.data[ndx])
-            if not (relativeDistance >= 0 and relativeDistance <= 2147483647):
+            if not (0 <= relativeDistance <= 2147483647):
                 msg = "relativeDistance. value " + str(relativeDistance) + ": out of range"
                 raise Exception(msg)
         except Exception as e:
@@ -270,19 +275,16 @@ class FlarmPriorityIntruder:
             print(nmea, ":", e)
             sys.exit()
 
-        aircraftId = OgnRegistration().getAircraft(radioId)
-        if (aircraftId == None):
-            return False
-        else:
-            self.aircraftId = aircraftId
+        ## end of field validation. now set values as appropriate.
 
+        # will be set to radioId if aircraft not found.
+        self.aircraftId = OgnRegistration().getAircraft(radioId)
         self.timestamp = timestamp
         self.relativeBearing = relativeBearing
         self.relativeVertical = relativeVertical
 
         self.relativeDistance = relativeDistance
-        if (self.relativeDistance > self.maxDistance):
-            self.maxDistance = self.relativeDistance
+        self.setMaxDistance(self.relativeDistance)
 
         self.relativeBearing = relativeBearing
         self.observations += 1
@@ -291,14 +293,19 @@ class FlarmPriorityIntruder:
 
     def printt(self, airfield):
         bearing = airfield.courseTrue + self.relativeBearing
+
+        # correct the bearing, given that the airfield may have a heading
+        # although it is supposed to be stationary!
         if (bearing < 0):
             bearing +=360
         elif (bearing > 359):
             bearing -=360
 
-        if not (bearing >= 0 and bearing <= 359):
+        if not (0 <= bearing <= 359):
             print("problem. bearing/course/distance", bearing)
 
+        # only use a cardinal direction if the bearing is 0deg (N)
+        # note: this is only a guess at this stage.
         if (airfield.courseTrue == 0):
             cardinalDirection = FlarmPriorityIntruder.sixteenWindCompassPoint(bearing)
         else:
@@ -321,7 +328,9 @@ class FlarmPriorityIntruder:
     def sixteenWindCompassPoint(bearing):
         try:
             int(bearing)
-            if not (bearing >= 0 and bearing < 360):
+            # note that bearing could be float, therefore fractional
+            # part used in comparison is important.
+            if not (0 <= bearing < 360):
                 raise Exception("bearing is out of range 0 - 359")
         except Exception as e:
             print(bearing, ":", e)
