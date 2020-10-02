@@ -10,6 +10,75 @@ airfield = Airfield(81, 45.062101, 075.374431)
 proximateAircraft = FlarmProximateAircraft()
 priorityIntruder = FlarmPriorityIntruder()
 
+def eachAircraft():
+
+    from aircraft import Aircraft
+
+    aircraftSeen = {
+    }
+
+    nmea = open('data.nmea', 'r')
+
+    for line in nmea:
+        #line = nmea.readline()
+        try:
+            sentence = pynmea2.parse(line)
+        except pynmea2.ChecksumError:
+            # ignore sentences that produce a checksum error
+            continue
+        except pynmea2.ParseError:
+            # ignore sentences that can't be parsed
+            continue
+
+        # don't do anything with Flarm sentences until the airfield
+        # has a valid datestamp.
+        if (isinstance(sentence, pynmea2.nmea.ProprietarySentence) and
+                airfield.validDatestamp()):
+            if sentence.manufacturer == "FLA":
+                # this is a Flarm sentence. try to set it.
+
+                proximateAircraft = FlarmProximateAircraft()
+                priorityIntruder = FlarmPriorityIntruder()
+                if proximateAircraft.set(airfield.timestamp, sentence):
+                    aircraftId = proximateAircraft.getAircraftId()
+                    if not (aircraftId in aircraftSeen):
+                        aircraftSeen[aircraftId] = Aircraft(aircraftId)
+                    aircraftSeen[aircraftId].append(proximateAircraft)
+                elif priorityIntruder.set(airfield.timestamp, sentence):
+                    aircraftId = priorityIntruder.getAircraftId()
+                    if not (aircraftId in aircraftSeen):
+                        aircraftSeen[aircraftId] = Aircraft(aircraftId)
+                    aircraftSeen[aircraftId].append(priorityIntruder)
+
+        elif sentence.sentence_type == 'RMC':
+            # this sentence contains the current date
+
+            # update the date in the airfield. the date is very important!
+            airfield.setDatestamp(sentence.datestamp)
+            airfield.setCourseTrue(sentence.true_course)
+            #print("course true:", sentence.true_course)
+        elif sentence.sentence_type == 'GGA' and airfield.validDatestamp():
+            # this sentence has the airfield timestamp, lat, lon, elevation
+            airfield.set(sentence)
+
+    #print(aircraftSeen['C-GDQK'].getAircraftId())
+    #print(len(aircraftSeen['C-GDQK'].getSentences()))
+    #print(aircraftSeen['C-GDQK'].getSentences())
+
+    print("%s" % list(aircraftSeen.keys()))
+
+    airfield.report()
+
+    for ac in list(aircraftSeen.keys()):
+        print("")
+        print(ac)
+        sentences = aircraftSeen[ac].getSentences()
+        for s in sentences:
+            if (s.getSource() == 'PFLAU'):
+                s.printt(airfield)
+            elif (s.getSource() == "PFLAA"):
+                s.printt()
+
 def processNmeaStream():
 
     aircraftSeen = {
@@ -54,7 +123,6 @@ def processNmeaStream():
             if sentence.manufacturer == "FLA":
                 # this is a Flarm sentence. try to set it.
 
-
                 if proximateAircraft.set(airfield.timestamp, sentence):
                     aircraftId = proximateAircraft.getAircraftId()
                     if not (aircraftId in aircraftSeen):
@@ -84,8 +152,6 @@ def processNmeaStream():
     #print(len(aircraftSeen['C-GDQK'].getSentences()))
     #print(aircraftSeen['C-GDQK'].getSentences())
 
-    print("*** %s" % list(aircraftSeen.keys()))
-
     airfield.report()
     proximateAircraft.report()
     priorityIntruder.report()
@@ -93,3 +159,4 @@ def processNmeaStream():
 # ============================================================================
 
 processNmeaStream()
+#eachAircraft()
