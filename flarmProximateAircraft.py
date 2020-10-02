@@ -24,6 +24,13 @@ class FlarmProximateAircraft:
         self.observations = 0
         self.maxDistance = 0
 
+    def getSource(self):
+        return self.source
+
+    def setMaxDistance(self):
+        if (self.getDistance() > self.maxDistance ):
+            self.maxDistance = self.getDistance()
+
     def set(self, timestamp, nmea_flaa, ):
 
         # PFLAA
@@ -43,7 +50,7 @@ class FlarmProximateAircraft:
             ndx = proximateAircraftIndex.get('alarmLevel')
             int(ndx)
             alarmLevel = int(nmea_flaa.data[ndx])
-            if not (alarmLevel >= 0 and alarmLevel <= 3):
+            if not (0 <= alarmLevel <= 3):
                 raise Exception("alarm level out of range")
         except Exception as e:
             print(nmea_flaa, ":", e)
@@ -54,7 +61,7 @@ class FlarmProximateAircraft:
             ndx = proximateAircraftIndex.get('relativeNorth')
             int(ndx)
             relativeNorth = int(nmea_flaa.data[ndx])
-            if not (relativeNorth >= -32768 and relativeNorth <= 32767):
+            if not (-32768 <= relativeNorth <= 32767):
                 raise Exception("relative north out of range")
         except Exception as e:
             print(nmea_flaa, ":", e)
@@ -65,7 +72,7 @@ class FlarmProximateAircraft:
             ndx = proximateAircraftIndex.get('relativeEast')
             int(ndx)
             relativeEast = int(nmea_flaa.data[ndx])
-            if not (relativeEast >= -32768 and relativeEast <= 32767):
+            if not (-32768 <= relativeEast <= 32767):
                 raise Exception("relative east out of range")
         except Exception as e:
             print(nmea_flaa, ":", e)
@@ -76,7 +83,7 @@ class FlarmProximateAircraft:
             ndx = proximateAircraftIndex.get('relativeVertical')
             int(ndx)
             relativeVertical = int(nmea_flaa.data[ndx])
-            if not (relativeVertical >= -32768 and relativeVertical <= 32767):
+            if not (-32768 <= relativeVertical <= 32767):
                 raise Exception("relative vertical out of range")
         except Exception as e:
             print(nmea_flaa, ":", e)
@@ -87,7 +94,7 @@ class FlarmProximateAircraft:
             ndx = proximateAircraftIndex.get('idType')
             int(ndx)
             idType = int(nmea_flaa.data[ndx])
-            if not (idType >= 0 and idType <= 3):
+            if not ( 0 <= idType <= 3):
                 raise Exception("id type out of range")
         except Exception as e:
             print(nmea_flaa, ":", e)
@@ -124,7 +131,7 @@ class FlarmProximateAircraft:
             ndx = proximateAircraftIndex.get('track')
             int(ndx)
             track = int(nmea_flaa.data[ndx])
-            if not (idType >= 0 and idType <= 339):
+            if not (0 <= idType <= 339):
                 raise Exception("track out of range")
         except Exception as e:
             print(nmea_flaa, ":", e)
@@ -152,7 +159,7 @@ class FlarmProximateAircraft:
             ndx = proximateAircraftIndex.get('groundSpeed')
             int(ndx)
             groundSpeed = int(nmea_flaa.data[ndx])
-            if not (groundSpeed >= 0 and groundSpeed <= 32767):
+            if not (0 <= groundSpeed <= 32767):
                 raise Exception("ground speed out of range")
         except Exception as e:
             print(nmea_flaa, ":", e)
@@ -173,7 +180,7 @@ class FlarmProximateAircraft:
             else:
                 climbRate = float(nmea_flaa.data[ndx])
 
-            if not (climbRate >= -32.7 and climbRate <= 32.7):
+            if not (-32.7 <= climbRate <= 32.7):
                 raise Exception("climb rate out of range")
         except Exception as e:
             print(nmea_flaa, ":", e)
@@ -210,20 +217,22 @@ class FlarmProximateAircraft:
             sys.exit()
 
 
+        self.source = 'PFLAA'
         theOgnReg = OgnRegistration()
         self.aircraftId = theOgnReg.getAircraft(radioId)
         self.timestamp = timestamp
 
         self.relativeNorth = relativeNorth
         self.relativeEast = relativeEast
+        # distance is the hypotenuse of relativeNorth and relativeEast so,
+        # now that those values are set, let's set our max distance
+        self.setMaxDistance();
         self.relativeVertical = relativeVertical
         self.track = track
         self.speed = groundSpeed
         self.climbRate = climbRate
 
         self.observations += 1
-        if (self.getDistance() > self.maxDistance ):
-            self.maxDistance = self.getDistance()
 
         return True
 
@@ -251,7 +260,7 @@ class FlarmProximateAircraft:
             "%4dm above" % self.getAltitudeAGL(),
             "%3dkph" % self.getSpeed(),
             "@%03ddeg" % self.track,
-            "\tasc: %3s" % self.climbRate
+            "\tvV: % 2.1f" % self.climbRate
             )
 
     def getSpeed(self):
