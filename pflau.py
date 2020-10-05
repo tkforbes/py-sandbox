@@ -2,7 +2,7 @@ from ognRegistrations import OgnRegistration
 
 import sys
 
-class FlarmPriorityIntruder:
+class Pflau:
 
     # the fields of an NMEA PFLAU sentence
     priorityIndex = {
@@ -63,7 +63,7 @@ class FlarmPriorityIntruder:
         # PFLAU
         # must be a PFLAU sentence type i.e. value must be 'U'
         try:
-            ndx = FlarmPriorityIntruder.priorityIndex.get('priorityRecordIndicator')
+            ndx = Pflau.priorityIndex.get('priorityRecordIndicator')
             sentenceType = nmea.data[ndx]
         except Exception as e:
             print(nmea, ":", e)
@@ -85,7 +85,7 @@ class FlarmPriorityIntruder:
         # Do not expect to receive <Rx> PFLAAsentences, because the number
         # of aircraft being processed might be higher or lower.
         try:
-            ndx = FlarmPriorityIntruder.priorityIndex.get('rx')
+            ndx = Pflau.priorityIndex.get('rx')
             int(ndx)
             rx = int(nmea.data[ndx])
             if not (0 <= rx <= 99):
@@ -98,7 +98,7 @@ class FlarmPriorityIntruder:
         # Decimal integer value. Range: from 0 to 1.Transmission status: 1 for
         # OK and 0 for no transmission
         try:
-            ndx = FlarmPriorityIntruder.priorityIndex.get('tx')
+            ndx = Pflau.priorityIndex.get('tx')
             int(ndx)
             tx = int(nmea.data[ndx])
             if not (tx in [0, 1]):
@@ -117,7 +117,7 @@ class FlarmPriorityIntruder:
         # If <GPS>goes to 0, FLARM will not work. Nevertheless, wait for
         # some seconds to issue any warnings.
         try:
-            ndx = FlarmPriorityIntruder.priorityIndex.get('gps')
+            ndx = Pflau.priorityIndex.get('gps')
             int(ndx)
             gps = int(nmea.data[ndx])
             if not (gps in [0, 1, 2]):
@@ -131,7 +131,7 @@ class FlarmPriorityIntruder:
         # Decimal integer value. Range: from 0 to 1.
         # Power status: 1 for OK and 0 for under-or over-voltage.
         try:
-            ndx = FlarmPriorityIntruder.priorityIndex.get('power')
+            ndx = Pflau.priorityIndex.get('power')
             int(ndx)
             power = int(nmea.data[ndx])
             if not (power in [0, 1]):
@@ -153,7 +153,7 @@ class FlarmPriorityIntruder:
         # than 1. Every 16 seconds for 4 seconds when inside the zone
         # alarm level is 1, otherwise is 0.
         try:
-            ndx = FlarmPriorityIntruder.priorityIndex.get('alarmLevel')
+            ndx = Pflau.priorityIndex.get('alarmLevel')
             int(ndx)
             alarmLevel = int(nmea.data[ndx])
             if not (alarmLevel in [0, 1, 2, 3]):
@@ -177,7 +177,7 @@ class FlarmPriorityIntruder:
         # in the range 10..FF. Refer to the <ZoneType>parameter in the
         # PFLAOsentence for a description.
         try:
-            ndx = FlarmPriorityIntruder.priorityIndex.get('AlarmType')
+            ndx = Pflau.priorityIndex.get('AlarmType')
             int(ndx)
 
             # get alarm type. convert from hex but retain string form
@@ -206,7 +206,7 @@ class FlarmPriorityIntruder:
         # range. For obstacle alarm and Alert Zone alarm, this field
         # is 0.
         try:
-            ndx = FlarmPriorityIntruder.priorityIndex.get('relativeBearing')
+            ndx = Pflau.priorityIndex.get('relativeBearing')
             int(ndx)
             relativeBearing = int(nmea.data[ndx])
             if not (-180 <= relativeBearing <= 180):
@@ -223,7 +223,7 @@ class FlarmPriorityIntruder:
         # Field is empty when no aircraft are within rangeFor Alert Zone
         # and obstacle warnings, this field is 0.
         try:
-            ndx = FlarmPriorityIntruder.priorityIndex.get('relativeVertical')
+            ndx = Pflau.priorityIndex.get('relativeVertical')
             int(ndx)
             relativeVertical = int(nmea.data[ndx])
             if not (-32768 <= relativeVertical <= 32767):
@@ -241,7 +241,7 @@ class FlarmPriorityIntruder:
         # Field is empty when no aircraft are within range and no alarms
         # are generated.For Alert Zone, this field is 0.
         try:
-            ndx = FlarmPriorityIntruder.priorityIndex.get('relativeDistance')
+            ndx = Pflau.priorityIndex.get('relativeDistance')
             int(ndx)
             relativeDistance = int(nmea.data[ndx])
             if not (0 <= relativeDistance <= 2147483647):
@@ -266,7 +266,7 @@ class FlarmPriorityIntruder:
         # For obstacles this field is set to FFFFFF. In case of Alert Zone
         # warning, the FLARM ID of the Alert Zone station is output.
         try:
-            ndx = FlarmPriorityIntruder.priorityIndex.get('radioId')
+            ndx = Pflau.priorityIndex.get('radioId')
             int(ndx)
             radioId = nmea.data[ndx]
             if (len(radioId) != 6):
@@ -313,7 +313,7 @@ class FlarmPriorityIntruder:
         # only use a cardinal direction if the bearing is 0deg (N)
         # note: this is only a guess at this stage.
         if (airfield.courseTrue == 0):
-            cardinalDirection = FlarmPriorityIntruder.sixteenWindCompassPoint(bearing)
+            cardinalDirection = Pflau.sixteenWindCompassPoint(bearing)
         else:
             cardinalDirection = ''
 
@@ -328,7 +328,7 @@ class FlarmPriorityIntruder:
             #"alt AGL:%4s" % self.relativeVertical,
             # "\t\t\t\t\trel brng:%s" % self.relativeBearing,
             #"brng:%s" % bearing
-            # FlarmPriorityIntruder.sixteenWindCompassPoint(bearing)
+            # Pflau.sixteenWindCompassPoint(bearing)
             )
 
     def sixteenWindCompassPoint(bearing):
@@ -351,7 +351,7 @@ class FlarmPriorityIntruder:
 
         bearing += offset
         ndx = int(bearing/degreesPerPoint)+1
-        return FlarmPriorityIntruder.cardinalDirection[ndx]
+        return Pflau.cardinalDirection[ndx]
 
     def report(self):
         print("")

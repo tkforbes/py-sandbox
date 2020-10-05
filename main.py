@@ -4,11 +4,11 @@ import pynmea2
 from airfield import Airfield
 from flarmProximateAircraft import FlarmProximateAircraft
 from ognRegistrations import OgnRegistration
-from flarmPriorityIntruder import FlarmPriorityIntruder
+from pflau import Pflau
 
 airfield = Airfield(81, 45.062101, 075.374431)
 proximateAircraft = FlarmProximateAircraft()
-priorityIntruder = FlarmPriorityIntruder()
+pflau = Pflau()
 
 def eachAircraft():
 
@@ -41,17 +41,17 @@ def eachAircraft():
                 # this is a Flarm sentence. try to set it.
 
                 proximateAircraft = FlarmProximateAircraft()
-                priorityIntruder = FlarmPriorityIntruder()
+                pflau = Pflau()
                 if proximateAircraft.set(airfield.timestamp, sentence):
                     aircraftId = proximateAircraft.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
                     aircraftSeen[aircraftId].append(proximateAircraft)
-                elif priorityIntruder.set(airfield.timestamp, sentence):
-                    aircraftId = priorityIntruder.getAircraftId()
+                elif pflau.set(airfield.timestamp, sentence):
+                    aircraftId = pflau.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
-                    aircraftSeen[aircraftId].append(priorityIntruder)
+                    aircraftSeen[aircraftId].append(pflau)
 
         elif sentence.sentence_type == 'RMC':
             # this sentence contains the current date
@@ -92,7 +92,7 @@ def processNmeaStream():
 
     from aircraft import Aircraft
 
-    #answer = FlarmPriorityIntruder.sixteenWindCompassPoint(1)
+    #answer = Pflau.sixteenWindCompassPoint(1)
     #print("bearing: ", bearing, "ans:", answer)
 
     # def is_integer(n):
@@ -136,12 +136,12 @@ def processNmeaStream():
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
                     aircraftSeen[aircraftId].append(sentence)
                     proximateAircraft.printt()
-                elif priorityIntruder.set(airfield.timestamp, sentence):
-                    aircraftId = priorityIntruder.getAircraftId()
+                elif pflau.set(airfield.timestamp, sentence):
+                    aircraftId = pflau.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
                     aircraftSeen[aircraftId].append(sentence)
-                    priorityIntruder.printt(airfield)
+                    pflau.printt(airfield)
 
 
         elif sentence.sentence_type == 'RMC':
@@ -165,7 +165,7 @@ def processNmeaStream():
 
     airfield.report()
     proximateAircraft.report()
-    priorityIntruder.report()
+    pflau.report()
 
 # ============================================================================
 
