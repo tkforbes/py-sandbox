@@ -257,9 +257,9 @@ class FlarmProximateAircraft:
             "%5dm" % self.getDistance(),
             "%10s" % "",
             #"alt AGL:%4d" % self.getAltitudeAGL(),
-            "%4dm above" % self.getAltitudeAGL(),
-            "%3dkph" % self.getSpeed(),
-            "@%03ddeg" % self.track,
+            "%4dm AGL" % self.getAltitudeAGL(),
+            "%3ddeg" % self.track,
+            "@ %3dkph" % self.getSpeed(),
             "\tvV: % 2.1f" % self.climbRate
             )
 
