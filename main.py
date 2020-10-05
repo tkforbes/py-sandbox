@@ -22,12 +22,15 @@ def eachAircraft():
     for line in nmea:
         #line = nmea.readline()
         try:
-            sentence = pynmea2.parse(line)
+            commas = line.count(',')
+            sentence = pynmea2.parse(line, check=True)
         except pynmea2.ChecksumError:
             # ignore sentences that produce a checksum error
             continue
         except pynmea2.ParseError:
             # ignore sentences that can't be parsed
+            continue
+        except Exception:
             continue
 
         # don't do anything with Flarm sentences until the airfield
@@ -57,7 +60,10 @@ def eachAircraft():
             airfield.setDatestamp(sentence.datestamp)
             airfield.setCourseTrue(sentence.true_course)
             #print("course true:", sentence.true_course)
-        elif sentence.sentence_type == 'GGA' and airfield.validDatestamp():
+        elif (sentence.sentence_type == 'GGA'
+                and airfield.validDatestamp()
+                and commas == 14):
+
             # this sentence has the airfield timestamp, lat, lon, elevation
             airfield.set(sentence)
 
@@ -101,16 +107,17 @@ def processNmeaStream():
     for line in nmea:
         #line = nmea.readline()
         try:
-            sentence = pynmea2.parse(line)
+            sentence = pynmea2.parse(line, True)
+            #print(sentence)
         except pynmea2.ChecksumError:
             # ignore sentences that produce a checksum error
             continue
         except pynmea2.ParseError:
             # ignore sentences that can't be parsed
             continue
-        # except:
-        #     # ignore sentences that raise any other error
-        #     continue
+        except:
+             # ignore sentences that raise any other error
+             continue
 
         #print(repr(sentence))
 
@@ -144,8 +151,12 @@ def processNmeaStream():
             airfield.setDatestamp(sentence.datestamp)
             airfield.setCourseTrue(sentence.true_course)
             #print("course true:", sentence.true_course)
-        elif sentence.sentence_type == 'GGA' and airfield.validDatestamp():
+        elif (sentence.sentence_type == 'GGA'
+            and airfield.validDatestamp()):
+            #and line.count(',') == 14):
             # this sentence has the airfield timestamp, lat, lon, elevation
+#            print('comma count:', line.count(','))
+            print("found^^")
             airfield.set(sentence)
 
     #print(aircraftSeen['C-GDQK'].getAircraftId())
@@ -158,5 +169,5 @@ def processNmeaStream():
 
 # ============================================================================
 
-processNmeaStream()
-#eachAircraft()
+#processNmeaStream()
+eachAircraft()
