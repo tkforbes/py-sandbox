@@ -4,8 +4,8 @@ import sys
 
 from ognRegistrations import OgnRegistration
 
-proximateAircraftIndex = {
-    'proximateRecordIndicator' : 0, # PFLAA
+pflaaIndex = {
+    'pflaaRecordIndicator' : 0, # PFLAA
     'alarmLevel' : 1,
     'relativeNorth' : 2,
     'relativeEast' : 3,
@@ -19,7 +19,7 @@ proximateAircraftIndex = {
     'aircraftType' : 11
 }
 
-class FlarmProximateAircraft:
+class Pflaa:
     def __init__(self):
         self.observations = 0
         self.maxDistance = 0
@@ -36,7 +36,7 @@ class FlarmProximateAircraft:
         # PFLAA
         # must be a PFLAA sentence type i.e. value must be 'A'
         try:
-            ndx = proximateAircraftIndex.get('proximateRecordIndicator')
+            ndx = pflaaIndex.get('pflaaRecordIndicator')
             sentenceType = nmea_flaa.data[ndx]
         except Exception as e:
             print(nmea_flaa, ":", e)
@@ -47,7 +47,7 @@ class FlarmProximateAircraft:
 
         # alarm level. valid values: 0 - 3
         try:
-            ndx = proximateAircraftIndex.get('alarmLevel')
+            ndx = pflaaIndex.get('alarmLevel')
             int(ndx)
             alarmLevel = int(nmea_flaa.data[ndx])
             if not (0 <= alarmLevel <= 3):
@@ -58,7 +58,7 @@ class FlarmProximateAircraft:
 
         # relative north. range: from -32768 to 32767.
         try:
-            ndx = proximateAircraftIndex.get('relativeNorth')
+            ndx = pflaaIndex.get('relativeNorth')
             int(ndx)
             relativeNorth = int(nmea_flaa.data[ndx])
             if not (-32768 <= relativeNorth <= 32767):
@@ -69,7 +69,7 @@ class FlarmProximateAircraft:
 
         # relative east. range: from -32768 to 32767.
         try:
-            ndx = proximateAircraftIndex.get('relativeEast')
+            ndx = pflaaIndex.get('relativeEast')
             int(ndx)
             relativeEast = int(nmea_flaa.data[ndx])
             if not (-32768 <= relativeEast <= 32767):
@@ -80,7 +80,7 @@ class FlarmProximateAircraft:
 
         # relative vertical. range: from -32768 to 32767.
         try:
-            ndx = proximateAircraftIndex.get('relativeVertical')
+            ndx = pflaaIndex.get('relativeVertical')
             int(ndx)
             relativeVertical = int(nmea_flaa.data[ndx])
             if not (-32768 <= relativeVertical <= 32767):
@@ -91,7 +91,7 @@ class FlarmProximateAircraft:
 
         # id type. integer. range: from 0 to 3.
         try:
-            ndx = proximateAircraftIndex.get('idType')
+            ndx = pflaaIndex.get('idType')
             int(ndx)
             idType = int(nmea_flaa.data[ndx])
             if not ( 0 <= idType <= 3):
@@ -108,7 +108,7 @@ class FlarmProximateAircraft:
         # activated either on the target or own aircraft and no alarm is
         # present at this time.
         try:
-            ndx = proximateAircraftIndex.get('radioId')
+            ndx = pflaaIndex.get('radioId')
             int(ndx)
             radioIdLong = nmea_flaa.data[ndx]
             # extract radio id from left of the '!' in the field. e.g.
@@ -128,7 +128,7 @@ class FlarmProximateAircraft:
         # This field is empty if stealth mode is activated either on the
         # target or own aircraft and for non-directional targets.
         try:
-            ndx = proximateAircraftIndex.get('track')
+            ndx = pflaaIndex.get('track')
             int(ndx)
             track = int(nmea_flaa.data[ndx])
             if not (0 <= idType <= 339):
@@ -140,7 +140,7 @@ class FlarmProximateAircraft:
         # turn rate.
         # Currently this field is empty.
         try:
-            ndx = proximateAircraftIndex.get('turnRate')
+            ndx = pflaaIndex.get('turnRate')
             int(ndx)
             turnRate = nmea_flaa.data[ndx]
             if not (len(turnRate) == 0):
@@ -156,7 +156,7 @@ class FlarmProximateAircraft:
         # is activated either on the target or own aircraft and for
         # non-directional targets.
         try:
-            ndx = proximateAircraftIndex.get('groundSpeed')
+            ndx = pflaaIndex.get('groundSpeed')
             int(ndx)
             groundSpeed = int(nmea_flaa.data[ndx])
             if not (0 <= groundSpeed <= 32767):
@@ -172,7 +172,7 @@ class FlarmProximateAircraft:
         # if stealth mode is activated either on the target or own aircraft
         # and for non-directional targets.
         try:
-            ndx = proximateAircraftIndex.get('climbRate')
+            ndx = pflaaIndex.get('climbRate')
             int(ndx)
             if ((len(nmea_flaa.data[ndx])) == 0):
                 # target not moving, so climb rate is zero
@@ -205,7 +205,7 @@ class FlarmProximateAircraft:
         #           D = unmanned aerial vehicle (UAV)
         #           E = unknownF = static object
         try:
-            ndx = proximateAircraftIndex.get('aircraftType')
+            ndx = pflaaIndex.get('aircraftType')
             int(ndx)
             aircraftType = nmea_flaa.data[ndx]
             if (len(aircraftType) != 1):
@@ -238,8 +238,8 @@ class FlarmProximateAircraft:
 
     def report(self):
         print("")
-        print("Proximiate aircraft")
-        print("===================")
+        print("PFLAA aircraft")
+        print("==============")
         print("observations:%6d" % self.observations,
             "max distance:%6d" % self.maxDistance
             )

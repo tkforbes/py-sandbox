@@ -2,12 +2,12 @@
 import pynmea2
 
 from airfield import Airfield
-from flarmProximateAircraft import FlarmProximateAircraft
+from pflaa import Pflaa
 from ognRegistrations import OgnRegistration
 from pflau import Pflau
 
 airfield = Airfield(81, 45.062101, 075.374431)
-proximateAircraft = FlarmProximateAircraft()
+pflaa = Pflaa()
 pflau = Pflau()
 
 def eachAircraft():
@@ -40,13 +40,13 @@ def eachAircraft():
             if sentence.manufacturer == "FLA":
                 # this is a Flarm sentence. try to set it.
 
-                proximateAircraft = FlarmProximateAircraft()
+                pflaa = Pflaa()
                 pflau = Pflau()
-                if proximateAircraft.set(airfield.timestamp, sentence):
-                    aircraftId = proximateAircraft.getAircraftId()
+                if pflaa.set(airfield.timestamp, sentence):
+                    aircraftId = pflaa.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
-                    aircraftSeen[aircraftId].append(proximateAircraft)
+                    aircraftSeen[aircraftId].append(pflaa)
                 elif pflau.set(airfield.timestamp, sentence):
                     aircraftId = pflau.getAircraftId()
                     if not (aircraftId in aircraftSeen):
@@ -130,12 +130,12 @@ def processNmeaStream():
             if sentence.manufacturer == "FLA":
                 # this is a Flarm sentence. try to set it.
 
-                if proximateAircraft.set(airfield.timestamp, sentence):
-                    aircraftId = proximateAircraft.getAircraftId()
+                if pflaa.set(airfield.timestamp, sentence):
+                    aircraftId = pflaa.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
                     aircraftSeen[aircraftId].append(sentence)
-                    proximateAircraft.printt()
+                    pflaa.printt()
                 elif pflau.set(airfield.timestamp, sentence):
                     aircraftId = pflau.getAircraftId()
                     if not (aircraftId in aircraftSeen):
@@ -164,7 +164,7 @@ def processNmeaStream():
     #print(aircraftSeen['C-GDQK'].getSentences())
 
     airfield.report()
-    proximateAircraft.report()
+    pflaa.report()
     pflau.report()
 
 # ============================================================================
