@@ -248,7 +248,7 @@ class FlarmPriorityIntruder:
                 msg = "relativeDistance. value " + str(relativeDistance) + ": out of range"
                 raise Exception(msg)
         except Exception as e:
-            print(nmea, ":", e)
+            print(nmea, msg, ":", e)
             sys.exit()
 
 
@@ -274,7 +274,8 @@ class FlarmPriorityIntruder:
                 raise Exception(msg)
             hex(int(radioId, 16)) # ensure radio id can convert to hex.
         except Exception as e:
-            print(nmea, ":", e)
+            #print(nmea, ":", e)
+            return False
             sys.exit()
 
         ## end of field validation. now set values as appropriate.
@@ -293,6 +294,7 @@ class FlarmPriorityIntruder:
         self.relativeBearing = relativeBearing
         self.observations += 1
 
+        print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
         return True
 
     def printt(self, airfield):
