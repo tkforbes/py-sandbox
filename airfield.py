@@ -96,7 +96,6 @@ class Airfield:
             # E/W indicator
             try:
                 lonDir = gga.lon_dir
-                lonDir = 'E'
                 if not (lonDir in ['E', 'W']):
                     raise Exception("lon dir must be E or W.")
             except Exception as e:
