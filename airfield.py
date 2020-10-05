@@ -48,10 +48,10 @@ class Airfield:
         if (nmea.sentence_type == 'GGA'):
             gga = nmea
 
-            print(repr(gga))
+            #print(repr(gga))
             ## UTC time
             try:
-                utcTime = gga.timestamp
+                timestamp = gga.timestamp
             except Exception as e:
                 print(gga, ":", e)
                 sys.exit()
@@ -67,11 +67,12 @@ class Airfield:
 
             if not (gpsQual in [1, 2]):
                 # the fix method must be something useful to us
+                print("gpsQual not in range")
                 return False
 
             # latitude
             try:
-                lat = gga.lat
+                lat = float(gga.lat)
             except Exception as e:
                 print(gga, ":", e)
                 sys.exit()
@@ -79,7 +80,6 @@ class Airfield:
             # N/S indicator
             try:
                 latDir = gga.lat_dir
-                latDir = 'N'
                 if not (latDir in ['N', 'S']):
                     raise Exception("lat dir must be N or S.")
             except Exception as e:
@@ -88,7 +88,7 @@ class Airfield:
 
             # longitude
             try:
-                lon = gga.lon
+                lon = float(gga.lon)
             except Exception as e:
                 print(gga, ":", e)
                 sys.exit()
@@ -121,34 +121,32 @@ class Airfield:
                 print(gga, ":", e)
                 sys.exit()
 
-
             # hdop
             try:
-                horizontalDil = gga.horizontal_dil
+                horizontalDil = float(gga.horizontal_dil)
             except Exception as e:
                 print(gga, ":", e)
                 sys.exit()
 
             # MSL altitude
             try:
-                altitude = gga.altitude
+                altitude = float(gga.altitude)
             except Exception as e:
                 print(gga, ":", e)
                 sys.exit()
-
 
             # MSL altitude units
             try:
                 altitudeUnits = gga.altitude_units
+                if altitudeUnits != 'M':
+                    raise Exception("altitude units must be 'M'")
             except Exception as e:
                 print(gga, ":", e)
                 sys.exit()
 
-
-
             # geoid separation
             try:
-                geoSep = gga.geo_sep
+                geoSep = float(gga.geo_sep)
             except Exception as e:
                 print(gga, ":", e)
                 sys.exit()
@@ -156,6 +154,8 @@ class Airfield:
             # geoid separation units
             try:
                 geoSepUnits = gga.geo_sep_units
+                if geoSepUnits != 'M':
+                    raise Exception("Geo separation units must be 'M'")
             except Exception as e:
                 print(gga, ":", e)
                 sys.exit()
@@ -169,33 +169,39 @@ class Airfield:
 
             # diff. ref. station ID
             try:
-                refStationId = int(gga.ref_station_id)
-                if not (0 <= refStationId <= 4095):
-                    raise Exception("reference station id must be between 0 and 4095")
+                refStationId = gga.ref_station_id
+                # refStationId = int(gga.ref_station_id)
+                # if not (0 <= refStationId <= 4095):
+                #     raise Exception("reference station id must be between 0 and 4095")
             except Exception as e:
                 print(gga, ":", e)
                 sys.exit()
 
             if (Airfield.isvalid(gga)):
                 #print(repr(nmea))
-                if (gga.altitude > self.ignoreAbove or
-                    gga.altitude < self.ignoreBelow):
-                    return
+                if not (self.ignoreBelow < altitude < self.ignoreAbove):
+                    return False
 
-                self.elevation = gga.altitude
+                self.elevation = altitude
+                self.setElevationMax()
+                self.setElevationMin()
                 self.elevationCumulative += self.elevation
-                if (self.elevation > self.elevationMax):
-                    self.elevationMax = self.elevation # highest
-                if (self.elevation < self.elevationMin):
-                    self.elevationMin = self.elevation # lowest
-                self.lat = gga.lat
-                self.lon = gga.lon
-                self.timestamp = gga.timestamp
+                self.lat = lat
+                self.lon = lon
+                self.timestamp = timestamp
                 self.observations += 1
+
         elif (nmea_gga.sentence_type == 'RMC'):
             rmc = nmea
             self.datestamp = rmc.datestamp
 
+    def setElevationMax(self):
+        if self.elevation > self.elevationMax:
+            self.elevationMax = self.elevation
+
+    def setElevationMin(self):
+        if self.elevation < self.elevationMin:
+            self.elevationMin = self.elevation
 
     def setDatestamp(self, datestamp):
         self.datestamp = datestamp
