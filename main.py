@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 import pynmea2
+import geopy
+import geopy.distance
 
 from airfield import Airfield
 from pflaa import Pflaa
@@ -56,6 +58,7 @@ def eachAircraft():
         elif sentence.sentence_type == 'RMC':
             # this sentence contains the current date
 
+            airfield.set(sentence)
             # update the date in the airfield. the date is very important!
             airfield.setDatestamp(sentence.datestamp)
             airfield.setCourseTrue(sentence.true_course)
@@ -78,12 +81,8 @@ def eachAircraft():
     for ac in list(aircraftSeen.keys()):
         print("")
         print(ac)
-        sentences = aircraftSeen[ac].getSentences()
-        for s in sentences:
-            if (s.getSource() == 'PFLAU'):
-                s.printt(airfield)
-            elif (s.getSource() == "PFLAA"):
-                s.printt()
+        aircraftSeen[ac].printObservations()
+
 
 def processNmeaStream():
 
