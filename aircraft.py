@@ -1,4 +1,3 @@
-
 class Aircraft:
 
     #sentences = []
@@ -15,3 +14,9 @@ class Aircraft:
 
     def getAircraftId(self):
         return self.aircraftId
+
+    def printObservations(self):
+        sentences = self.getSentences()
+        for s in sentences:
+            if (s.getSource() == "PFLAA"):
+                s.printt()
