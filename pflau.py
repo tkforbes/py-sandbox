@@ -274,7 +274,7 @@ class Pflau:
                 raise Exception(msg)
             hex(int(radioId, 16)) # ensure radio id can convert to hex.
         except Exception as e:
-            #print(nmea, ":", e)
+            #print('**radio id in pflau**', nmea, ":", e)
             return False
             sys.exit()
 
@@ -294,7 +294,6 @@ class Pflau:
         self.relativeBearing = relativeBearing
         self.observations += 1
 
-        print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
         return True
 
     def printt(self, airfield):
