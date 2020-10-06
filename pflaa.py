@@ -1,5 +1,8 @@
 import math
 
+import geopy
+import geopy.distance
+
 import sys
 
 from ognRegistrations import OgnRegistration
@@ -26,6 +29,9 @@ class Pflaa:
 
     def getSource(self):
         return self.source
+
+    def getTimestamp(self):
+        return self.timestamp
 
     def setMaxDistance(self):
         if (self.getDistance() > self.maxDistance ):
@@ -251,6 +257,8 @@ class Pflaa:
         if (self.getSpeed() < 5): return
         """
 
+        if (self.getSpeed() == 0): return
+        
         print(self.aircraftId,
             "%-17s" % self.timestamp,
             #"dist:%5d" % self.getDistance(),
