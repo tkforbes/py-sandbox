@@ -1,5 +1,16 @@
 import sys
 
+import pynmea2
+
+import geopy
+import geopy.distance
+
+import datetime
+import re
+
+import math
+
+
 class Airfield:
     def __init__(self, elevation, lat, lon):
         self.elevation = elevation
@@ -44,11 +55,68 @@ class Airfield:
 
         return True
 
+    def setElevationMax(self):
+        if self.elevation > self.elevationMax:
+            self.elevationMax = self.elevation
+
+    def setElevationMin(self):
+        if self.elevation < self.elevationMin:
+            self.elevationMin = self.elevation
+
+    def setDatestamp(self, datestamp):
+        self.datestamp = datestamp
+
+    def setCourseTrue(self, courseTrue):
+        # don't accept nonesense course
+        try:
+            float(courseTrue)
+        except Exception as e:
+            return
+
+        # round the course, then convert to integer
+        courseTrue += .5
+
+        # if rounded value was 360 or more, adjust
+        if (courseTrue >= 360): courseTrue -= 360
+
+        self.courseTrue = int(courseTrue)
+
+    def getTimestamp(self):
+        return self.timestamp
+
+    def averageElevation(self):
+        if (self.observations == 0): return 0
+        return self.elevationCumulative / self.observations
+
+    def report(self):
+
+        avg = self.averageElevation()
+
+        print("")
+        print("Airfield report")
+        print("===============")
+        print("date:", self.datestamp, "time:", self.timestamp)
+        print("lat:", self.lat, "lon:", self.lon)
+        print("Elevation",
+                "min:%.1f" % self.elevationMin,
+                "max:%.1f" % self.elevationMax,
+                "curr:%.1f" % self.elevation,
+                "avg:%.1f" % avg,
+                "crs:%d" % self.courseTrue
+                )
+        print("observations:", self.observations)
+
+    def toDecimalDegrees(dddmmDOTmmmm):
+        deg = int(dddmmDOTmmmm/100)
+        x = dddmmDOTmmmm - deg*100
+        return deg+x/60
+
     def set(self, nmea):
         if (nmea.sentence_type == 'GGA'):
             gga = nmea
 
             #print(repr(gga))
+
             ## UTC time
             try:
                 timestamp = gga.timestamp
@@ -67,7 +135,7 @@ class Airfield:
 
             if not (gpsQual in [1, 2]):
                 # the fix method must be something useful to us
-                print("gpsQual not in range")
+                #print(gpsQual, "gpsQual must be 1 or 2.")
                 return False
 
             # latitude
@@ -178,63 +246,115 @@ class Airfield:
 
             if (Airfield.isvalid(gga)):
                 #print(repr(nmea))
+
+                # ignore GGA sentence that is too inaccurate to be useful.
                 if not (self.ignoreBelow < altitude < self.ignoreAbove):
                     return False
 
                 self.elevation = altitude
                 self.setElevationMax()
                 self.setElevationMin()
-                self.elevationCumulative += self.elevation
-                self.lat = lat
-                self.lon = lon
+
+                # convert lat to negative when South
+                if (latDir in ['S']): lat *= -1
+
+                # convert lon to negative when West
+                if (lonDir in ['W']): lon *= -1
+
                 self.timestamp = timestamp
+                self.lat = Airfield.toDecimalDegrees(lat)
+                self.lon = Airfield.toDecimalDegrees(lon)
+                #print("time:", self.timestamp, "lat:", self.lat, "lon:", self.lon)
+
+                # this is for the 'average' calculation
+                self.elevationCumulative += self.elevation
                 self.observations += 1
 
-        elif (nmea_gga.sentence_type == 'RMC'):
+                return True
+
+        elif (nmea.sentence_type == 'RMC'):
+
             rmc = nmea
-            self.datestamp = rmc.datestamp
 
-    def setElevationMax(self):
-        if self.elevation > self.elevationMax:
-            self.elevationMax = self.elevation
+            ## UTC time
+            try:
+                timestamp = rmc.timestamp
+            except Exception as e:
+                print(rmc, ":", e)
+                sys.exit()
 
-    def setElevationMin(self):
-        if self.elevation < self.elevationMin:
-            self.elevationMin = self.elevation
+            try:
+                status = rmc.status
+                if not (status in ['A', 'V']):
+                    raise Exception("status must be A or V.")
+            except Exception as e:
+                print(rmc, ":", e)
+                sys.exit()
 
-    def setDatestamp(self, datestamp):
-        self.datestamp = datestamp
+            if not (status in ['A']):
+                # if status is not 'A', data is not valid
+                return False
 
-    def setCourseTrue(self, courseTrue):
-        # don't accept nonesense course
-        try:
-            float(courseTrue)
-        except Exception as e:
-            return
+            # latitude
+            try:
+                lat = float(rmc.lat)
+            except Exception as e:
+                print(rmc, ":", e)
+                sys.exit()
 
-        # round the course, then convert to integer
-        courseTrue += .5
-        self.courseTrue = int(courseTrue)
+            # N/S indicator
+            try:
+                latDir = rmc.lat_dir
+                if not (latDir in ['N', 'S']):
+                    print (latDir)
+                    raise Exception("lat dir must be N or S.")
+            except Exception as e:
+                print(rmc, ":", e)
+                return False
+                sys.exit()
 
-    def getTimestamp(self):
-        return self.timestamp
+            # longitude
+            try:
+                lon = float(rmc.lon)
+            except Exception as e:
+                print(rmc, ":", e)
+                sys.exit()
 
-    def averageElevation(self):
-        if (self.observations == 0): return 0
-        return self.elevationCumulative / self.observations
+            # E/W indicator
+            try:
+                lonDir = rmc.lon_dir
+                if not (lonDir in ['E', 'W']):
+                    raise Exception("lon dir must be E or W.")
+            except Exception as e:
+                print(rmc, ":", e)
+                sys.exit()
 
-    def report(self):
+            # speed over the ground
+            try:
+                #print(repr(rmc))
+                groundSpeed = rmc.spd_over_grnd
+                if not (0 <= groundSpeed <= 300):
+                    print(groundSpeed)
+                    raise Exception("groundspeed is out of range.")
+            except Exception as e:
+                print(rmc, ":", e)
+                sys.exit()
 
-        avg = self.averageElevation()
+            try:
+                true_course = rmc.true_course
+                if (true_course is None):
+                    return False
 
-        print("")
-        print("Airfield report")
-        print("===============")
-        print("date:", self.datestamp, "time:", self.timestamp)
-        print("lat:", self.lat, "lon:", self.lon)
-        print("Elevation",
-                "min:%.1f" % self.elevationMin,
-                "max:%.1f" % self.elevationMax,
-                "curr:%.1f" % self.elevation,
-                "avg:%.1f" % avg)
-        print("observations:", self.observations)
+                if not (0 <= true_course < 360):
+                    print(true_course)
+                    raise Exception("groundspeed is out of range.")
+
+            except Exception as e:
+                print(rmc, ":", e)
+                sys.exit()
+
+            self.timestamp = rmc.timestamp
+
+            self.setCourseTrue(true_course)
+
+            return True
