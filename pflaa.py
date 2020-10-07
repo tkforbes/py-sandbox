@@ -52,14 +52,14 @@ class Pflaa:
         if (self.getDistance() > self.maxDistance ):
             self.maxDistance = self.getDistance()
 
-    def displaceLatLong(self, airfield):
+    def displaceLatLong(self, groundstation):
         r_earth = 6378.137 # radius of Earth in kms
 
-        self.lat = airfield.getLat() + (self.relativeNorth / 1000 / r_earth) * (180 / math.pi);
-        self.lon = airfield.getLon() + (self.relativeEast / 1000 / r_earth) * (180 / math.pi) / math.cos(airfield.getLat() * math.pi/180)
+        self.lat = groundstation.getLat() + (self.relativeNorth / 1000 / r_earth) * (180 / math.pi);
+        self.lon = groundstation.getLon() + (self.relativeEast / 1000 / r_earth) * (180 / math.pi) / math.cos(groundstation.getLat() * math.pi/180)
         return
 
-    def set(self, airfield, nmea_flaa, ):
+    def set(self, groundstation, nmea_flaa, ):
 
         # PFLAA
         # must be a PFLAA sentence type i.e. value must be 'A'
@@ -248,7 +248,7 @@ class Pflaa:
         self.source = 'PFLAA'
         theOgnReg = OgnRegistration()
         self.aircraftId = theOgnReg.getAircraft(radioId)
-        self.timestamp = airfield.timestamp
+        self.timestamp = groundstation.timestamp
 
         self.relativeNorth = relativeNorth
         self.relativeEast = relativeEast
@@ -258,7 +258,7 @@ class Pflaa:
         self.climbRate = climbRate
 
         # set the lat, lon of the observation using rel north, rel east.
-        self.displaceLatLong(airfield)
+        self.displaceLatLong(groundstation)
 
         # distance is the hypotenuse of relativeNorth and relativeEast so,
         # now that those values are set, let's set our max distance
@@ -268,8 +268,8 @@ class Pflaa:
         #
         # r_earth = 6378.137
         #
-        # self.lat = airfield.getLat() + (self.relativeNorth / 1000 / r_earth) * (180 / math.pi);
-        # self.lon = airfield.getLon() + (self.relativeEast / 1000 / r_earth) * (180 / math.pi) / math.cos(airfield.getLat() * math.pi/180)
+        # self.lat = groundstation.getLat() + (self.relativeNorth / 1000 / r_earth) * (180 / math.pi);
+        # self.lon = groundstation.getLon() + (self.relativeEast / 1000 / r_earth) * (180 / math.pi) / math.cos(groundstation.getLat() * math.pi/180)
         return True
 
     def report(self):

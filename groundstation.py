@@ -11,7 +11,7 @@ import re
 import math
 
 
-class Airfield:
+class Groundstation:
     def __init__(self, elevation, lat, lon):
         self.elevation = elevation
         self.lat = lat
@@ -50,7 +50,7 @@ class Airfield:
         if (int(nmea_gga.num_sats) <= 4):
             return False # too few satellites for reliable data
 
-        if not (Airfield.is_integer(nmea_gga.altitude)):
+        if not (Groundstation.is_integer(nmea_gga.altitude)):
             return False # elevation is not a number
 
         return True
@@ -99,8 +99,8 @@ class Airfield:
         avg = self.averageElevation()
 
         print("")
-        print("Airfield report")
-        print("===============")
+        print("Groundstation report")
+        print("====================")
         print("date:", self.datestamp, "time:", self.timestamp)
         print("lat:", self.lat, "lon:", self.lon)
         print("Elevation",
@@ -250,7 +250,7 @@ class Airfield:
                 print(gga, ":", e)
                 sys.exit()
 
-            if (Airfield.isvalid(gga)):
+            if (Groundstation.isvalid(gga)):
                 #print(repr(nmea))
 
                 # ignore GGA sentence that is too inaccurate to be useful.
@@ -268,8 +268,8 @@ class Airfield:
                 if (lonDir in ['W']): lon *= -1
 
                 self.timestamp = timestamp
-                self.lat = Airfield.toDecimalDegrees(lat)
-                self.lon = Airfield.toDecimalDegrees(lon)
+                self.lat = Groundstation.toDecimalDegrees(lat)
+                self.lon = Groundstation.toDecimalDegrees(lon)
                 #print("time:", self.timestamp, "lat:", self.lat, "lon:", self.lon)
 
                 # this is for the 'average' calculation

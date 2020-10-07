@@ -296,10 +296,10 @@ class Pflau:
 
         return True
 
-    def printt(self, airfield):
-        bearing = airfield.courseTrue + self.relativeBearing
+    def printt(self, groundstation):
+        bearing = groundstation.courseTrue + self.relativeBearing
 
-        # correct the bearing, given that the airfield may have a heading
+        # correct the bearing, given that the groundstation may have a heading
         # although it is supposed to be stationary!
         if (bearing < 0):
             bearing +=360
@@ -311,7 +311,7 @@ class Pflau:
 
         # only use a cardinal direction if the bearing is 0deg (N)
         # note: this is only a guess at this stage.
-        if (airfield.courseTrue == 0):
+        if (groundstation.courseTrue == 0):
             cardinalDirection = Pflau.sixteenWindCompassPoint(bearing)
         else:
             cardinalDirection = ''

@@ -3,12 +3,12 @@ import pynmea2
 import geopy
 import geopy.distance
 
-from airfield import Airfield
+from groundstation import Groundstation
 from pflaa import Pflaa
 from ognRegistrations import OgnRegistration
 from pflau import Pflau
 
-airfield = Airfield(81, 45.062101, 075.374431)
+groundstation = Groundstation(81, 45.062101, 075.374431)
 pflaa = Pflaa()
 pflau = Pflau()
 
@@ -35,21 +35,21 @@ def eachAircraft():
         except Exception:
             continue
 
-        # don't do anything with Flarm sentences until the airfield
+        # don't do anything with Flarm sentences until the groundstation
         # has a valid datestamp.
         if (isinstance(sentence, pynmea2.nmea.ProprietarySentence) and
-                airfield.validDatestamp()):
+                groundstation.validDatestamp()):
             if sentence.manufacturer == "FLA":
                 # this is a Flarm sentence. try to set it.
 
                 pflaa = Pflaa()
                 pflau = Pflau()
-                if pflaa.set(airfield, sentence):
+                if pflaa.set(groundstation, sentence):
                     aircraftId = pflaa.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
                     aircraftSeen[aircraftId].append(pflaa)
-                elif pflau.set(airfield.timestamp, sentence):
+                elif pflau.set(groundstation.timestamp, sentence):
                     aircraftId = pflau.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
@@ -58,17 +58,17 @@ def eachAircraft():
         elif sentence.sentence_type == 'RMC':
             # this sentence contains the current date
 
-            airfield.set(sentence)
-            # update the date in the airfield. the date is very important!
-            airfield.setDatestamp(sentence.datestamp)
-            airfield.setCourseTrue(sentence.true_course)
+            groundstation.set(sentence)
+            # update the date in the groundstation. the date is very important!
+            groundstation.setDatestamp(sentence.datestamp)
+            groundstation.setCourseTrue(sentence.true_course)
             #print("course true:", sentence.true_course)
         elif (sentence.sentence_type == 'GGA'
-                and airfield.validDatestamp()
+                and groundstation.validDatestamp()
                 and commas == 14):
 
-            # this sentence has the airfield timestamp, lat, lon, elevation
-            airfield.set(sentence)
+            # this sentence has the groundstation timestamp, lat, lon, elevation
+            groundstation.set(sentence)
 
     #print(aircraftSeen['C-GDQK'].getAircraftId())
     #print(len(aircraftSeen['C-GDQK'].getSentences()))
@@ -76,7 +76,7 @@ def eachAircraft():
 
     print("%s" % list(aircraftSeen.keys()))
 
-    airfield.report()
+    groundstation.report()
 
     for ac in list(aircraftSeen.keys()):
         print("")
@@ -124,47 +124,47 @@ def processNmeaStream():
 
         #print(type(sentence))
 
-        # don't do anything with Flarm sentences until the airfield
+        # don't do anything with Flarm sentences until the groundstation
         # has a valid datestamp.
         if (isinstance(sentence, pynmea2.nmea.ProprietarySentence) and
-                airfield.validDatestamp()):
+                groundstation.validDatestamp()):
             if sentence.manufacturer == "FLA":
                 # this is a Flarm sentence. try to set it.
 
-                if pflaa.set(airfield.timestamp, sentence):
+                if pflaa.set(groundstation.timestamp, sentence):
                     aircraftId = pflaa.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
                     aircraftSeen[aircraftId].append(sentence)
                     pflaa.printt()
-                elif pflau.set(airfield.timestamp, sentence):
+                elif pflau.set(groundstation.timestamp, sentence):
                     aircraftId = pflau.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
                     aircraftSeen[aircraftId].append(sentence)
-                    pflau.printt(airfield)
+                    pflau.printt(groundstation)
 
 
         elif sentence.sentence_type == 'RMC':
             # this sentence contains the current date
 
-            # update the date in the airfield. the date is very important!
-            airfield.setDatestamp(sentence.datestamp)
-            airfield.setCourseTrue(sentence.true_course)
+            # update the date in the groundstation. the date is very important!
+            groundstation.setDatestamp(sentence.datestamp)
+            groundstation.setCourseTrue(sentence.true_course)
             #print("course true:", sentence.true_course)
         elif (sentence.sentence_type == 'GGA'
-            and airfield.validDatestamp()):
+            and groundstation.validDatestamp()):
             #and line.count(',') == 14):
-            # this sentence has the airfield timestamp, lat, lon, elevation
+            # this sentence has the groundstation timestamp, lat, lon, elevation
 #            print('comma count:', line.count(','))
             print("found^^")
-            airfield.set(sentence)
+            groundstation.set(sentence)
 
     #print(aircraftSeen['C-GDQK'].getAircraftId())
     #print(len(aircraftSeen['C-GDQK'].getSentences()))
     #print(aircraftSeen['C-GDQK'].getSentences())
 
-    airfield.report()
+    groundstation.report()
     pflaa.report()
     pflau.report()
 
