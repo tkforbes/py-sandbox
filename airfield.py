@@ -84,6 +84,12 @@ class Airfield:
     def getTimestamp(self):
         return self.timestamp
 
+    def getLat(self):
+        return self.lat
+
+    def getLon(self):
+        return self.lon
+
     def averageElevation(self):
         if (self.observations == 0): return 0
         return self.elevationCumulative / self.observations
