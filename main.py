@@ -44,7 +44,7 @@ def eachAircraft():
 
                 pflaa = Pflaa()
                 pflau = Pflau()
-                if pflaa.set(airfield.timestamp, sentence):
+                if pflaa.set(airfield, sentence):
                     aircraftId = pflaa.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
