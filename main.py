@@ -82,7 +82,9 @@ def eachAircraft():
         print("")
         print(ac)
         aircraftSeen[ac].printObservations()
-
+        distance, altAGL = aircraftSeen[ac].getMaxDistance()
+        print("max dist: %5dm" % distance,
+                "@%dm AGL" % altAGL)
 
 def processNmeaStream():
 

@@ -33,6 +33,21 @@ class Pflaa:
     def getTimestamp(self):
         return self.timestamp
 
+    def getSpeed(self):
+        # speed in kph
+        return self.speed*3.6
+
+    def getAltitudeAGL(self):
+        return self.relativeVertical
+
+    def getDistance(self):
+        n = abs(self.relativeNorth)
+        e = abs(self.relativeEast)
+        return int(math.sqrt( n*n+e*e))
+
+    def getAircraftId(self):
+        return self.aircraftId
+
     def setMaxDistance(self):
         if (self.getDistance() > self.maxDistance ):
             self.maxDistance = self.getDistance()
@@ -290,18 +305,3 @@ class Pflaa:
             "%f" % self.lon,
             sep=''
             )
-
-    def getSpeed(self):
-        # speed in kph
-        return self.speed*3.6
-
-    def getAltitudeAGL(self):
-        return self.relativeVertical
-
-    def getDistance(self):
-        n = abs(self.relativeNorth)
-        e = abs(self.relativeEast)
-        return int(math.sqrt( n*n+e*e))
-
-    def getAircraftId(self):
-        return self.aircraftId
