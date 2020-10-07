@@ -37,7 +37,14 @@ class Pflaa:
         if (self.getDistance() > self.maxDistance ):
             self.maxDistance = self.getDistance()
 
-    def set(self, timestamp, nmea_flaa, ):
+    def displaceLatLong(self, airfield):
+        r_earth = 6378.137 # radius of Earth in kms
+
+        self.lat = airfield.getLat() + (self.relativeNorth / 1000 / r_earth) * (180 / math.pi);
+        self.lon = airfield.getLon() + (self.relativeEast / 1000 / r_earth) * (180 / math.pi) / math.cos(airfield.getLat() * math.pi/180)
+        return
+
+    def set(self, airfield, nmea_flaa, ):
 
         # PFLAA
         # must be a PFLAA sentence type i.e. value must be 'A'
@@ -226,20 +233,28 @@ class Pflaa:
         self.source = 'PFLAA'
         theOgnReg = OgnRegistration()
         self.aircraftId = theOgnReg.getAircraft(radioId)
-        self.timestamp = timestamp
+        self.timestamp = airfield.timestamp
 
         self.relativeNorth = relativeNorth
         self.relativeEast = relativeEast
-        # distance is the hypotenuse of relativeNorth and relativeEast so,
-        # now that those values are set, let's set our max distance
-        self.setMaxDistance();
         self.relativeVertical = relativeVertical
         self.track = track
         self.speed = groundSpeed
         self.climbRate = climbRate
 
-        self.observations += 1
+        # set the lat, lon of the observation using rel north, rel east.
+        self.displaceLatLong(airfield)
 
+        # distance is the hypotenuse of relativeNorth and relativeEast so,
+        # now that those values are set, let's set our max distance
+        self.setMaxDistance();
+
+        # self.observations += 1
+        #
+        # r_earth = 6378.137
+        #
+        # self.lat = airfield.getLat() + (self.relativeNorth / 1000 / r_earth) * (180 / math.pi);
+        # self.lon = airfield.getLon() + (self.relativeEast / 1000 / r_earth) * (180 / math.pi) / math.cos(airfield.getLat() * math.pi/180)
         return True
 
     def report(self):
@@ -257,18 +272,23 @@ class Pflaa:
         if (self.getSpeed() < 5): return
         """
 
-        if (self.getSpeed() == 0): return
-        
+        #if (self.getSpeed() == 0): return
+
         print(self.aircraftId,
-            "%-17s" % self.timestamp,
+            " %-9s" % self.timestamp,
             #"dist:%5d" % self.getDistance(),
             "%5dm" % self.getDistance(),
-            "%10s" % "",
+            #"%10s" % "",
             #"alt AGL:%4d" % self.getAltitudeAGL(),
-            "%4dm AGL" % self.getAltitudeAGL(),
-            "%3ddeg" % self.track,
+            "\t%4dm AGL" % self.getAltitudeAGL(),
+            "\t%3ddeg" % self.track,
             "@ %3dkph" % self.getSpeed(),
-            "\tvV: % 2.1f" % self.climbRate
+            "\tvV:%3.1f" % self.climbRate,
+            "\trN %5d" % self.relativeNorth,
+            " rE %5d" % self.relativeEast,
+            " https://www.google.ca/maps/place/%f," % self.lat,
+            "%f" % self.lon,
+            sep=''
             )
 
     def getSpeed(self):
