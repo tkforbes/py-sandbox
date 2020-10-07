@@ -298,7 +298,7 @@ class Pflaa:
             "\t%4dm AGL" % self.getAltitudeAGL(),
             "\t%3ddeg" % self.track,
             "@ %3dkph" % self.getSpeed(),
-            "\tvV:%3.1f" % self.climbRate,
+            "\tvV %3.1f" % self.climbRate,
             "\trN %5d" % self.relativeNorth,
             " rE %5d" % self.relativeEast,
             " https://www.google.ca/maps/place/%f," % self.lat,
