@@ -6,11 +6,9 @@ import geopy.distance
 from groundstation import Groundstation
 from pflaa import Pflaa
 from ognRegistrations import OgnRegistration
-from pflau import Pflau
 
 groundstation = Groundstation(81, 45.062101, 075.374431)
 pflaa = Pflaa()
-pflau = Pflau()
 
 def eachAircraft():
 
@@ -43,17 +41,11 @@ def eachAircraft():
                 # this is a Flarm sentence. try to set it.
 
                 pflaa = Pflaa()
-                pflau = Pflau()
                 if pflaa.set(groundstation, sentence):
                     aircraftId = pflaa.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
                     aircraftSeen[aircraftId].append(pflaa)
-                elif pflau.set(groundstation.timestamp, sentence):
-                    aircraftId = pflau.getAircraftId()
-                    if not (aircraftId in aircraftSeen):
-                        aircraftSeen[aircraftId] = Aircraft(aircraftId)
-                    aircraftSeen[aircraftId].append(pflau)
 
         elif sentence.sentence_type == 'RMC':
             # this sentence contains the current date
@@ -93,16 +85,6 @@ def processNmeaStream():
 
     from aircraft import Aircraft
 
-    #answer = Pflau.sixteenWindCompassPoint(1)
-    #print("bearing: ", bearing, "ans:", answer)
-
-    # def is_integer(n):
-    #     try:
-    #         int(n)
-    #         return True
-    #     except ValueError:
-    #         return False
-
     nmea = open('data.nmea', 'r')
 
     for line in nmea:
@@ -137,12 +119,6 @@ def processNmeaStream():
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
                     aircraftSeen[aircraftId].append(sentence)
                     pflaa.printt()
-                elif pflau.set(groundstation.timestamp, sentence):
-                    aircraftId = pflau.getAircraftId()
-                    if not (aircraftId in aircraftSeen):
-                        aircraftSeen[aircraftId] = Aircraft(aircraftId)
-                    aircraftSeen[aircraftId].append(sentence)
-                    pflau.printt(groundstation)
 
 
         elif sentence.sentence_type == 'RMC':
@@ -166,7 +142,6 @@ def processNmeaStream():
 
     groundstation.report()
     pflaa.report()
-    pflau.report()
 
 # ============================================================================
 
