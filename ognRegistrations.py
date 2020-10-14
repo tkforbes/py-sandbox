@@ -16,13 +16,27 @@ with open('aircraft.canada', 'r') as ognRegistrations:
         aircraftId = values[3].strip("\'")
 
         # append
-        OgnDict[radioId] = aircraftId
+        OgnDict[radioId] = detail
 
 class OgnRegistration:
     def getAircraft(self, radioId):
-        ac = OgnDict.get(radioId)
-        if ac is None:
+        ognReg = OgnDict.get(radioId)
+        if ognReg is None:
             # when registration is not found, return the radio id.
             ac = radioId
+        else:
+            values = ognReg.strip().split(",")
+            ac = values[3].strip("\'")
 
         return ac
+
+    def getAircraftType(self, radioId):
+        ognReg = OgnDict.get(radioId)
+        if ognReg is None:
+            # when registration is not found, return the radio id.
+            acType = radioId
+        else:
+            values = ognReg.strip().split(",")
+            acType = values[7].strip("\'")
+
+        return acType
