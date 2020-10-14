@@ -7,10 +7,11 @@ from groundstation import Groundstation
 from pflaa import Pflaa
 from ognRegistrations import OgnRegistration
 
-groundstation = Groundstation(81, 45.062101, 075.374431)
 pflaa = Pflaa()
 
 def eachAircraft():
+
+    groundstation = Groundstation()
 
     from aircraft import Aircraft
 
@@ -36,7 +37,7 @@ def eachAircraft():
         # don't do anything with Flarm sentences until the groundstation
         # has a valid datestamp.
         if (isinstance(sentence, pynmea2.nmea.ProprietarySentence) and
-                groundstation.validDatestamp()):
+                groundstation.validTime()):
             if sentence.manufacturer == "FLA":
                 # this is a Flarm sentence. try to set it.
 
@@ -50,13 +51,12 @@ def eachAircraft():
         elif sentence.sentence_type == 'RMC':
             # this sentence contains the current date
 
+            groundstation.setDate(sentence.datestamp)
             groundstation.set(sentence)
             # update the date in the groundstation. the date is very important!
-            groundstation.setDatestamp(sentence.datestamp)
-            groundstation.setCourseTrue(sentence.true_course)
             #print("course true:", sentence.true_course)
         elif (sentence.sentence_type == 'GGA'
-                and groundstation.validDatestamp()
+                and groundstation.validDate()
                 and commas == 14):
 
             # this sentence has the groundstation timestamp, lat, lon, elevation
@@ -69,6 +69,14 @@ def eachAircraft():
     print("%s" % list(aircraftSeen.keys()))
 
     groundstation.report()
+
+    print("")
+    print("REPORT FLIGHTS")
+    print("==============")
+    for ac in list(aircraftSeen.keys()):
+        print("")
+        print(ac)
+        aircraftSeen[ac].reportFlights()
 
     for ac in list(aircraftSeen.keys()):
         print("")
@@ -109,11 +117,11 @@ def processNmeaStream():
         # don't do anything with Flarm sentences until the groundstation
         # has a valid datestamp.
         if (isinstance(sentence, pynmea2.nmea.ProprietarySentence) and
-                groundstation.validDatestamp()):
+                groundstation.validTime()):
             if sentence.manufacturer == "FLA":
                 # this is a Flarm sentence. try to set it.
 
-                if pflaa.set(groundstation.timestamp, sentence):
+                if pflaa.set(groundstation, sentence):
                     aircraftId = pflaa.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
@@ -126,10 +134,9 @@ def processNmeaStream():
 
             # update the date in the groundstation. the date is very important!
             groundstation.setDatestamp(sentence.datestamp)
-            groundstation.setCourseTrue(sentence.true_course)
             #print("course true:", sentence.true_course)
         elif (sentence.sentence_type == 'GGA'
-            and groundstation.validDatestamp()):
+            and groundstation.validDate()):
             #and line.count(',') == 14):
             # this sentence has the groundstation timestamp, lat, lon, elevation
 #            print('comma count:', line.count(','))

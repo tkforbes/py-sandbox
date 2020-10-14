@@ -12,33 +12,49 @@ import math
 
 
 class Groundstation:
-    def __init__(self, elevation, lat, lon):
-        self.elevation = elevation
-        self.lat = lat
-        self.lon = lon
-        self.datestamp = 0
-        self.timestamp = 0
+    def __init__(self):
+        self.lat = None
+        self.lon = None
+        self.elevation = None
+        self.datestamp = None
+        self.timestamp = None
         self.observations = 0
         self.elevationCumulative = 0 # used in averaging.
         self.ignoreAbove = 97 # do not set elevation above this number.
         self.ignoreBelow = 77 # do not set elevation below this number.
 
-        # looks counter-intuitive. these are the recorded max and min elevations
+        # looks counter-intuitive. these are the recorded max and min
+        # elevations. set them to opposites initially.
         self.elevationMax = self.ignoreBelow
         self.elevationMin = self.ignoreAbove
 
-    """
-    this doesn't belong here.
-    """
+    def setDate(self, d):
+        self.datestamp = d
+
+    def setTime(self, t):
+        if not(self.datestamp is None):
+            d = self.datestamp
+            self.timestamp = datetime.datetime(d.year, d.month, d.day, t.hour, t.minute, t.second)
+
+        return
+
     def is_integer(n):
+        """
+        this doesn't belong here.
+        """
         try:
             int(n)
             return True
         except ValueError:
             return False
 
-    def validDatestamp(self):
-        if (self.datestamp == 0): return False
+    def validDate(self):
+        if (self.datestamp is None): return False
+
+        return True
+
+    def validTime(self):
+        if (self.timestamp is None): return False
 
         return True
 
@@ -66,24 +82,6 @@ class Groundstation:
     def setDatestamp(self, datestamp):
         self.datestamp = datestamp
 
-    def setCourseTrue(self, courseTrue):
-        # don't accept nonesense course
-        try:
-            float(courseTrue)
-        except Exception as e:
-            return
-
-        # round the course, then convert to integer
-        courseTrue += .5
-
-        # if rounded value was 360 or more, adjust
-        if (courseTrue >= 360): courseTrue -= 360
-
-        self.courseTrue = int(courseTrue)
-
-    def getTimestamp(self):
-        return self.timestamp
-
     def getLat(self):
         return self.lat
 
@@ -101,14 +99,13 @@ class Groundstation:
         print("")
         print("Groundstation report")
         print("====================")
-        print("date:", self.datestamp, "time:", self.timestamp)
+        print("date/time:", self.timestamp)
         print("lat:", self.lat, "lon:", self.lon)
         print("Elevation",
                 "min:%.1f" % self.elevationMin,
                 "max:%.1f" % self.elevationMax,
                 "curr:%.1f" % self.elevation,
-                "avg:%.1f" % avg,
-                "crs:%d" % self.courseTrue
+                "avg:%.1f" % avg
                 )
         print("observations:", self.observations)
 
@@ -267,7 +264,7 @@ class Groundstation:
                 # convert lon to negative when West
                 if (lonDir in ['W']): lon *= -1
 
-                self.timestamp = timestamp
+                self.setTime(timestamp)
                 self.lat = Groundstation.toDecimalDegrees(lat)
                 self.lon = Groundstation.toDecimalDegrees(lon)
                 #print("time:", self.timestamp, "lat:", self.lat, "lon:", self.lon)
@@ -346,21 +343,6 @@ class Groundstation:
                 print(rmc, ":", e)
                 sys.exit()
 
-            try:
-                true_course = rmc.true_course
-                if (true_course is None):
-                    return False
-
-                if not (0 <= true_course < 360):
-                    print(true_course)
-                    raise Exception("groundspeed is out of range.")
-
-            except Exception as e:
-                print(rmc, ":", e)
-                sys.exit()
-
-            self.timestamp = rmc.timestamp
-
-            self.setCourseTrue(true_course)
+            self.setTime(rmc.timestamp)
 
             return True

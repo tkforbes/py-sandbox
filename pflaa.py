@@ -294,7 +294,7 @@ class Pflaa:
         #if (self.getSpeed() == 0): return
 
         print(self.aircraftId,
-            " %-9s" % self.timestamp,
+            " %-9s" % self.timestamp.time(),
             #"dist:%5d" % self.getDistance(),
             "%5dm" % self.getDistance(),
             #"%10s" % "",
@@ -302,7 +302,7 @@ class Pflaa:
             "\t%4dm AGL" % self.getAltitudeAGL(),
             "\t%3ddeg" % self.track,
             "@ %3dkph" % self.getSpeed(),
-            "\tvV %3.1f" % self.climbRate,
+            "\tvV %+2.1f" % self.climbRate,
             "\trN %5d" % self.relativeNorth,
             " rE %5d" % self.relativeEast,
             " https://www.google.ca/maps/place/%f," % self.lat,
