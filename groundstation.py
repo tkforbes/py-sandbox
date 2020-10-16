@@ -251,8 +251,9 @@ class Groundstation:
                 #print(repr(nmea))
 
                 # ignore GGA sentence that is too inaccurate to be useful.
-                if not (self.ignoreBelow < altitude < self.ignoreAbove):
-                    return False
+
+                # if not (self.ignoreBelow < altitude < self.ignoreAbove):
+                #     return False
 
                 self.elevation = altitude
                 self.setElevationMax()
