@@ -78,13 +78,13 @@ def eachAircraft():
         print(ac)
         aircraftSeen[ac].reportFlights()
 
-    for ac in list(aircraftSeen.keys()):
-        print("")
-        print(ac)
-        aircraftSeen[ac].printObservations()
-        distance, altAGL = aircraftSeen[ac].getMaxDistance()
-        print("max dist: %5dm" % distance,
-                "@%dm AGL" % altAGL)
+    # for ac in list(aircraftSeen.keys()):
+    #     print("")
+    #     print(ac)
+    #     aircraftSeen[ac].printObservations()
+    #     distance, altAGL = aircraftSeen[ac].getMaxDistance()
+    #     print("max dist: %5dm" % distance,
+    #             "@%dm AGL" % altAGL)
 
 def processNmeaStream():
 
