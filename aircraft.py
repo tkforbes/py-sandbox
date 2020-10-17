@@ -2,8 +2,6 @@ from enum import Enum
 
 import datetime
 
-import numpy as np
-
 class FlightState(Enum):
         LANDED = 1
         DEPARTED = 2
@@ -33,84 +31,105 @@ class Aircraft:
     def segment(self, t1, t2):
         return
 
-    def detectTakeoff(timeframeOfWindow, window):
-        # the computed GPS ground level may deviate by this value...
-        groundLevelDeviation = 30
+    def atGroundLevel(alt):
+        if (-30 < alt < 30): return True
+        return False
 
+    def detectTakeoff(timeframeOfWindow, window):
         t1 = window[0].getTimestamp()
-        windowSize = len(window)
 
         # remove observations that are out of range
-        for y in range(0, windowSize):
-            if not(t1 < window[-1].getTimestamp() < t1+datetime.timedelta(seconds=timeframeOfWindow)):
+        for y in range(0, len(window)):
+            if (t1 < window[-1].getTimestamp() < t1+datetime.timedelta(seconds=timeframeOfWindow)):
+                break
+            else:
                 window.pop()
 
-        if (len(window) > 0):
-            initialSpeed = int(window[0].getSpeed())
-            finalSpeed = int(window[-1].getSpeed())
-            initialAltAGL = window[0].getAltitudeAGL()
-            finalAltAGL = window[-1].getAltitudeAGL()
+        if not (len(window) > 0):
+            return False
 
-            if (1 < initialSpeed < 19 and finalSpeed > 45):
-                if (-1*groundLevelDeviation < initialAltAGL < groundLevelDeviation and
-                    finalAltAGL > initialAltAGL + 20):
-                    print(
-                        "** takeoff **",
-                        window[0].getTimestamp(),
-                        "%+4dagl" % initialAltAGL,
-                        " %3dkph" % initialSpeed,
-                         " ==>> ",
-                        window[-1].getTimestamp(),
-                         "%+4dagl" % finalAltAGL,
-                         " %3dkph" % finalSpeed,
-                         sep='')
-                    return True, t1
+        # takeoff inital rolling speed
+        initialSpeed = int(window[0].getSpeed())
+        if not (1 <= initialSpeed <= 19):
+            return False
 
-        return False, None
+        # initial climbout speed at least this
+        finalSpeed = int(window[-1].getSpeed())
+        if not (finalSpeed > 50):
+            return False
+
+        # must be close to the ground initially
+        initialAltAGL = window[0].getAltitudeAGL()
+        if not Aircraft.atGroundLevel(initialAltAGL):
+            return False
+
+        # must be at least this much higher during climbout
+        finalAltAGL = window[-1].getAltitudeAGL()
+        if not (finalAltAGL > initialAltAGL + 30):
+            return False
+
+        print(
+            "** takeoff **",
+            window[0].getTimestamp(),
+            "%+4dagl" % initialAltAGL,
+            " %3dkph" % initialSpeed,
+             " ==>> ",
+            window[-1].getTimestamp(),
+             "%+4dagl" % finalAltAGL,
+             " %3dkph" % finalSpeed,
+             sep='')
+        return True, t1
 
     def detectLanding(timeframeOfWindow, window):
-        # the computed GPS ground level may deviate by this value...
-        groundLevelDeviation = 30
 
         t1 = window[0].getTimestamp()
         windowSize = len(window)
 
         # remove observations that are out of range
         for y in range(0, windowSize):
-            if not(t1 < window[-1].getTimestamp() < t1+datetime.timedelta(seconds=timeframeOfWindow)):
+            if (t1 < window[-1].getTimestamp() < t1+datetime.timedelta(seconds=timeframeOfWindow)):
+                break
+            else:
                 window.pop()
 
-        if (len(window) > 0):
-            initialSpeed = int(window[0].getSpeed())
-            finalSpeed = int(window[-1].getSpeed())
-            initialAltAGL = window[0].getAltitudeAGL()
-            finalAltAGL = window[-1].getAltitudeAGL()
+        if not (len(window) > 0):
+            return False
 
+        # ensure rollout speed
+        finalSpeed = int(window[-1].getSpeed())
+        if not (finalSpeed < 16):
+            return False
 
-            if (initialSpeed > 40 and finalSpeed < 16):
+        # ensure on the ground
+        finalAltAGL = window[-1].getAltitudeAGL()
+        if not (Aircraft.atGroundLevel(finalAltAGL)):
+            return False
 
-                if (-30 < finalAltAGL < 30 and
-                    initialAltAGL > finalAltAGL + 30):
-                    print(
-                        "** landing **",
-                        window[0].getTimestamp(),
-                        "%+4dagl" % initialAltAGL,
-                        " %3dkph" % initialSpeed,
-                         " ==>> ",
-                        window[-1].getTimestamp(),
-                         "%+4dagl" % finalAltAGL,
-                         " %3dkph" % finalSpeed,
-                         sep='')
-                    return window[-1].getTimestamp()
+        # ensure approaching at speed
+        initialSpeed = int(window[0].getSpeed())
+        if not (initialSpeed > 40):
+            return False
 
-        return None
+        # ensure approaching from altitude
+        initialAltAGL = window[0].getAltitudeAGL()
+        if not (initialAltAGL > finalAltAGL + 30):
+            return False
+
+        print(
+            "** landing **",
+            window[0].getTimestamp(),
+            "%+4dagl" % initialAltAGL,
+            " %3dkph" % initialSpeed,
+             " ==>> ",
+            window[-1].getTimestamp(),
+             "%+4dagl" % finalAltAGL,
+             " %3dkph" % finalSpeed,
+             sep='')
+        return window[-1].getTimestamp()
+
+        return True, t1
 
     def reportFlights(self):
-
-        toDetected = False
-
-        # ground level is considered GPS AGL plus or minus x metres
-        groundLevelDeviation = 30
 
         observationPeriod = 45
 
@@ -123,10 +142,9 @@ class Aircraft:
             # carve out smaller lists of observations.
             takeoffObservations = self.sentences[x:x+observationPeriod]
             landingObservations = self.sentences[x:x+observationPeriod]
-            if (takeoffObservations[0].getTimestamp() > takeoffTime)
-                takeoffTime = Aircraft.detectTakeoff(observationPeriod, takeoffObservations)
-
-            l = Aircraft.detectLanding(observationPeriod, landingObservations)
+            takeoffTime = Aircraft.detectTakeoff(observationPeriod, takeoffObservations)
+            if not (takeoffTime):
+                l = Aircraft.detectLanding(observationPeriod, landingObservations)
 
         return
 
