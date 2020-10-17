@@ -46,30 +46,30 @@ class Aircraft:
                 window.pop()
 
         if not (len(window) > 0):
-            return False
+            return datetime.datetime.min
 
         # takeoff inital rolling speed
         initialSpeed = int(window[0].getSpeed())
         if not (1 <= initialSpeed <= 19):
-            return False
+            return datetime.datetime.min
 
         # initial climbout speed at least this
         finalSpeed = int(window[-1].getSpeed())
         if not (finalSpeed > 50):
-            return False
+            return datetime.datetime.min
 
         # must be close to the ground initially
         initialAltAGL = window[0].getAltitudeAGL()
         if not Aircraft.atGroundLevel(initialAltAGL):
-            return False
+            return datetime.datetime.min
 
         # must be at least this much higher during climbout
         finalAltAGL = window[-1].getAltitudeAGL()
         if not (finalAltAGL > initialAltAGL + 30):
-            return False
+            return datetime.datetime.min
 
         print(
-            "** takeoff **",
+            "Takeoff ",
             window[0].getTimestamp(),
             "%+4dagl" % initialAltAGL,
             " %3dkph" % initialSpeed,
@@ -78,7 +78,7 @@ class Aircraft:
              "%+4dagl" % finalAltAGL,
              " %3dkph" % finalSpeed,
              sep='')
-        return True, t1
+        return t1
 
     def detectLanding(timeframeOfWindow, window):
 
@@ -93,30 +93,30 @@ class Aircraft:
                 window.pop()
 
         if not (len(window) > 0):
-            return False
+            return datetime.datetime.min
 
         # ensure rollout speed
         finalSpeed = int(window[-1].getSpeed())
         if not (finalSpeed < 16):
-            return False
+            return datetime.datetime.min
 
         # ensure on the ground
         finalAltAGL = window[-1].getAltitudeAGL()
         if not (Aircraft.atGroundLevel(finalAltAGL)):
-            return False
+            return datetime.datetime.min
 
         # ensure approaching at speed
         initialSpeed = int(window[0].getSpeed())
         if not (initialSpeed > 40):
-            return False
+            return datetime.datetime.min
 
         # ensure approaching from altitude
         initialAltAGL = window[0].getAltitudeAGL()
         if not (initialAltAGL > finalAltAGL + 30):
-            return False
+            return datetime.datetime.min
 
         print(
-            "** landing **",
+            "Landing ",
             window[0].getTimestamp(),
             "%+4dagl" % initialAltAGL,
             " %3dkph" % initialSpeed,
@@ -125,12 +125,13 @@ class Aircraft:
              "%+4dagl" % finalAltAGL,
              " %3dkph" % finalSpeed,
              sep='')
-        return window[-1].getTimestamp()
 
-        return True, t1
+        return window[-1].getTimestamp()
 
     def reportFlights(self):
 
+        tTakeoff = datetime.datetime.min
+        tLanding = datetime.datetime.min
         observationPeriod = 45
 
         n = len(self.getSentences())
@@ -142,11 +143,21 @@ class Aircraft:
             # carve out smaller lists of observations.
             takeoffObservations = self.sentences[x:x+observationPeriod]
             landingObservations = self.sentences[x:x+observationPeriod]
-            takeoffTime = Aircraft.detectTakeoff(observationPeriod, takeoffObservations)
-            if not (takeoffTime):
-                l = Aircraft.detectLanding(observationPeriod, landingObservations)
+
+            t1 = landingObservations[0].getTimestamp()
+
+            # detect takeoff, but skip ahead if takeoff just detected
+            if (tTakeoff + datetime.timedelta(seconds=observationPeriod) > t1 or
+                tLanding + datetime.timedelta(seconds=observationPeriod) > t1):
+                pass
+            else:
+                tTakeoff = Aircraft.detectTakeoff(observationPeriod, takeoffObservations)
+                tLanding = Aircraft.detectLanding(observationPeriod, landingObservations)
 
         return
+
+            # if (t1 > tLanding+datetime.timedelta(seconds=timeframeOfWindow))
+            # l = Aircraft.detectLanding(observationPeriod, landingObservations)
 
     # def reportFlights(self):
     #
