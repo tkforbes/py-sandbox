@@ -37,16 +37,25 @@ class Aircraft:
         if (-30 < alt < 30): return True
         return False
 
-    def detectTakeoff(timeframeOfWindow, window):
-        EST = pytz.timezone('US/Eastern')
-        t1 = window[0].getTimestamp()
+    def trim(timeframeOfWindow, window):
+
+        tStart = window[0].getTimestamp()
+        tMax = tStart + datetime.timedelta(seconds=timeframeOfWindow)
+        # print(tStart, tMax)
 
         # remove observations that are out of range
         for y in range(0, len(window)):
-            if (t1 < window[-1].getTimestamp() < t1+datetime.timedelta(seconds=timeframeOfWindow)):
+            # remove final observation if beyond range
+            if (tStart <= window[-1].getTimestamp() <= tMax):
                 break
             else:
+                # print(window[-1].getTimestamp())
                 window.pop()
+
+
+    def detectTakeoff(timeframeOfWindow, window):
+        EST = pytz.timezone('US/Eastern')
+        t1 = window[0].getTimestamp()
 
         if not (len(window) > 0):
             return Aircraft.event_not_detected
@@ -88,13 +97,6 @@ class Aircraft:
         EST = pytz.timezone('US/Eastern')
         t1 = window[0].getTimestamp()
         windowSize = len(window)
-
-        # remove observations that are out of range
-        for y in range(0, windowSize):
-            if (t1 < window[-1].getTimestamp() < t1+datetime.timedelta(seconds=timeframeOfWindow)):
-                break
-            else:
-                window.pop()
 
         if not (len(window) > 0):
             return Aircraft.event_not_detected
@@ -146,7 +148,9 @@ class Aircraft:
 
             # carve out smaller lists of observations.
             takeoffObservations = self.sentences[x:x+observationPeriod]
+            Aircraft.trim(observationPeriod, takeoffObservations)
             landingObservations = self.sentences[x:x+observationPeriod]
+            Aircraft.trim(observationPeriod, landingObservations)
 
             t1 = landingObservations[0].getTimestamp()
 
