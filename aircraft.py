@@ -1,6 +1,7 @@
 from enum import Enum
 
 import datetime
+import pytz
 
 class FlightState(Enum):
         LANDED = 1
@@ -9,6 +10,7 @@ class FlightState(Enum):
 
 class Aircraft:
 
+    event_not_detected = pytz.utc.localize(datetime.datetime.min)
     #sentences = []
 
     def __init__(self, reg):
@@ -36,6 +38,7 @@ class Aircraft:
         return False
 
     def detectTakeoff(timeframeOfWindow, window):
+        EST = pytz.timezone('US/Eastern')
         t1 = window[0].getTimestamp()
 
         # remove observations that are out of range
@@ -46,35 +49,35 @@ class Aircraft:
                 window.pop()
 
         if not (len(window) > 0):
-            return datetime.datetime.min
+            return Aircraft.event_not_detected
 
         # takeoff inital rolling speed
         initialSpeed = int(window[0].getSpeed())
         if not (1 <= initialSpeed <= 19):
-            return datetime.datetime.min
+            return Aircraft.event_not_detected
 
         # initial climbout speed at least this
         finalSpeed = int(window[-1].getSpeed())
         if not (finalSpeed > 50):
-            return datetime.datetime.min
+            return Aircraft.event_not_detected
 
         # must be close to the ground initially
         initialAltAGL = window[0].getAltitudeAGL()
         if not Aircraft.atGroundLevel(initialAltAGL):
-            return datetime.datetime.min
+            return Aircraft.event_not_detected
 
         # must be at least this much higher during climbout
         finalAltAGL = window[-1].getAltitudeAGL()
         if not (finalAltAGL > initialAltAGL + 30):
-            return datetime.datetime.min
+            return Aircraft.event_not_detected
 
         print(
             "Takeoff ",
-            window[0].getTimestamp(),
+            window[0].getTimestamp().astimezone(EST),
             "%+4dagl" % initialAltAGL,
             " %3dkph" % initialSpeed,
              " ==>> ",
-            window[-1].getTimestamp(),
+            window[-1].getTimestamp().astimezone(EST),
              "%+4dagl" % finalAltAGL,
              " %3dkph" % finalSpeed,
              sep='')
@@ -82,6 +85,7 @@ class Aircraft:
 
     def detectLanding(timeframeOfWindow, window):
 
+        EST = pytz.timezone('US/Eastern')
         t1 = window[0].getTimestamp()
         windowSize = len(window)
 
@@ -93,35 +97,35 @@ class Aircraft:
                 window.pop()
 
         if not (len(window) > 0):
-            return datetime.datetime.min
+            return Aircraft.event_not_detected
 
         # ensure rollout speed
         finalSpeed = int(window[-1].getSpeed())
         if not (finalSpeed < 16):
-            return datetime.datetime.min
+            return Aircraft.event_not_detected
 
         # ensure on the ground
         finalAltAGL = window[-1].getAltitudeAGL()
         if not (Aircraft.atGroundLevel(finalAltAGL)):
-            return datetime.datetime.min
+            return Aircraft.event_not_detected
 
         # ensure approaching at speed
         initialSpeed = int(window[0].getSpeed())
         if not (initialSpeed > 40):
-            return datetime.datetime.min
+            return Aircraft.event_not_detected
 
         # ensure approaching from altitude
         initialAltAGL = window[0].getAltitudeAGL()
         if not (initialAltAGL > finalAltAGL + 30):
-            return datetime.datetime.min
+            return Aircraft.event_not_detected
 
         print(
             "Landing ",
-            window[0].getTimestamp(),
+            window[0].getTimestamp().astimezone(EST),
             "%+4dagl" % initialAltAGL,
             " %3dkph" % initialSpeed,
              " ==>> ",
-            window[-1].getTimestamp(),
+            window[-1].getTimestamp().astimezone(EST),
              "%+4dagl" % finalAltAGL,
              " %3dkph" % finalSpeed,
              sep='')
@@ -130,8 +134,8 @@ class Aircraft:
 
     def reportFlights(self):
 
-        tTakeoff = datetime.datetime.min
-        tLanding = datetime.datetime.min
+        tTakeoff = Aircraft.event_not_detected
+        tLanding = Aircraft.event_not_detected
         observationPeriod = 45
 
         n = len(self.getSentences())

@@ -6,6 +6,7 @@ import geopy
 import geopy.distance
 
 import datetime
+import pytz
 import re
 
 import math
@@ -33,8 +34,9 @@ class Groundstation:
 
     def setTime(self, t):
         if not(self.datestamp is None):
+            #utc_now = pytz.utc.localize(datetime.datetime.utcnow())
             d = self.datestamp
-            self.timestamp = datetime.datetime(d.year, d.month, d.day, t.hour, t.minute, t.second)
+            self.timestamp = pytz.utc.localize(datetime.datetime(d.year, d.month, d.day, t.hour, t.minute, t.second))
 
         return
 
