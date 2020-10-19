@@ -32,6 +32,9 @@ class Pflaa:
         self.observations = 0
         self.maxDistance = 0
 
+    def getTrack(self):
+        return self.track
+
     def getSource(self):
         return self.source
 

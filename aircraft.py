@@ -34,7 +34,7 @@ class Aircraft:
         return
 
     def atGroundLevel(alt):
-        if (-30 < alt < 30): return True
+        if (-21 < alt < 21): return True
         return False
 
     def trim(timeframeOfWindow, window):
@@ -52,6 +52,36 @@ class Aircraft:
                 # print(window[-1].getTimestamp())
                 window.pop()
 
+    def detectRunway(window):
+        rwy = 0
+        count = 0
+        for obs in range(0, len(window)):
+            if Aircraft.atGroundLevel(window[obs].getAltitudeAGL() and
+                window[obs].getSpeed() > 10):
+
+                # this won't work for North, where values are near 360 and 0
+
+                # print(
+                #     "%2d" % obs,
+                #     "%2dm" % window[obs].getAltitudeAGL(),
+                #     "%3dkph" % window[obs].getSpeed(),
+                #     "%3ddeg" % window[obs].getTrack())
+                rwy += window[obs].getTrack()
+                count += 1
+        # print(
+        #     "%4d tot runway" % rwy,
+        #     "%3d obs" % obs
+        #     )
+
+        rwy = int(rwy/count/10)
+
+        # correct for known runways
+        if (22 <= rwy <= 27):
+            rwy = 26
+        elif (6 <= rwy <= 10):
+            rwy = 8
+
+        return rwy
 
     def detectTakeoff(timeframeOfWindow, window):
         EST = pytz.timezone('US/Eastern')
@@ -61,8 +91,11 @@ class Aircraft:
             return Aircraft.event_not_detected
 
         # takeoff inital rolling speed
+        # when too slow, a towplane rolling-up to a glider
+        # gets included! The heading of the towplane is wrong at that point,
+        # which messes with R calculation.
         initialSpeed = int(window[0].getSpeed())
-        if not (1 <= initialSpeed <= 19):
+        if not (9 <= initialSpeed <= 19):
             return Aircraft.event_not_detected
 
         # initial climbout speed at least this
@@ -80,15 +113,20 @@ class Aircraft:
         if not (finalAltAGL > initialAltAGL + 30):
             return Aircraft.event_not_detected
 
+        rwy = Aircraft.detectRunway(window)
+
         print(
             "Takeoff ",
             window[0].getTimestamp().astimezone(EST),
-            "%+4dagl" % initialAltAGL,
+            " R%02d" % int(rwy),
+            " %+4dagl" % initialAltAGL,
             " %3dkph" % initialSpeed,
              " ==>> ",
             window[-1].getTimestamp().astimezone(EST),
-             "%+4dagl" % finalAltAGL,
+             " %+4dagl" % finalAltAGL,
              " %3dkph" % finalSpeed,
+             " ",
+             window[-1].getTimestamp() - window[0].getTimestamp(),
              sep='')
         return t1
 
@@ -121,15 +159,20 @@ class Aircraft:
         if not (initialAltAGL > finalAltAGL + 30):
             return Aircraft.event_not_detected
 
+        rwy = Aircraft.detectRunway(window)
+
         print(
             "Landing ",
             window[0].getTimestamp().astimezone(EST),
-            "%+4dagl" % initialAltAGL,
+            " R%02d" % rwy,
+            " %+4dagl" % initialAltAGL,
             " %3dkph" % initialSpeed,
              " ==>> ",
             window[-1].getTimestamp().astimezone(EST),
-             "%+4dagl" % finalAltAGL,
+             " %+4dagl" % finalAltAGL,
              " %3dkph" % finalSpeed,
+             " ",
+             window[-1].getTimestamp() - window[0].getTimestamp(),
              sep='')
 
         return window[-1].getTimestamp()
