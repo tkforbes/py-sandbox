@@ -13,6 +13,9 @@ import math
 
 
 class Groundstation:
+
+    TZ = pytz.timezone('US/Eastern')
+
     def __init__(self):
         self.lat = None
         self.lon = None
@@ -28,6 +31,18 @@ class Groundstation:
         # elevations. set them to opposites initially.
         self.elevationMax = self.ignoreBelow
         self.elevationMin = self.ignoreAbove
+
+    def atGroundLevel(alt):
+        '''
+        upper and lower boundardies of AGL zero that are considered
+        sufficiently close to the ground to be considered as good as AGL zero.
+        '''
+
+        # in future, add a correction for GPS antenna height. the GS could
+        # be tower mounted or located away from the airfield.
+        if (alt in range(-20, 20)): return True
+
+        return False
 
     def setDate(self, d):
         self.datestamp = d

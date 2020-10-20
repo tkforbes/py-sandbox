@@ -2,16 +2,13 @@ from enum import Enum
 
 import datetime
 import pytz
-
-class FlightState(Enum):
-        LANDED = 1
-        DEPARTED = 2
-        APPROACHING = 4
+from groundstation import Groundstation
 
 class Aircraft:
 
+    # static datetime value used by class to indicate failure
     event_not_detected = pytz.utc.localize(datetime.datetime.min)
-    #sentences = []
+
 
     def __init__(self, reg):
         self.aircraftId = reg
@@ -30,14 +27,12 @@ class Aircraft:
     def getAircraftType(self):
         return self.aircraftType
 
-    def segment(self, t1, t2):
-        return
-
-    def atGroundLevel(alt):
-        if (-21 < alt < 21): return True
-        return False
-
     def trim(timeframeOfWindow, window):
+        '''
+        a window of observations might contain observations beyond
+        the unexpected timeframe. trim the window to just the expected
+        timeframe by removing extraneous observations from the tail end.
+        '''
 
         tStart = window[0].getTimestamp()
         tMax = tStart + datetime.timedelta(seconds=timeframeOfWindow)
@@ -45,8 +40,9 @@ class Aircraft:
 
         # remove observations that are out of range
         for y in range(0, len(window)):
-            # remove final observation if beyond range
+            # remove tail observation if beyond timeframe
             if (tStart <= window[-1].getTimestamp() <= tMax):
+                # don't look any further.
                 break
             else:
                 # print(window[-1].getTimestamp())
@@ -54,9 +50,9 @@ class Aircraft:
 
     def detectRunway(window):
         rwy = 0
-        count = 0
+        n = 0
         for obs in range(0, len(window)):
-            if Aircraft.atGroundLevel(window[obs].getAltitudeAGL() and
+            if Groundstation.atGroundLevel(window[obs].getAltitudeAGL() and
                 window[obs].getSpeed() > 10):
 
                 # this won't work for North, where values are near 360 and 0
@@ -66,16 +62,19 @@ class Aircraft:
                 #     "%2dm" % window[obs].getAltitudeAGL(),
                 #     "%3dkph" % window[obs].getSpeed(),
                 #     "%3ddeg" % window[obs].getTrack())
+
+                # eventually, we will calculat the average runwaay
                 rwy += window[obs].getTrack()
-                count += 1
+                n += 1
         # print(
         #     "%4d tot runway" % rwy,
         #     "%3d obs" % obs
         #     )
 
-        rwy = int(rwy/count/10)
+        # calculate the average and divide by ten
+        rwy = int(rwy/n/10)
 
-        # correct for known runways
+        # correct for known runways. This is Kars specific, for now.
         if (22 <= rwy <= 27):
             rwy = 26
         elif (6 <= rwy <= 10):
@@ -84,7 +83,6 @@ class Aircraft:
         return rwy
 
     def detectTakeoff(timeframeOfWindow, window):
-        EST = pytz.timezone('US/Eastern')
         t1 = window[0].getTimestamp()
 
         if not (len(window) > 0):
@@ -105,7 +103,7 @@ class Aircraft:
 
         # must be close to the ground initially
         initialAltAGL = window[0].getAltitudeAGL()
-        if not Aircraft.atGroundLevel(initialAltAGL):
+        if not Groundstation.atGroundLevel(initialAltAGL):
             return Aircraft.event_not_detected
 
         # must be at least this much higher during climbout
@@ -117,12 +115,12 @@ class Aircraft:
 
         print(
             "Takeoff ",
-            window[0].getTimestamp().astimezone(EST),
+            window[0].getTimestamp().astimezone(Groundstation.TZ),
             " R%02d" % int(rwy),
             " %+4dagl" % initialAltAGL,
             " %3dkph" % initialSpeed,
              " ==>> ",
-            window[-1].getTimestamp().astimezone(EST),
+            window[-1].getTimestamp().astimezone(Groundstation.TZ),
              " %+4dagl" % finalAltAGL,
              " %3dkph" % finalSpeed,
              " ",
@@ -131,8 +129,6 @@ class Aircraft:
         return t1
 
     def detectLanding(timeframeOfWindow, window):
-
-        EST = pytz.timezone('US/Eastern')
         t1 = window[0].getTimestamp()
         windowSize = len(window)
 
@@ -146,7 +142,7 @@ class Aircraft:
 
         # ensure on the ground
         finalAltAGL = window[-1].getAltitudeAGL()
-        if not (Aircraft.atGroundLevel(finalAltAGL)):
+        if not (Groundstation.atGroundLevel(finalAltAGL)):
             return Aircraft.event_not_detected
 
         # ensure approaching at speed
@@ -163,12 +159,12 @@ class Aircraft:
 
         print(
             "Landing ",
-            window[0].getTimestamp().astimezone(EST),
+            window[0].getTimestamp().astimezone(Groundstation.TZ),
             " R%02d" % rwy,
             " %+4dagl" % initialAltAGL,
             " %3dkph" % initialSpeed,
              " ==>> ",
-            window[-1].getTimestamp().astimezone(EST),
+            window[-1].getTimestamp().astimezone(Groundstation.TZ),
              " %+4dagl" % finalAltAGL,
              " %3dkph" % finalSpeed,
              " ",
@@ -181,15 +177,19 @@ class Aircraft:
 
         tTakeoff = Aircraft.event_not_detected
         tLanding = Aircraft.event_not_detected
+
+        # num of seconds of an observation period. The period is used
+        # in determining flight events like takeoff and landing.
         observationPeriod = 45
 
+
         n = len(self.getSentences())
-        if (n > 0): n -= 1
+        if (n > 0): n -= 1  # correct for zero-based index
 
         # move through the list, one observation at a time
         for x in range(0, n):
 
-            # carve out smaller lists of observations.
+            # create views of a limited timeframe.
             takeoffObservations = self.sentences[x:x+observationPeriod]
             Aircraft.trim(observationPeriod, takeoffObservations)
             landingObservations = self.sentences[x:x+observationPeriod]
