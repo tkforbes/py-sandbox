@@ -1,5 +1,3 @@
-from enum import Enum
-
 import datetime
 import pytz
 from groundstation import Groundstation
@@ -9,17 +7,19 @@ class Aircraft:
     # static datetime value used by class to indicate failure
     event_not_detected = pytz.utc.localize(datetime.datetime.min)
 
-
     def __init__(self, reg):
         self.aircraftId = reg
         self.aircraftType = ''
-        self.sentences = []
 
-    def append(self, sentence):
-        self.sentences.append(sentence)
+        # observations are the senquentially ordered sequence of
+        # positions reported by an aircraft.
+        self.observations = []
 
-    def getSentences(self):
-        return self.sentences
+    def append(self, observation):
+        self.observations.append(observation)
+
+    def getObservations(self):
+        return self.observations
 
     def getAircraftId(self):
         return self.aircraftId
@@ -29,9 +29,9 @@ class Aircraft:
 
     def trim(timeframeOfWindow, window):
         '''
-        a window of observations might contain observations beyond
-        the unexpected timeframe. trim the window to just the expected
-        timeframe by removing extraneous observations from the tail end.
+        check the tail of a window of observations for observations beyond
+        the expected timeframe. trim the window to just the expected
+        timeframe.
         '''
 
         tStart = window[0].getTimestamp()
@@ -183,16 +183,16 @@ class Aircraft:
         observationPeriod = 45
 
 
-        n = len(self.getSentences())
+        n = len(self.getObservations())
         if (n > 0): n -= 1  # correct for zero-based index
 
         # move through the list, one observation at a time
         for x in range(0, n):
 
-            # create views of a limited timeframe.
-            takeoffObservations = self.sentences[x:x+observationPeriod]
+            # create a smaller, look-ahead views of a limited timeframe.
+            takeoffObservations = self.observations[x:x+observationPeriod]
             Aircraft.trim(observationPeriod, takeoffObservations)
-            landingObservations = self.sentences[x:x+observationPeriod]
+            landingObservations = self.observations[x:x+observationPeriod]
             Aircraft.trim(observationPeriod, landingObservations)
 
             t1 = landingObservations[0].getTimestamp()
@@ -216,13 +216,13 @@ class Aircraft:
     #     prevSpeed = 0
     #     prevT = None
     #
-    #     takeoffList = self.sentences[-5:-1]
+    #     takeoffList = self.observations[-5:-1]
     #     print(takeoffList[1].getTimestamp())
     #
-    #     sentenceIterator = iter(self.getSentences())
+    #     sentenceIterator = iter(self.getObservations())
     #
-    #     sentences = self.getSentences()
-    #     for s in sentences:
+    #     observations = self.getObservations()
+    #     for s in observations:
     #         if (s.getSource() == "PFLAA"):
     #             t = s.getTimestamp()
     #             if (prevT is None):
@@ -286,15 +286,15 @@ class Aircraft:
 
 
     def printObservations(self):
-        sentences = self.getSentences()
-        for s in sentences:
+        observations = self.getObservations()
+        for s in observations:
             if (s.getSource() == "PFLAA"):
                 s.printt()
 
     def getMaxDistance(self):
         maxDistance = 0
-        sentences = self.getSentences()
-        for s in sentences:
+        observations = self.getObservations()
+        for s in observations:
             if (s.getSource() == "PFLAA"):
                 distance = s.getDistance()
                 if (distance > maxDistance):
