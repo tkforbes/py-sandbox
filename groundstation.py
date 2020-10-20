@@ -34,7 +34,7 @@ class Groundstation:
 
     def atGroundLevel(alt):
         '''
-        upper and lower boundardies of AGL zero that are considered
+        upper and lower boundardies of AGL zero that are
         sufficiently close to the ground to be considered as good as AGL zero.
         '''
 
