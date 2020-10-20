@@ -40,7 +40,7 @@ class Groundstation:
 
         # in future, add a correction for GPS antenna height. the GS could
         # be tower mounted or located away from the airfield.
-        if (alt in range(-20, 20)): return True
+        if (alt in range(-30, 30)): return True
 
         return False
 
