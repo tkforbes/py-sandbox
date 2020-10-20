@@ -1,6 +1,7 @@
 import datetime
 import pytz
 from groundstation import Groundstation
+from event import Event
 
 class Aircraft:
 
@@ -15,7 +16,10 @@ class Aircraft:
         # positions reported by an aircraft.
         self.observations = []
 
-    def append(self, observation):
+        # occurences of importance detected by processing the observations.
+        self.events = []
+
+    def appendObservations(self, observation):
         self.observations.append(observation)
 
     def getObservations(self):
@@ -82,7 +86,7 @@ class Aircraft:
 
         return rwy
 
-    def detectTakeoff(timeframeOfWindow, window):
+    def detectTakeoff(self, timeframeOfWindow, window):
         t1 = window[0].getTimestamp()
 
         if not (len(window) > 0):
@@ -93,7 +97,7 @@ class Aircraft:
         # gets included! The heading of the towplane is wrong at that point,
         # which messes with R calculation.
         initialSpeed = int(window[0].getSpeed())
-        if not (9 <= initialSpeed <= 19):
+        if not (7 <= initialSpeed <= 19):
             return Aircraft.event_not_detected
 
         # initial climbout speed at least this
@@ -126,9 +130,15 @@ class Aircraft:
              " ",
              window[-1].getTimestamp() - window[0].getTimestamp(),
              sep='')
+
+        e = Event()
+        e.set("T", window[0].getTimestamp().astimezone(Groundstation.TZ),
+                0, 0, initialAltAGL, 0, rwy, 0, initialSpeed)
+        self.events.append(e)
+
         return t1
 
-    def detectLanding(timeframeOfWindow, window):
+    def detectLanding(self, timeframeOfWindow, window):
         t1 = window[0].getTimestamp()
         windowSize = len(window)
 
@@ -171,6 +181,11 @@ class Aircraft:
              window[-1].getTimestamp() - window[0].getTimestamp(),
              sep='')
 
+        e = Event()
+        e.set("L", window[-1].getTimestamp().astimezone(Groundstation.TZ),
+                0, 0, finalAltAGL, 0, rwy, 0, finalSpeed)
+        self.events.append(e)
+
         return window[-1].getTimestamp()
 
     def reportFlights(self):
@@ -202,9 +217,57 @@ class Aircraft:
                 tLanding + datetime.timedelta(seconds=observationPeriod) > t1):
                 pass
             else:
-                tTakeoff = Aircraft.detectTakeoff(observationPeriod, takeoffObservations)
-                tLanding = Aircraft.detectLanding(observationPeriod, landingObservations)
+                tTakeoff = self.detectTakeoff(observationPeriod, takeoffObservations)
+                tLanding = self.detectLanding(observationPeriod, landingObservations)
 
+        return
+
+    def reportEvents(self):
+        print("Flight Durations")
+        tTakeoffTimestamp = Aircraft.event_not_detected
+        tLandingTimestamp = Aircraft.event_not_detected
+        tTotal = datetime.timedelta(seconds=0)
+
+        for e in self.events:
+            if e.type == 'T':
+                tTakeoffTimestamp = e.timestamp
+                takeoffRwy = e.rwy
+                takeoffAltAGL = e.altAGL
+                takeoffSpeed = e.speed
+
+            if e.type == 'L':
+                tLandingTimestamp = e.timestamp
+                landingRwy = e.rwy
+                landingAltAGL = e.altAGL
+                landingSpeed = e.speed
+
+                tDuration = tLandingTimestamp - tTakeoffTimestamp
+                tTotal += tDuration
+
+                if (tLandingTimestamp < tTakeoffTimestamp + datetime.timedelta(hours=16)):
+                    print(
+                        "%8s" % "Takeoff ",
+                        tTakeoffTimestamp,
+                        " R%02d" % takeoffRwy,
+                        " %+3dagl" % takeoffAltAGL,
+                        " %3dkph" % takeoffSpeed,
+                        "%14s" % " ==>> Landing ",
+                        tLandingTimestamp,
+                        " R%02d" % landingRwy,
+                        " %+3dagl" % landingAltAGL,
+                        " %3dkph " % landingSpeed,
+                        tDuration,
+                         sep='')
+
+                    # print("Takeoff", tTakeoff, "Landing", tLanding, "Duration:", tDuration)
+                else:
+                    print("Landing", tLanding)
+
+                tTakeoff = Aircraft.event_not_detected
+                tLanding = Aircraft.event_not_detected
+
+
+        print("Total time:", tTotal)
         return
 
             # if (t1 > tLanding+datetime.timedelta(seconds=timeframeOfWindow))

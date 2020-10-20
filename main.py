@@ -46,7 +46,7 @@ def eachAircraft():
                     aircraftId = pflaa.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
-                    aircraftSeen[aircraftId].append(pflaa)
+                    aircraftSeen[aircraftId].appendObservations(pflaa)
 
         elif sentence.sentence_type == 'RMC':
             # this sentence contains the current date
@@ -77,6 +77,7 @@ def eachAircraft():
         print("")
         print(ac)
         aircraftSeen[ac].reportFlights()
+        aircraftSeen[ac].reportEvents()
 
     # for ac in list(aircraftSeen.keys()):
     #     print("")
@@ -125,7 +126,7 @@ def processNmeaStream():
                     aircraftId = pflaa.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
-                    aircraftSeen[aircraftId].append(sentence)
+                    aircraftSeen[aircraftId].appendObservations(sentence)
                     pflaa.printt()
 
 
