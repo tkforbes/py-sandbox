@@ -71,12 +71,12 @@ def eachAircraft():
     groundstation.report()
 
     print("")
-    print("REPORT FLIGHTS")
-    print("==============")
+    print("FLIGHTS PER AIRCRAFT")
+    print("====================")
     for ac in list(aircraftSeen.keys()):
         print("")
         print(ac)
-        aircraftSeen[ac].reportFlights()
+        aircraftSeen[ac].detectEvents()
         aircraftSeen[ac].reportEvents()
 
     # for ac in list(aircraftSeen.keys()):
