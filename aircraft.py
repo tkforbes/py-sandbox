@@ -2,6 +2,9 @@ import datetime
 import pytz
 from groundstation import Groundstation
 from event import Event
+from event import TakeoffEvent
+from event import LandingEvent
+
 
 class Aircraft:
 
@@ -131,9 +134,8 @@ class Aircraft:
         #      window[-1].getTimestamp() - window[0].getTimestamp(),
         #      sep='')
 
-        e = Event()
-        e.set("T", window[0].getTimestamp().astimezone(Groundstation.TZ),
-                0, 0, initialAltAGL, 0, rwy, 0, initialSpeed)
+        e = TakeoffEvent(window[0].getTimestamp().astimezone(Groundstation.TZ),
+                0, 0, initialAltAGL, rwy, initialSpeed)
         self.events.append(e)
 
         return t1
@@ -181,9 +183,8 @@ class Aircraft:
         #      window[-1].getTimestamp() - window[0].getTimestamp(),
         #      sep='')
 
-        e = Event()
-        e.set("L", window[-1].getTimestamp().astimezone(Groundstation.TZ),
-                0, 0, finalAltAGL, 0, rwy, 0, finalSpeed)
+        e = LandingEvent(window[-1].getTimestamp().astimezone(Groundstation.TZ),
+                0, 0, finalAltAGL, rwy, finalSpeed)
         self.events.append(e)
 
         return window[-1].getTimestamp()
@@ -220,6 +221,7 @@ class Aircraft:
                 tTakeoff = self.detectTakeoff(observationPeriod, takeoffObservations)
                 tLanding = self.detectLanding(observationPeriod, landingObservations)
 
+
         return
 
     def reportEvents(self):
@@ -229,13 +231,13 @@ class Aircraft:
         tTotal = datetime.timedelta(seconds=0)
 
         for e in self.events:
-            if e.type == 'T':
+            if type(e) is TakeoffEvent:
                 tTakeoffTimestamp = e.timestamp
                 takeoffRwy = e.rwy
                 takeoffAltAGL = e.altAGL
                 takeoffSpeed = e.speed
 
-            if e.type == 'L':
+            if type(e) is LandingEvent:
                 tLandingTimestamp = e.timestamp
                 landingRwy = e.rwy
                 landingAltAGL = e.altAGL
