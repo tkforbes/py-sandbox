@@ -3,7 +3,7 @@ import pytz
 
 class Event:
 
-    event_not_detected = pytz.utc.localize(datetime.datetime.min)
+    event_not_detected = pytz.utc.localize(datetime.datetime(1970, 1, 1))
 
     def __init__(self, timestamp, lat, lon, altAGL, rwy, speed):
         self.timestamp = timestamp
