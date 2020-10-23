@@ -90,22 +90,19 @@ def eachAircraft():
         aircraftSeen[ac].detectEvents()
         aircraftSeen[ac].reportEvents()
 
-    launches = []
+    flightSheet = []
     for ac in list(aircraftSeen.keys()):
         reg = aircraftSeen[ac].getAircraftId()
         theEvents = aircraftSeen[ac].events
         for e in theEvents:
             if (type(e) is TakeoffEvent):
-                le = LaunchEvent(reg, e.timestamp, e.lat, e.lon,
-                    e.altAGL, e.rwy, e.speed)
+                le = LaunchEvent(reg, e.getTimestamp(), e.getLat(), e.getLon(),
+                    e.getAltitudeAGL(), e.getRwy(), e.getSpeed())
                 # print(le.getTimestamp(), reg, repr(le))
-                launches.append(le)
+                flightSheet.append(le)
 
-    launches.sort()
-    # print("")
-    # print("Sorted")
-    # for l in launches:
-    #     print(l.getTimestamp(), l.reg)
+    flightSheet.sort()
+
 
     print("")
     print("Flight Sheet")
@@ -115,18 +112,18 @@ def eachAircraft():
 
     # we work with pairs, so starting at the second takeoff and looking at
     # the first...
-    for n in range(1, len(launches)):
-        previous = launches[n-1].getTimestamp()
-        current = launches[n].getTimestamp()
-        if n < len(launches)-1:
-            next = launches[n+1].getTimestamp()
+    for n in range(1, len(flightSheet)):
+        previous = flightSheet[n-1].getTimestamp()
+        current = flightSheet[n].getTimestamp()
+        if n < len(flightSheet)-1:
+            next = flightSheet[n+1].getTimestamp()
         else:
             next = Event.event_not_detected
 
         # are the current and previous takeoff within 30 seconds?
         if (previous - datetime.timedelta(seconds=30) < current < previous + datetime.timedelta(seconds=30)):
             # this is a takeoff pair
-            print ("%2d" % y, "Launch ", current, "R%2d" % launches[n].rwy, launches[n].reg, launches[n-1].reg)
+            print ("%2d" % y, "Launch ", current, "R%2d" % flightSheet[n].getRwy(), flightSheet[n].getReg(), flightSheet[n-1].getReg())
             y+=1
         # the pair is not a match. what about the upcoming pair?
         elif (next - datetime.timedelta(seconds=30) < current < next + datetime.timedelta(seconds=30)):
@@ -134,18 +131,10 @@ def eachAircraft():
             pass
         else:
             # this is a lone takeoff event
-            print ("%2d" % y, "Takeoff", current, "R%2d" % launches[n].rwy, launches[n].reg)
+            print ("%2d" % y, "Takeoff", current, "R%2d" % flightSheet[n].getRwy(), flightSheet[n].getReg())
             y+=1
 
     return
-
-    # for ac in list(aircraftSeen.keys()):
-    #     print("")
-    #     print(ac)
-    #     aircraftSeen[ac].printObservations()
-    #     distance, altAGL = aircraftSeen[ac].getMaxDistance()
-    #     print("max dist: %5dm" % distance,
-    #             "@%dm AGL" % altAGL)
 
 def processNmeaStream():
 

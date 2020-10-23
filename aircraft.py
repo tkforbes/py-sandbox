@@ -232,16 +232,16 @@ class Aircraft:
 
         for e in self.events:
             if type(e) is TakeoffEvent:
-                tTakeoffTimestamp = e.timestamp
-                takeoffRwy = e.rwy
-                takeoffAltAGL = e.altAGL
-                takeoffSpeed = e.speed
+                tTakeoffTimestamp = e.getTimestamp()
+                takeoffRwy = e.getRwy()
+                takeoffAltAGL = e.getAltitudeAGL()
+                takeoffSpeed = e.getSpeed()
 
             if type(e) is LandingEvent:
-                tLandingTimestamp = e.timestamp
-                landingRwy = e.rwy
-                landingAltAGL = e.altAGL
-                landingSpeed = e.speed
+                tLandingTimestamp = e.getTimestamp()
+                landingRwy = e.getRwy()
+                landingAltAGL = e.getAltitudeAGL()
+                landingSpeed = e.getSpeed()
 
                 tDuration = tLandingTimestamp - tTakeoffTimestamp
                 tTotal += tDuration
@@ -274,84 +274,6 @@ class Aircraft:
         print("%95s" % " ",
                 tTotal)
         return
-
-            # if (t1 > tLanding+datetime.timedelta(seconds=timeframeOfWindow))
-            # l = Aircraft.detectLanding(observationPeriod, landingObservations)
-
-    # def reportFlights(self):
-    #
-    #     state = FlightState.LANDED
-    #     prevSpeed = 0
-    #     prevT = None
-    #
-    #     takeoffList = self.observations[-5:-1]
-    #     print(takeoffList[1].getTimestamp())
-    #
-    #     sentenceIterator = iter(self.getObservations())
-    #
-    #     observations = self.getObservations()
-    #     for s in observations:
-    #         if (s.getSource() == "PFLAA"):
-    #             t = s.getTimestamp()
-    #             if (prevT is None):
-    #                 prevT = t
-    #
-    #             gap = t - prevT
-    #             #permittedGap =
-    #
-    #             v = s.getSpeed()
-    #             agl = s.getAltitudeAGL()
-    #
-    #
-    #             if (state == FlightState.LANDED):
-    #                 if (v > 60 and 30 < agl < 130 ):
-    #                     departed = t
-    #                     state = FlightState.DEPARTING
-    #                     if (gap > datetime.timedelta(seconds=30)):
-    #                         print ("=========== gap %s ===========" % gap)
-    #                     print("%11s" %"departing",
-    #                         "%8s" % t,
-    #                         "%3dkph" % v,
-    #                         "%4dm AGL" % agl
-    #                     )
-    #
-    #             if (state == FlightState.DEPARTING):
-    #                 if (v > 60 and agl >= 130 ):
-    #                     state = FlightState.FLYING
-    #                     if (gap > datetime.timedelta(seconds=30)):
-    #                         print ("=========== gap %s ===========" % gap)
-    #                     print("%11s" %"flying",
-    #                         "%8s" % t,
-    #                         "%3dkph" % v,
-    #                         "%4dm AGL" % agl
-    #                     )
-    #
-    #             if (state == FlightState.FLYING):
-    #                 if (v > 60 and 20 < agl < 100 ):
-    #                     state = FlightState.APPROACHING
-    #                     if (gap > datetime.timedelta(seconds=30)):
-    #                         print ("=========== gap %s ===========" % gap)
-    #                     print("%11s" %"approaching",
-    #                         "%8s" % t,
-    #                         "%3dkph" % v,
-    #                         "%4dm AGL" % agl
-    #                     )
-    #
-    #             if (state == FlightState.APPROACHING):
-    #                 if (v < 30 and -30 < agl < 15 ):
-    #                     state = FlightState.LANDED
-    #                     if (gap > datetime.timedelta(seconds=30)):
-    #                         print ("=========== gap %s ===========" % gap)
-    #                     print("%11s" %"landed",
-    #                         "%8s" % t,
-    #                         "%3dkph" % v,
-    #                         "%4dm AGL" % agl,
-    #                         "duration: %s" % str(t - departed)
-    #                     )
-    #
-    #             prevT = t
-    #     return
-
 
     def printObservations(self):
         observations = self.getObservations()
