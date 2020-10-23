@@ -5,13 +5,13 @@ class Event:
 
     event_not_detected = pytz.utc.localize(datetime.datetime(1970, 1, 1))
 
-    def __init__(self, timestamp, lat, lon, altAGL, track, speed):
+    def __init__(self, timestamp, lat, lon, altAGL, track, speedMS):
         self.timestamp = timestamp
         self.lat = lat
         self.lon = lon
         self.altAGL = altAGL
         self.track = track
-        self.speed = speed
+        self.speedMS = speedMS # speed in metres per second
         return
 
     def getTimestamp(self):
@@ -27,7 +27,10 @@ class Event:
         return self.altAGL
 
     def getSpeed(self):
-        return self.speed
+        return self.speedMS
+
+    def getSpeedKPH(self):
+        return self.speedMS*3.6
 
     def getTrack(self):
         return self.track

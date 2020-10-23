@@ -42,6 +42,9 @@ class Pflaa:
         return self.timestamp
 
     def getSpeed(self):
+        return self.speed
+
+    def getSpeedKPH(self):
         # speed in kph
         return self.speed*3.6
 
