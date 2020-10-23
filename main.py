@@ -75,6 +75,12 @@ def eachAircraft():
 
     groundstation.report()
 
+    # reg = "C-GFOP"
+    # print("")
+    # print(reg)
+    # aircraftSeen[reg].printObservations()
+
+
     print("")
     print("FLIGHTS PER AIRCRAFT")
     print("====================")
