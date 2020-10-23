@@ -67,19 +67,14 @@ def eachAircraft():
             # this sentence has the groundstation timestamp, lat, lon, elevation
             groundstation.set(sentence)
 
-    #print(aircraftSeen['C-GDQK'].getAircraftId())
-    #print(len(aircraftSeen['C-GDQK'].getSentences()))
-    #print(aircraftSeen['C-GDQK'].getSentences())
-
     print("%s" % list(aircraftSeen.keys()))
 
     groundstation.report()
 
-    # reg = "C-GFOP"
-    # print("")
-    # print(reg)
-    # aircraftSeen[reg].printObservations()
-
+    reg = "C-GFOP"
+    print("")
+    print(reg)
+    aircraftSeen[reg].printObservations()
 
     print("")
     print("FLIGHTS PER AIRCRAFT")
@@ -97,7 +92,7 @@ def eachAircraft():
         for e in theEvents:
             if (type(e) is TakeoffEvent):
                 le = LaunchEvent(reg, e.getTimestamp(), e.getLat(), e.getLon(),
-                    e.getAltitudeAGL(), e.getRwy(), e.getSpeed())
+                    e.getAltitudeAGL(), e.getTrack(), e.getSpeed())
                 # print(le.getTimestamp(), reg, repr(le))
                 flightSheet.append(le)
 
@@ -123,7 +118,7 @@ def eachAircraft():
         # are the current and previous takeoff within 30 seconds?
         if (previous - datetime.timedelta(seconds=30) < current < previous + datetime.timedelta(seconds=30)):
             # this is a takeoff pair
-            print ("%2d" % y, "Launch ", current, "R%2d" % flightSheet[n].getRwy(), flightSheet[n].getReg(), flightSheet[n-1].getReg())
+            print ("%02d" % y, "Launch ", current, "R%02d" % flightSheet[n].getRwy(), flightSheet[n].getReg(), flightSheet[n-1].getReg())
             y+=1
         # the pair is not a match. what about the upcoming pair?
         elif (next - datetime.timedelta(seconds=30) < current < next + datetime.timedelta(seconds=30)):
@@ -131,7 +126,7 @@ def eachAircraft():
             pass
         else:
             # this is a lone takeoff event
-            print ("%2d" % y, "Takeoff", current, "R%2d" % flightSheet[n].getRwy(), flightSheet[n].getReg())
+            print ("%02d" % y, "Takeoff", current, "R%02d" % flightSheet[n].getRwy(), flightSheet[n].getReg())
             y+=1
 
     return

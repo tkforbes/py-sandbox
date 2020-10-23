@@ -55,8 +55,8 @@ class Aircraft:
                 # print(window[-1].getTimestamp())
                 window.pop()
 
-    def detectRunway(window):
-        rwy = 0
+    def detectTrack(window):
+        track = 0
         n = 0
         for obs in range(0, len(window)):
             if Groundstation.atGroundLevel(window[obs].getAltitudeAGL() and
@@ -71,23 +71,23 @@ class Aircraft:
                 #     "%3ddeg" % window[obs].getTrack())
 
                 # eventually, we will calculat the average runwaay
-                rwy += window[obs].getTrack()
+                track += window[obs].getTrack()
                 n += 1
         # print(
         #     "%4d tot runway" % rwy,
         #     "%3d obs" % obs
         #     )
 
-        # calculate the average and divide by ten
-        rwy = int(rwy/n/10)
+        # calculate the average
+        track = int(track/n)
 
         # correct for known runways. This is Kars specific, for now.
-        if (22 <= rwy <= 27):
-            rwy = 26
-        elif (6 <= rwy <= 10):
-            rwy = 8
+        if (220 <= track <= 270):
+            track = 260
+        elif (60 <= track <= 100):
+            track = 80
 
-        return rwy
+        return int(track)
 
     def detectTakeoff(self, timeframeOfWindow, window):
         t1 = window[0].getTimestamp()
@@ -118,7 +118,7 @@ class Aircraft:
         if not (finalAltAGL > initialAltAGL + 30):
             return Aircraft.event_not_detected
 
-        rwy = Aircraft.detectRunway(window)
+        track = Aircraft.detectTrack(window)
 
         # print(
         #     "Takeoff ",
@@ -136,7 +136,7 @@ class Aircraft:
 
         initialSpeedMS = int(window[0].getSpeed()) # speeds stored as metres per second
         e = TakeoffEvent(window[0].getTimestamp().astimezone(Groundstation.TZ),
-                0, 0, initialAltAGL, rwy, initialSpeedMS)
+                0, 0, initialAltAGL, track, initialSpeedMS)
         self.events.append(e)
 
         return t1
@@ -168,7 +168,7 @@ class Aircraft:
         if not (initialAltAGL > finalAltAGL + 30):
             return Aircraft.event_not_detected
 
-        rwy = Aircraft.detectRunway(window)
+        track = Aircraft.detectTrack(window)
 
         # print(
         #     "Landing ",
@@ -186,7 +186,7 @@ class Aircraft:
 
         finalSpeedMS = int(window[-1].getSpeed()) # we store speed in M/S
         e = LandingEvent(window[-1].getTimestamp().astimezone(Groundstation.TZ),
-                0, 0, finalAltAGL, rwy, finalSpeedMS)
+                0, 0, finalAltAGL, track, finalSpeedMS)
         self.events.append(e)
 
         return window[-1].getTimestamp()

@@ -40,14 +40,14 @@ class TakeoffEvent(Event):
             super().__init__(timestamp, lat, lon, altAGL, rwy, speed)
 
     # in the context of TakeoffEvent, the track indicates the runway.
-    def getRwy(self): return self.track
+    def getRwy(self): return int(self.track + 5) / 10
 
 class LandingEvent(Event):
     def __init__(self, timestamp, lat, lon, altAGL, rwy, speed):
             super().__init__(timestamp, lat, lon, altAGL, rwy, speed)
 
     # in the context of LandingEvent, the track indicates the runway.
-    def getRwy(self): return self.track
+    def getRwy(self): return int(self.track + 5) / 10
 
 class LaunchEvent(Event):
     def __init__(self, registration, timestamp, lat, lon, altAGL, rwy, speed):
@@ -57,7 +57,7 @@ class LaunchEvent(Event):
     def getReg(self): return self.reg
 
     # in the context of LaunchEvent, the track indicates the runway.
-    def getRwy(self): return self.track
+    def getRwy(self): return int(self.track + 5) / 10
 
     def __lt__(self, other):
         if self.timestamp < other.timestamp: return True
