@@ -307,7 +307,7 @@ class Pflaa:
             #"alt AGL:%4d" % self.getAltitudeAGL(),
             "\t%4dm AGL" % self.getAltitudeAGL(),
             "\t%3ddeg" % self.track,
-            "@ %3dkph" % self.getSpeed(),
+            "@ %3dkph" % self.getSpeedKPH(),
             "\tvV %+2.1f" % self.climbRate,
             "\trN %5d" % self.relativeNorth,
             " rE %5d" % self.relativeEast,
