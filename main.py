@@ -9,8 +9,7 @@ from ognRegistrations import OgnRegistration
 from event import Event
 from event import TakeoffEvent
 from event import LandingEvent
-from event import FlightsheetTakeoffEvent
-from event import FlightsheetLandingEvent
+from event import LaunchEvent
 import datetime
 
 pflaa = Pflaa()
@@ -72,10 +71,10 @@ def eachAircraft():
 
     groundstation.report()
 
-    reg = "C-GFOP"
-    print("")
-    print(reg)
-    aircraftSeen[reg].printObservations()
+    # reg = "C-GFOP"
+    # print("")
+    # print(reg)
+    # aircraftSeen[reg].printObservations()
 
     print("")
     print("FLIGHTS PER AIRCRAFT")
@@ -92,20 +91,10 @@ def eachAircraft():
         theEvents = aircraftSeen[ac].events
         for e in theEvents:
             if (type(e) is TakeoffEvent):
-                takeoff= FlightsheetTakeoffEvent(reg, e.getTimestamp(), e.getLat(), e.getLon(),
-                    e.getAltitudeAGL(), e.getTrack(), e.getSpeed())
+                le = LaunchEvent(reg, e.getTimestamp(), e.getLat(), e.getLon(),
+                    e.getAltitudeAGL(), e.getTrack(), e.speed)
                 # print(le.getTimestamp(), reg, repr(le))
-                flightSheet.append(takeoff)
-
-    for ac in list(aircraftSeen.keys()):
-        reg = aircraftSeen[ac].getAircraftId()
-        theEvents = aircraftSeen[ac].events
-        for e in theEvents:
-            if (type(e) is LandingEvent):
-                landing= FlightsheetLandingEvent(reg, e.getTimestamp(), e.getLat(), e.getLon(),
-                    e.getAltitudeAGL(), e.getTrack(), e.getSpeed())
-                # print(le.getTimestamp(), reg, repr(le))
-                flightSheet.append(landing)
+                flightSheet.append(le)
 
     flightSheet.sort()
 

@@ -6,7 +6,7 @@ import geopy.distance
 import sys
 
 from ognRegistrations import OgnRegistration
-
+from groundspeed import Groundspeed
 
 class Pflaa:
 
@@ -40,13 +40,6 @@ class Pflaa:
 
     def getTimestamp(self):
         return self.timestamp
-
-    def getSpeed(self):
-        return self.speed
-
-    def getSpeedKPH(self):
-        # speed in kph
-        return self.speed*3.6
 
     def getAltitudeAGL(self):
         return self.relativeVertical
@@ -196,7 +189,7 @@ class Pflaa:
         try:
             ndx = Pflaa.pflaaIndex.get('groundSpeed')
             int(ndx)
-            groundSpeed = int(nmea_flaa.data[ndx])
+            groundSpeed = Groundspeed(nmea_flaa.data[ndx])
             if not (0 <= groundSpeed <= 32767):
                 raise Exception("ground speed out of range")
         except Exception as e:
@@ -294,10 +287,10 @@ class Pflaa:
         """
         if (self.getDistance() > 3000): return
         if (self.getAltitudeAGL() > 40): return
-        if (self.getSpeed() < 5): return
+        if (self.speed.kph() < 5): return
         """
 
-        #if (self.getSpeed() == 0): return
+        #if (self.speed.kph() == 0): return
 
         print(self.aircraftId,
             " %-9s" % self.timestamp.time(),
@@ -307,7 +300,7 @@ class Pflaa:
             #"alt AGL:%4d" % self.getAltitudeAGL(),
             "\t%4dm AGL" % self.getAltitudeAGL(),
             "\t%3ddeg" % self.track,
-            "@ %3dkph" % self.getSpeedKPH(),
+            "@ %3dkph" % self.speed.kph(),
             "\tvV %+2.1f" % self.climbRate,
             "\trN %5d" % self.relativeNorth,
             " rE %5d" % self.relativeEast,
