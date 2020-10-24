@@ -9,7 +9,8 @@ from ognRegistrations import OgnRegistration
 from event import Event
 from event import TakeoffEvent
 from event import LandingEvent
-from event import LaunchEvent
+from event import FlightsheetTakeoffEvent
+from event import FlightsheetLandingEvent
 import datetime
 
 pflaa = Pflaa()
@@ -91,10 +92,20 @@ def eachAircraft():
         theEvents = aircraftSeen[ac].events
         for e in theEvents:
             if (type(e) is TakeoffEvent):
-                le = LaunchEvent(reg, e.getTimestamp(), e.getLat(), e.getLon(),
+                takeoff= FlightsheetTakeoffEvent(reg, e.getTimestamp(), e.getLat(), e.getLon(),
                     e.getAltitudeAGL(), e.getTrack(), e.getSpeed())
                 # print(le.getTimestamp(), reg, repr(le))
-                flightSheet.append(le)
+                flightSheet.append(takeoff)
+
+    for ac in list(aircraftSeen.keys()):
+        reg = aircraftSeen[ac].getAircraftId()
+        theEvents = aircraftSeen[ac].events
+        for e in theEvents:
+            if (type(e) is LandingEvent):
+                landing= FlightsheetLandingEvent(reg, e.getTimestamp(), e.getLat(), e.getLon(),
+                    e.getAltitudeAGL(), e.getTrack(), e.getSpeed())
+                # print(le.getTimestamp(), reg, repr(le))
+                flightSheet.append(landing)
 
     flightSheet.sort()
 
