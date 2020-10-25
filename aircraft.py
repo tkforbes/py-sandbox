@@ -134,9 +134,9 @@ class Aircraft:
         #      window[-1].getTimestamp() - window[0].getTimestamp(),
         #      sep='')
 
-        initialSpeedMS = window[0].speed # speeds stored as metres per second
+        # speed stored as metres per second
         e = TakeoffEvent(window[0].getTimestamp().astimezone(Groundstation.TZ),
-                0, 0, initialAltAGL, track, initialSpeedMS)
+                0, 0, initialAltAGL, track, window[0].speed)
         self.events.append(e)
 
         return t1
@@ -184,9 +184,9 @@ class Aircraft:
         #      window[-1].getTimestamp() - window[0].getTimestamp(),
         #      sep='')
 
-        finalSpeedMS = window[-1].speed # we store speed in M/S
+        # store speed in M/S
         e = LandingEvent(window[-1].getTimestamp().astimezone(Groundstation.TZ),
-                0, 0, finalAltAGL, track, finalSpeedMS)
+                0, 0, finalAltAGL, track, window[-1].speed)
         self.events.append(e)
 
         return window[-1].getTimestamp()
