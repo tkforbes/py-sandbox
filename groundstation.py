@@ -32,6 +32,9 @@ class Groundstation:
         self.elevationMax = self.ignoreBelow
         self.elevationMin = self.ignoreAbove
 
+        self.timestampMin = None
+        self.timestampMax = None
+
     def atGroundLevel(alt):
         '''
         upper and lower boundardies of AGL zero that are
@@ -47,12 +50,21 @@ class Groundstation:
     def setDate(self, d):
         self.datestamp = d
 
-    def setTime(self, t):
-        if not(self.datestamp is None):
-            #utc_now = pytz.utc.localize(datetime.datetime.utcnow())
-            d = self.datestamp
-            self.timestamp = pytz.utc.localize(datetime.datetime(d.year, d.month, d.day, t.hour, t.minute, t.second))
+    def setTime(self, ti):
+        if (self.datestamp is None): return
 
+        d = self.datestamp
+        t = pytz.utc.localize(datetime.datetime(d.year, d.month, d.day, ti.hour, ti.minute, ti.second))
+
+        # if timestamp has not be set before, this is the initial time value
+        if (self.timestamp is None):
+            self.timestampMin = t
+            self.timestampMax = t
+
+        #utc_now = pytz.utc.localize(datetime.datetime.utcnow())
+
+        self.timestamp = t
+        self.setTimestampMax()
         return
 
     def is_integer(n):
@@ -88,6 +100,10 @@ class Groundstation:
 
         return True
 
+    def setTimestampMax(self):
+        if self.timestamp > self.timestampMax:
+            self.timestampMax = self.timestamp
+
     def setElevationMax(self):
         if self.elevation > self.elevationMax:
             self.elevationMax = self.elevation
@@ -116,8 +132,10 @@ class Groundstation:
         print("")
         print("Groundstation report")
         print("====================")
-        print("date/time:", self.timestamp)
         print("lat:", self.lat, "lon:", self.lon)
+        print("Start: %24s" % str(self.timestampMin.astimezone(Groundstation.TZ)))
+        print("End:   %24s" % str(self.timestampMax.astimezone(Groundstation.TZ)))
+        print("Dur:   %19s" % str(self.timestampMax - self.timestampMin))
         print("Elevation",
                 "min:%.1f" % self.elevationMin,
                 "max:%.1f" % self.elevationMax,
