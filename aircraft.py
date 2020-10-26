@@ -11,6 +11,8 @@ class Aircraft:
     # static datetime value used by class to indicate failure
     event_not_detected = pytz.utc.localize(datetime.datetime.min)
 
+    # speed is in kph. altitude is in metres
+
     def __init__(self, reg):
         self.aircraftId = reg
         self.aircraftType = ''
@@ -60,14 +62,14 @@ class Aircraft:
         n = 0
         for obs in range(0, len(window)):
             if Groundstation.atGroundLevel(window[obs].getAltitudeAGL() and
-                window[obs].getSpeedKPH() > 10):
+                window[obs].speed.kph() > 10):
 
                 # this won't work for North, where values are near 360 and 0
 
                 # print(
                 #     "%2d" % obs,
                 #     "%2dm" % window[obs].getAltitudeAGL(),
-                #     "%3dkph" % window[obs].getSpeedKPH(),
+                #     "%3dkph" % window[obs].speed.kph(),
                 #     "%3ddeg" % window[obs].getTrack())
 
                 # eventually, we will calculat the average runwaay
@@ -99,13 +101,19 @@ class Aircraft:
         # when too slow, a towplane rolling-up to a glider
         # gets included! The heading of the towplane is wrong at that point,
         # which messes with runway calculation.
-        initialSpeed = int(window[0].getSpeedKPH())
-        if not (7 <= initialSpeed <= 19):
+
+        takeoff_initialSpeedLowerBound = 7
+        takeoff_initialSpeedUpperBound = 19
+        takeoff_climboutSpeedMin = 50
+        takeoff_climboutAltMin = +30
+
+        initialSpeed = window[0].speed.kph()
+        if not (takeoff_initialSpeedLowerBound <= initialSpeed <= takeoff_initialSpeedUpperBound):
             return Aircraft.event_not_detected
 
         # climbout speed at least this
-        finalSpeed = int(window[-1].getSpeedKPH())
-        if not (finalSpeed > 50):
+        finalSpeed = window[-1].speed.kph()
+        if not (finalSpeed >= takeoff_climboutSpeedMin):
             return Aircraft.event_not_detected
 
         # must be close to the ground initially
@@ -115,7 +123,7 @@ class Aircraft:
 
         # must be at least this much higher during climbout
         finalAltAGL = window[-1].getAltitudeAGL()
-        if not (finalAltAGL > initialAltAGL + 30):
+        if not (finalAltAGL >= initialAltAGL + takeoff_climboutAltMin):
             return Aircraft.event_not_detected
 
         track = Aircraft.detectTrack(window)
@@ -134,9 +142,9 @@ class Aircraft:
         #      window[-1].getTimestamp() - window[0].getTimestamp(),
         #      sep='')
 
-        initialSpeedMS = int(window[0].getSpeed()) # speeds stored as metres per second
+        # speed stored as metres per second
         e = TakeoffEvent(window[0].getTimestamp().astimezone(Groundstation.TZ),
-                0, 0, initialAltAGL, track, initialSpeedMS)
+                0, 0, initialAltAGL, track, window[0].speed)
         self.events.append(e)
 
         return t1
@@ -145,12 +153,16 @@ class Aircraft:
         t1 = window[0].getTimestamp()
         windowSize = len(window)
 
+        landing_finalSpeedMax = 16
+        landing_approachSpeedMin = 40
+        landing_approachAltMin = +30
+
         if not (len(window) > 0):
             return Aircraft.event_not_detected
 
         # ensure rollout speed
-        finalSpeed = int(window[-1].getSpeedKPH())
-        if not (finalSpeed < 16):
+        finalSpeed = window[-1].speed.kph()
+        if not (finalSpeed <= landing_finalSpeedMax):
             return Aircraft.event_not_detected
 
         # ensure on the ground
@@ -159,13 +171,13 @@ class Aircraft:
             return Aircraft.event_not_detected
 
         # ensure approaching at speed
-        initialSpeed = int(window[0].getSpeedKPH())
-        if not (initialSpeed > 40):
+        initialSpeed = int(window[0].speed.kph())
+        if not (initialSpeed >= landing_approachSpeedMin):
             return Aircraft.event_not_detected
 
         # ensure approaching from altitude
         initialAltAGL = window[0].getAltitudeAGL()
-        if not (initialAltAGL > finalAltAGL + 30):
+        if not (initialAltAGL >= finalAltAGL + landing_approachAltMin):
             return Aircraft.event_not_detected
 
         track = Aircraft.detectTrack(window)
@@ -184,9 +196,9 @@ class Aircraft:
         #      window[-1].getTimestamp() - window[0].getTimestamp(),
         #      sep='')
 
-        finalSpeedMS = int(window[-1].getSpeed()) # we store speed in M/S
+        # store speed in M/S
         e = LandingEvent(window[-1].getTimestamp().astimezone(Groundstation.TZ),
-                0, 0, finalAltAGL, track, finalSpeedMS)
+                0, 0, finalAltAGL, track, window[-1].speed)
         self.events.append(e)
 
         return window[-1].getTimestamp()
@@ -237,13 +249,13 @@ class Aircraft:
                 tTakeoffTimestamp = e.getTimestamp()
                 takeoffRwy = e.getRwy()
                 takeoffAltAGL = e.getAltitudeAGL()
-                takeoffSpeed = e.getSpeedKPH()
+                takeoffSpeed = e.speed.kph()
 
             if type(e) is LandingEvent:
                 tLandingTimestamp = e.getTimestamp()
                 landingRwy = e.getRwy()
                 landingAltAGL = e.getAltitudeAGL()
-                landingSpeed = e.getSpeedKPH()
+                landingSpeed = e.speed.kph()
 
                 tDuration = tLandingTimestamp - tTakeoffTimestamp
                 tTotal += tDuration
@@ -266,7 +278,7 @@ class Aircraft:
                     n += 1
                     # print("Takeoff", tTakeoff, "Landing", tLanding, "Duration:", tDuration)
                 else:
-                    print("Landing", tLanding)
+                    print("Landing", tLandingTimestamp)
 
                 tTakeoff = Aircraft.event_not_detected
                 tLanding = Aircraft.event_not_detected
