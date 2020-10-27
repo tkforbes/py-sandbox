@@ -1,6 +1,6 @@
 #
 
-OgnDict = {
+OgnDb = {
 # sample of format...
 #                 '000368': 'C-GORE',
 #                 '003974': 'C-GFOP',
@@ -16,11 +16,11 @@ with open('aircraft.canada', 'r') as ognRegistrations:
         aircraftId = values[3].strip("\'")
 
         # append
-        OgnDict[radioId] = detail
+        OgnDb[radioId] = detail
 
 class OgnRegistration:
     def getAircraft(self, radioId):
-        ognReg = OgnDict.get(radioId)
+        ognReg = OgnDb.get(radioId)
         if ognReg is None:
             # when registration is not found, return the radio id.
             ac = radioId
@@ -31,7 +31,7 @@ class OgnRegistration:
         return ac
 
     def getAircraftType(self, radioId):
-        ognReg = OgnDict.get(radioId)
+        ognReg = OgnDb.get(radioId)
         if ognReg is None:
             # when registration is not found, return the radio id.
             acType = radioId
