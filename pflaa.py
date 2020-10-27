@@ -78,7 +78,7 @@ class Pflaa:
             print(nmea_flaa, ":", e)
             sys.exit()
 
-        # hey, I can't set this sentence.
+        # the sentence type must be 'A'. Any other value indicates a serious problem!
         if not (sentenceType == 'A'): return False
 
         # alarm level. valid values: 0 - 3
