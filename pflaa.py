@@ -10,6 +10,9 @@ from groundspeed import Groundspeed
 
 class Pflaa:
 
+    @staticmethod
+    def r_earth(): return 6378.137 # radius of Earth in kms
+
     pflaaIndex = {
         'pflaaRecordIndicator' : 0, # PFLAA
         'alarmLevel' : 1,
@@ -24,9 +27,6 @@ class Pflaa:
         'climbRate' : 10,
         'aircraftType' : 11
     }
-
-
-    r_earth = 6378.137 # radius of Earth in kms
 
     def __init__(self):
         self.observations = 0
@@ -58,8 +58,8 @@ class Pflaa:
 
     def displaceLatLong(self, groundstation):
 
-        self.lat = groundstation.getLat() + (self.relativeNorth / 1000 / Pflaa.r_earth) * (180 / math.pi);
-        self.lon = groundstation.getLon() + (self.relativeEast / 1000 / Pflaa.r_earth) * (180 / math.pi) / math.cos(groundstation.getLat() * math.pi/180)
+        self.lat = groundstation.getLat() + (self.relativeNorth / 1000 / Pflaa.r_earth()) * (180 / math.pi);
+        self.lon = groundstation.getLon() + (self.relativeEast / 1000 / Pflaa.r_earth()) * (180 / math.pi) / math.cos(groundstation.getLat() * math.pi/180)
         return
 
     def set(self, groundstation, nmea_flaa, ):

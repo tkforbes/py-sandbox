@@ -35,6 +35,7 @@ class Groundstation:
         self.timestampMin = None
         self.timestampMax = None
 
+    @staticmethod
     def atGroundLevel(alt):
         '''
         upper and lower boundardies of AGL zero that are
@@ -67,10 +68,8 @@ class Groundstation:
         self.setTimestampMax()
         return
 
+    @staticmethod
     def is_integer(n):
-        """
-        this doesn't belong here.
-        """
         try:
             int(n)
             return True
@@ -87,6 +86,7 @@ class Groundstation:
 
         return True
 
+    @staticmethod
     def isvalid(nmea_gga):
 
         if (nmea_gga.altitude is None):
@@ -144,6 +144,7 @@ class Groundstation:
                 )
         print("observations:", self.observations)
 
+    @staticmethod
     def toDecimalDegrees(dddmmDOTmmmm):
         deg = int(dddmmDOTmmmm/100)
         x = dddmmDOTmmmm - deg*100
