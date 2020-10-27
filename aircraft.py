@@ -313,7 +313,7 @@ class Aircraft:
         maxDistance = 0
         observations = self.getObservations()
         for s in observations:
-            if (s.getSource() == "PFLAA"):
+            if (type(s) is Pflaa):
                 distance = s.getDistance()
                 if (distance > maxDistance):
                     maxDistance = distance

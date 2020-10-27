@@ -37,9 +37,6 @@ class Pflaa:
     def getTrack(self):
         return self.track
 
-    def getSource(self):
-        return self.source
-
     def getTimestamp(self):
         return self.timestamp
 
@@ -252,8 +249,6 @@ class Pflaa:
             print(nmea_flaa, ":", e)
             sys.exit()
 
-
-        self.source = 'PFLAA'
         theOgnReg = OgnRegistration()
         self.aircraftId = theOgnReg.getAircraft(radioId)
         self.timestamp = groundstation.timestamp
