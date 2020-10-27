@@ -14,7 +14,8 @@ import math
 
 class Groundstation:
 
-    TZ = pytz.timezone('US/Eastern')
+    @staticmethod
+    def timezone(): return pytz.timezone('US/Eastern')
 
     def __init__(self):
         self.lat = None
@@ -133,8 +134,8 @@ class Groundstation:
         print("Groundstation report")
         print("====================")
         print("lat:", self.lat, "lon:", self.lon)
-        print("Start: %24s" % str(self.timestampMin.astimezone(Groundstation.TZ)))
-        print("End:   %24s" % str(self.timestampMax.astimezone(Groundstation.TZ)))
+        print("Start: %24s" % str(self.timestampMin.astimezone(Groundstation.timezone())))
+        print("End:   %24s" % str(self.timestampMax.astimezone(Groundstation.timezone())))
         print("Dur:   %19s" % str(self.timestampMax - self.timestampMin))
         print("Elevation",
                 "min:%.1f" % self.elevationMin,
