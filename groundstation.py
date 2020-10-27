@@ -17,6 +17,26 @@ class Groundstation:
     @staticmethod
     def timezone(): return pytz.timezone('US/Eastern')
 
+    @staticmethod
+    def groundLevelLowerLimitAGL(): return -30
+
+    @staticmethod
+    def groundLevelUpperLimitAGL(): return +30
+
+    @staticmethod
+    def atGroundLevel(alt):
+        '''
+        upper and lower boundardies of AGL zero that are
+        sufficiently close to the ground to be considered as good as AGL zero.
+        '''
+
+        # in future, add a correction for GPS antenna height. the GS could
+        # be tower mounted or located away from the airfield.
+        if (alt in range(Groundstation.groundLevelLowerLimitAGL(), Groundstation.groundLevelUpperLimitAGL())):
+            return True
+
+        return False
+
     def __init__(self):
         self.lat = None
         self.lon = None
@@ -32,18 +52,6 @@ class Groundstation:
         self.timestampMin = None
         self.timestampMax = None
 
-    @staticmethod
-    def atGroundLevel(alt):
-        '''
-        upper and lower boundardies of AGL zero that are
-        sufficiently close to the ground to be considered as good as AGL zero.
-        '''
-
-        # in future, add a correction for GPS antenna height. the GS could
-        # be tower mounted or located away from the airfield.
-        if (alt in range(-30, 30)): return True
-
-        return False
 
     def setDate(self, d):
         self.datestamp = d
