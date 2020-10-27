@@ -64,7 +64,7 @@ class Pflaa:
         + (self.relativeEast / 1000 / Pflaa.r_earth()) * (180 / math.pi) / math.cos(groundstation.getLat() * math.pi/180)
         return
 
-    def set(self, groundstation, nmea_flaa, ):
+    def set(self, groundstation, nmea_flaa):
 
         # PFLAA
         # must be a PFLAA sentence type i.e. value must be 'A'
@@ -267,12 +267,6 @@ class Pflaa:
         # now that those values are set, let's set our max distance
         self.setMaxDistance();
 
-        # self.observations += 1
-        #
-        # r_earth = 6378.137
-        #
-        # self.lat = groundstation.getLat() + (self.relativeNorth / 1000 / r_earth) * (180 / math.pi);
-        # self.lon = groundstation.getLon() + (self.relativeEast / 1000 / r_earth) * (180 / math.pi) / math.cos(groundstation.getLat() * math.pi/180)
         return True
 
     def report(self):

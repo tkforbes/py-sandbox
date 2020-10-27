@@ -11,8 +11,6 @@ class Aircraft:
     # static datetime value used by class to indicate failure
     event_not_detected = pytz.utc.localize(datetime.datetime.min)
 
-    # speed is in kph. altitude is in metres
-
     @staticmethod
     def takeoff_initialSpeedLowerBound(): return 7
 
@@ -89,19 +87,8 @@ class Aircraft:
 
                 # this won't work for North, where values are near 360 and 0
 
-                # print(
-                #     "%2d" % obs,
-                #     "%2dm" % window[obs].getAltitudeAGL(),
-                #     "%3dkph" % window[obs].speed.kph(),
-                #     "%3ddeg" % window[obs].getTrack())
-
-                # eventually, we will calculat the average runwaay
                 track += window[obs].getTrack()
                 n += 1
-        # print(
-        #     "%4d tot runway" % rwy,
-        #     "%3d obs" % obs
-        #     )
 
         # calculate the average
         track = int(track/n)
@@ -146,20 +133,6 @@ class Aircraft:
 
         track = Aircraft.detectTrack(window)
 
-        # print(
-        #     "Takeoff ",
-        #     window[0].getTimestamp().astimezone(Groundstation.TZ),
-        #     " R%02d" % int(rwy),
-        #     " %+4dagl" % initialAltAGL,
-        #     " %3dkph" % initialSpeed,
-        #      " ==>> ",
-        #     window[-1].getTimestamp().astimezone(Groundstation.TZ),
-        #      " %+4dagl" % finalAltAGL,
-        #      " %3dkph" % finalSpeed,
-        #      " ",
-        #      window[-1].getTimestamp() - window[0].getTimestamp(),
-        #      sep='')
-
         # speed stored as metres per second
         e = TakeoffEvent(window[0].getTimestamp().astimezone(Groundstation.timezone()),
                 0, 0, initialAltAGL, track, window[0].speed)
@@ -195,20 +168,6 @@ class Aircraft:
             return Aircraft.event_not_detected
 
         track = Aircraft.detectTrack(window)
-
-        # print(
-        #     "Landing ",
-        #     window[0].getTimestamp().astimezone(Groundstation.TZ),
-        #     " R%02d" % rwy,
-        #     " %+4dagl" % initialAltAGL,
-        #     " %3dkph" % initialSpeed,
-        #      " ==>> ",
-        #     window[-1].getTimestamp().astimezone(Groundstation.TZ),
-        #      " %+4dagl" % finalAltAGL,
-        #      " %3dkph" % finalSpeed,
-        #      " ",
-        #      window[-1].getTimestamp() - window[0].getTimestamp(),
-        #      sep='')
 
         # store speed in M/S
         e = LandingEvent(window[-1].getTimestamp().astimezone(Groundstation.timezone()),
