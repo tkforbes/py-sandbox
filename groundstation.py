@@ -24,13 +24,9 @@ class Groundstation:
         self.timestamp = None
         self.observations = 0
         self.elevationCumulative = 0 # used in averaging.
-        self.ignoreAbove = 97 # do not set elevation above this number.
-        self.ignoreBelow = 77 # do not set elevation below this number.
 
-        # looks counter-intuitive. these are the recorded max and min
-        # elevations. set them to opposites initially.
-        self.elevationMax = self.ignoreBelow
-        self.elevationMin = self.ignoreAbove
+        self.elevationMax = -99999
+        self.elevationMin = +99999
 
         self.timestampMin = None
         self.timestampMax = None
@@ -105,10 +101,14 @@ class Groundstation:
             self.timestampMax = self.timestamp
 
     def setElevationMax(self):
+        if (self.elevation is None): return
+
         if self.elevation > self.elevationMax:
             self.elevationMax = self.elevation
 
     def setElevationMin(self):
+        if (self.elevation is None): return
+
         if self.elevation < self.elevationMin:
             self.elevationMin = self.elevation
 
@@ -284,12 +284,6 @@ class Groundstation:
                 sys.exit()
 
             if (Groundstation.isvalid(gga)):
-                #print(repr(nmea))
-
-                # ignore GGA sentence that is too inaccurate to be useful.
-
-                # if not (self.ignoreBelow < altitude < self.ignoreAbove):
-                #     return False
 
                 self.elevation = altitude
                 self.setElevationMax()
