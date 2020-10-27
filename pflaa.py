@@ -1,9 +1,9 @@
 import math
 
-import geopy
-import geopy.distance
+#import geopy
+#import geopy.distance
 
-import sys
+#import sys
 
 from ognRegistrations import OgnRegistration
 from groundspeed import Groundspeed

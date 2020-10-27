@@ -1,15 +1,15 @@
-import sys
+#import sys
 
-import pynmea2
+#import pynmea2
 
-import geopy
-import geopy.distance
+#import geopy
+#import geopy.distance
 
 import datetime
 import pytz
-import re
+#import re
 
-import math
+#import math
 
 
 class Groundstation:

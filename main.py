@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import pynmea2
-import geopy
-import geopy.distance
+#import geopy
+#import geopy.distance
 
 from groundstation import Groundstation
 from pflaa import Pflaa
@@ -11,6 +11,8 @@ from event import TakeoffEvent
 from event import LandingEvent
 from event import LaunchEvent
 import datetime
+from aircraft import Aircraft
+
 
 pflaa = Pflaa()
 
@@ -18,7 +20,6 @@ def eachAircraft():
 
     groundstation = Groundstation()
 
-    from aircraft import Aircraft
 
     aircraftSeen = {
     }
