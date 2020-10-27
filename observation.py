@@ -10,7 +10,7 @@ from groundspeed import Groundspeed
 from groundstation import Groundstation
 
 
-class Pflaa:
+class Observation:
 
     @staticmethod
     def r_earth(): return 6378.137 # radius of Earth in kms
@@ -58,18 +58,17 @@ class Pflaa:
     def displaceLatLong(self, groundstation):
 
         self.lat = groundstation.getLat()
-        + (self.relativeNorth / 1000 / Pflaa.r_earth()) * (180 / math.pi)
+        + (self.relativeNorth / 1000 / Observation.r_earth()) * (180 / math.pi)
 
         self.lon = groundstation.getLon()
-        + (self.relativeEast / 1000 / Pflaa.r_earth()) * (180 / math.pi) / math.cos(groundstation.getLat() * math.pi/180)
+        + (self.relativeEast / 1000 / Observation.r_earth()) * (180 / math.pi) / math.cos(groundstation.getLat() * math.pi/180)
         return
 
     def set(self, groundstation, nmea_flaa):
 
-        # PFLAA
         # must be a PFLAA sentence type i.e. value must be 'A'
         try:
-            ndx = Pflaa.pflaaIndex.get('pflaaRecordIndicator')
+            ndx = Observation.pflaaIndex.get('pflaaRecordIndicator')
             sentenceType = nmea_flaa.data[ndx]
         except Exception as e:
             print(nmea_flaa, ":", e)
@@ -80,7 +79,7 @@ class Pflaa:
 
         # alarm level. valid values: 0 - 3
         try:
-            ndx = Pflaa.pflaaIndex.get('alarmLevel')
+            ndx = Observation.pflaaIndex.get('alarmLevel')
             int(ndx)
             alarmLevel = int(nmea_flaa.data[ndx])
             if not (0 <= alarmLevel <= 3):
@@ -91,7 +90,7 @@ class Pflaa:
 
         # relative north. range: from -32768 to 32767.
         try:
-            ndx = Pflaa.pflaaIndex.get('relativeNorth')
+            ndx = Observation.pflaaIndex.get('relativeNorth')
             int(ndx)
             relativeNorth = int(nmea_flaa.data[ndx])
             if not (-32768 <= relativeNorth <= 32767):
@@ -102,7 +101,7 @@ class Pflaa:
 
         # relative east. range: from -32768 to 32767.
         try:
-            ndx = Pflaa.pflaaIndex.get('relativeEast')
+            ndx = Observation.pflaaIndex.get('relativeEast')
             int(ndx)
             relativeEast = int(nmea_flaa.data[ndx])
             if not (-32768 <= relativeEast <= 32767):
@@ -113,7 +112,7 @@ class Pflaa:
 
         # relative vertical. range: from -32768 to 32767.
         try:
-            ndx = Pflaa.pflaaIndex.get('relativeVertical')
+            ndx = Observation.pflaaIndex.get('relativeVertical')
             int(ndx)
             relativeVertical = int(nmea_flaa.data[ndx])
             if not (-32768 <= relativeVertical <= 32767):
@@ -124,7 +123,7 @@ class Pflaa:
 
         # id type. integer. range: from 0 to 3.
         try:
-            ndx = Pflaa.pflaaIndex.get('idType')
+            ndx = Observation.pflaaIndex.get('idType')
             int(ndx)
             idType = int(nmea_flaa.data[ndx])
             if not ( 0 <= idType <= 3):
@@ -141,7 +140,7 @@ class Pflaa:
         # activated either on the target or own aircraft and no alarm is
         # present at this time.
         try:
-            ndx = Pflaa.pflaaIndex.get('radioId')
+            ndx = Observation.pflaaIndex.get('radioId')
             int(ndx)
             radioIdLong = nmea_flaa.data[ndx]
             # extract radio id from left of the '!' in the field. e.g.
@@ -161,7 +160,7 @@ class Pflaa:
         # This field is empty if stealth mode is activated either on the
         # target or own aircraft and for non-directional targets.
         try:
-            ndx = Pflaa.pflaaIndex.get('track')
+            ndx = Observation.pflaaIndex.get('track')
             int(ndx)
             track = int(nmea_flaa.data[ndx])
             if not (0 <= idType <= 339):
@@ -173,7 +172,7 @@ class Pflaa:
         # turn rate.
         # Currently this field is empty.
         try:
-            ndx = Pflaa.pflaaIndex.get('turnRate')
+            ndx = Observation.pflaaIndex.get('turnRate')
             int(ndx)
             turnRate = nmea_flaa.data[ndx]
             if not (len(turnRate) == 0):
@@ -189,7 +188,7 @@ class Pflaa:
         # is activated either on the target or own aircraft and for
         # non-directional targets.
         try:
-            ndx = Pflaa.pflaaIndex.get('groundSpeed')
+            ndx = Observation.pflaaIndex.get('groundSpeed')
             int(ndx)
             groundSpeed = Groundspeed(nmea_flaa.data[ndx])
             if not (0 <= groundSpeed <= 32767):
@@ -205,7 +204,7 @@ class Pflaa:
         # if stealth mode is activated either on the target or own aircraft
         # and for non-directional targets.
         try:
-            ndx = Pflaa.pflaaIndex.get('climbRate')
+            ndx = Observation.pflaaIndex.get('climbRate')
             int(ndx)
             if ((len(nmea_flaa.data[ndx])) == 0):
                 # target not moving, so climb rate is zero
@@ -238,7 +237,7 @@ class Pflaa:
         #           D = unmanned aerial vehicle (UAV)
         #           E = unknownF = static object
         try:
-            ndx = Pflaa.pflaaIndex.get('aircraftType')
+            ndx = Observation.pflaaIndex.get('aircraftType')
             int(ndx)
             aircraftType = nmea_flaa.data[ndx]
             if (len(aircraftType) != 1):
@@ -271,8 +270,8 @@ class Pflaa:
 
     def report(self):
         print("")
-        print("PFLAA aircraft")
-        print("==============")
+        print("Observations")
+        print("============")
         print("observations:%6d" % self.observations,
             "max distance:%6d" % self.maxDistance
             )

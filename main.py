@@ -4,7 +4,7 @@ import pynmea2
 #import geopy.distance
 
 from groundstation import Groundstation
-from pflaa import Pflaa
+from observation import Observation
 from ognRegistrations import OgnRegistration
 from event import Event
 from event import TakeoffEvent
@@ -14,7 +14,7 @@ import datetime
 from aircraft import Aircraft
 
 
-pflaa = Pflaa()
+observation = Observation()
 
 def eachAircraft():
 
@@ -47,12 +47,12 @@ def eachAircraft():
             if sentence.manufacturer == "FLA":
                 # this is a Flarm sentence. try to set it.
 
-                pflaa = Pflaa()
-                if pflaa.set(groundstation, sentence):
-                    aircraftId = pflaa.getAircraftId()
+                observation = Observation()
+                if observation.set(groundstation, sentence):
+                    aircraftId = observation.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
-                    aircraftSeen[aircraftId].appendObservations(pflaa)
+                    aircraftSeen[aircraftId].appendObservations(observation)
 
         elif sentence.sentence_type == 'RMC':
             # this sentence contains the current date
@@ -167,12 +167,12 @@ def processNmeaStream():
             if sentence.manufacturer == "FLA":
                 # this is a Flarm sentence. try to set it.
 
-                if pflaa.set(groundstation, sentence):
-                    aircraftId = pflaa.getAircraftId()
+                if observation.set(groundstation, sentence):
+                    aircraftId = observation.getAircraftId()
                     if not (aircraftId in aircraftSeen):
                         aircraftSeen[aircraftId] = Aircraft(aircraftId)
                     aircraftSeen[aircraftId].appendObservations(sentence)
-                    pflaa.printt()
+                    observation.printt()
 
 
         elif sentence.sentence_type == 'RMC':
@@ -194,7 +194,7 @@ def processNmeaStream():
     #print(aircraftSeen['C-GDQK'].getSentences())
 
     groundstation.report()
-    pflaa.report()
+    observation.report()
 
 # ============================================================================
 
