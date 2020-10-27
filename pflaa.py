@@ -7,6 +7,8 @@ import sys
 
 from ognRegistrations import OgnRegistration
 from groundspeed import Groundspeed
+from groundstation import Groundstation
+
 
 class Pflaa:
 
@@ -42,7 +44,7 @@ class Pflaa:
         return self.timestamp
 
     def getAltitudeAGL(self):
-        return self.relativeVertical
+        return self.relativeVertical - Groundstation.heightOfGroundstationAGL()
 
     def getDistance(self):
         n = abs(self.relativeNorth)
@@ -58,8 +60,11 @@ class Pflaa:
 
     def displaceLatLong(self, groundstation):
 
-        self.lat = groundstation.getLat() + (self.relativeNorth / 1000 / Pflaa.r_earth()) * (180 / math.pi);
-        self.lon = groundstation.getLon() + (self.relativeEast / 1000 / Pflaa.r_earth()) * (180 / math.pi) / math.cos(groundstation.getLat() * math.pi/180)
+        self.lat = groundstation.getLat()
+        + (self.relativeNorth / 1000 / Pflaa.r_earth()) * (180 / math.pi)
+
+        self.lon = groundstation.getLon()
+        + (self.relativeEast / 1000 / Pflaa.r_earth()) * (180 / math.pi) / math.cos(groundstation.getLat() * math.pi/180)
         return
 
     def set(self, groundstation, nmea_flaa, ):

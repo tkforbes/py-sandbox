@@ -23,6 +23,11 @@ class Groundstation:
     @staticmethod
     def groundLevelUpperLimitAGL(): return +30
 
+    # returns the height (in metres) of the grounstation's GPS AGL
+    # e.g. a tower-mounted groundstation might be 9m AGL.
+    @staticmethod
+    def heightOfGroundstationAGL(): return 0
+
     @staticmethod
     def atGroundLevel(alt):
         '''
@@ -30,8 +35,6 @@ class Groundstation:
         sufficiently close to the ground to be considered as good as AGL zero.
         '''
 
-        # in future, add a correction for GPS antenna height. the GS could
-        # be tower mounted or located away from the airfield.
         if (alt in range(Groundstation.groundLevelLowerLimitAGL(), Groundstation.groundLevelUpperLimitAGL())):
             return True
 
