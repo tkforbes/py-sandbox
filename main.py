@@ -8,7 +8,7 @@ from observation import Observation
 #from ognRegistrations import OgnRegistration
 from event import Event
 from event import TakeoffEvent
-from event import LandingEvent
+#from event import LandingEvent
 from event import LaunchEvent
 import datetime
 from aircraft import Aircraft
@@ -88,10 +88,9 @@ def eachAircraft():
         reg = aircraftSeen[ac].getAircraftId()
         theEvents = aircraftSeen[ac].events
         for e in theEvents:
-            if (type(e) is TakeoffEvent):
+            if type(e) is TakeoffEvent:
                 le = LaunchEvent(reg, e.getTimestamp(), e.getLat(), e.getLon(),
-                    e.getAltitudeAGL(), e.getTrack(), e.speed)
-                # print(le.getTimestamp(), reg, repr(le))
+                                 e.getAltitudeAGL(), e.getTrack(), e.speed)
                 flightSheet.append(le)
 
     flightSheet.sort()
@@ -114,17 +113,29 @@ def eachAircraft():
             next = Event.event_not_detected
 
         # are the current and previous takeoff within 30 seconds?
-        if (previous - datetime.timedelta(seconds=30) < current < previous + datetime.timedelta(seconds=30)):
+        if (previous - datetime.timedelta(seconds=30) <
+                current <
+                previous + datetime.timedelta(seconds=30)):
             # this is a takeoff pair
-            print ("%02d" % y, "Launch ", current, "R%02d" % flightSheet[n].getRwy(), flightSheet[n].getReg(), flightSheet[n-1].getReg())
+            print("%02d" % y,
+                  "Launch ",
+                  current,
+                  "R%02d" % flightSheet[n].getRwy(),
+                  flightSheet[n].getReg(),
+                  flightSheet[n-1].getReg()
+                  )
             y+=1
         # the pair is not a match. what about the upcoming pair?
-        elif (next - datetime.timedelta(seconds=30) < current < next + datetime.timedelta(seconds=30)):
+        elif next - datetime.timedelta(seconds=30) < current < next + datetime.timedelta(seconds=30):
             # do nothing. the next iteration of the loop will process the pair
             pass
         else:
             # this is a lone takeoff event
-            print ("%02d" % y, "Takeoff", current, "R%02d" % flightSheet[n].getRwy(), flightSheet[n].getReg())
+            print("%02d" % y,
+                  "Takeoff", current,
+                  "R%02d" % flightSheet[n].getRwy(),
+                  flightSheet[n].getReg()
+                  )
             y+=1
 
     return

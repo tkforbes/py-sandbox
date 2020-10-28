@@ -1,4 +1,4 @@
-#import sys
+import sys
 
 #import pynmea2
 
@@ -35,7 +35,7 @@ class Groundstation:
         sufficiently close to the ground to be considered as good as AGL zero.
         '''
 
-        if (alt in range(Groundstation.groundLevelLowerLimitAGL(), Groundstation.groundLevelUpperLimitAGL())):
+        if alt in range(Groundstation.groundLevelLowerLimitAGL(), Groundstation.groundLevelUpperLimitAGL()):
             return True
 
         return False
@@ -61,13 +61,14 @@ class Groundstation:
 
     def setTime(self, ti):
         # don't permit the time to be set until after the date has been set
-        if (self.datestamp is None): return
+        if self.datestamp is None: return
 
         d = self.datestamp
-        t = pytz.utc.localize(datetime.datetime(d.year, d.month, d.day, ti.hour, ti.minute, ti.second))
+        t = pytz.utc.localize(
+                datetime.datetime(d.year, d.month, d.day, ti.hour, ti.minute, ti.second))
 
         # if timestamp has not be set before, this is the initial time value
-        if (self.timestamp is None):
+        if self.timestamp is None:
             self.timestampMin = t
             self.timestampMax = t
 
@@ -86,25 +87,25 @@ class Groundstation:
             return False
 
     def validDate(self):
-        if (self.datestamp is None): return False
+        if self.datestamp is None: return False
 
         return True
 
     def validTime(self):
-        if (self.timestamp is None): return False
+        if self.timestamp is None: return False
 
         return True
 
     @staticmethod
     def isvalid(nmea_gga):
 
-        if (nmea_gga.altitude is None):
+        if nmea_gga.altitude is None:
             return False # elevation missing from observation
 
-        if (int(nmea_gga.num_sats) <= 4):
+        if int(nmea_gga.num_sats) <= 4:
             return False # too few satellites for reliable data
 
-        if not (Groundstation.is_integer(nmea_gga.altitude)):
+        if not Groundstation.is_integer(nmea_gga.altitude):
             return False # elevation is not a number
 
         return True
@@ -114,13 +115,13 @@ class Groundstation:
             self.timestampMax = self.timestamp
 
     def setElevationMax(self):
-        if (self.elevation is None): return
+        if self.elevation is None: return
 
         if self.elevation > self.elevationMax:
             self.elevationMax = self.elevation
 
     def setElevationMin(self):
-        if (self.elevation is None): return
+        if self.elevation is None: return
 
         if self.elevation < self.elevationMin:
             self.elevationMin = self.elevation
@@ -135,7 +136,8 @@ class Groundstation:
         return self.lon
 
     def averageElevation(self):
-        if (self.observations == 0): return 0
+        if self.observations == 0: return 0
+
         return self.elevationCumulative / self.observations
 
     def report(self):
@@ -196,7 +198,7 @@ class Groundstation:
             # N/S indicator
             try:
                 latDir = gga.lat_dir
-                if not (latDir in ['N', 'S']):
+                if latDir not in ['N', 'S']:
                     raise Exception("lat dir must be N or S.")
             except Exception as e:
                 print(gga, ":", e)
@@ -212,7 +214,7 @@ class Groundstation:
             # E/W indicator
             try:
                 lonDir = gga.lon_dir
-                if not (lonDir in ['E', 'W']):
+                if lonDir not in ['E', 'W']:
                     raise Exception("lon dir must be E or W.")
             except Exception as e:
                 print(gga, ":", e)
@@ -221,7 +223,7 @@ class Groundstation:
             # position fix indicator
             try:
                 gpsQual = int(gga.gps_qual)
-                if not (0 <= gpsQual <= 6):
+                if not 0 <= gpsQual <= 6:
                     raise Exception("position fix indicator must be between 1 and 6")
             except Exception as e:
                 print(gga, ":", e)
@@ -230,7 +232,7 @@ class Groundstation:
             # satellites used
             try:
                 numSats = int(gga.num_sats)
-                if not (0 <= numSats <= 24 ):
+                if not 0 <= numSats <= 24 :
                     raise Exception("number of satellites must be between 0 and 24")
             except Exception as e:
                 print(gga, ":", e)
@@ -302,7 +304,7 @@ class Groundstation:
                 if latDir in ['S']: lat *= -1
 
                 # convert lon to negative when West
-                if (lonDir in ['W']): lon *= -1
+                if lonDir in ['W']: lon *= -1
 
                 self.setTime(timestamp)
                 self.lat = Groundstation.toDecimalDegrees(lat)
@@ -327,7 +329,7 @@ class Groundstation:
 
             try:
                 status = rmc.status
-                if not (status in ['A', 'V']):
+                if status not in ['A', 'V']:
                     raise Exception("status must be A or V.")
             except Exception as e:
                 print(rmc, ":", e)
@@ -347,7 +349,7 @@ class Groundstation:
             # N/S indicator
             try:
                 latDir = rmc.lat_dir
-                if not (latDir in ['N', 'S']):
+                if latDir not in ['N', 'S']:
                     print(latDir)
                     raise Exception("lat dir must be N or S.")
             except Exception as e:

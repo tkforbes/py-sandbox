@@ -1,5 +1,3 @@
-#
-
 OgnDb = {
 # sample of format...
 #                 '000368': 'C-GORE',
