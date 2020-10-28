@@ -5,7 +5,7 @@ import pynmea2
 
 from groundstation import Groundstation
 from observation import Observation
-from ognRegistrations import OgnRegistration
+#from ognRegistrations import OgnRegistration
 from event import Event
 from event import TakeoffEvent
 from event import LandingEvent
@@ -27,7 +27,6 @@ def eachAircraft():
     nmea = open('data.nmea', 'r')
 
     for line in nmea:
-        #line = nmea.readline()
         try:
             commas = line.count(',')
             sentence = pynmea2.parse(line, check=True)
@@ -40,27 +39,25 @@ def eachAircraft():
         except Exception:
             continue
 
-        # don't do anything with Flarm sentences until the groundstation
-        # has a valid datestamp.
-        if (isinstance(sentence, pynmea2.nmea.ProprietarySentence) and
-                groundstation.validTime()):
-            if sentence.manufacturer == "FLA":
-                # this is a Flarm sentence. try to set it.
+        # ignore Flarm PFLAU sentences
+        if (Observation.isPflauSentence(sentence)):
+            continue
 
-                observation = Observation()
-                if observation.set(groundstation, sentence):
-                    aircraftId = observation.getAircraftId()
-                    if not (aircraftId in aircraftSeen):
-                        aircraftSeen[aircraftId] = Aircraft(aircraftId)
-                    aircraftSeen[aircraftId].appendObservations(observation)
+        # The groundstation must have received the UTC time from the GPS
+        # before we permit any processing of Flarm PFLAA observations.
+        if (groundstation.validTime() and
+            Observation.isPflaaSentence(sentence)):
+            observation = Observation()
+            if observation.set(groundstation, sentence):
+                aircraftId = observation.getAircraftId()
+                if not (aircraftId in aircraftSeen):
+                    aircraftSeen[aircraftId] = Aircraft(aircraftId)
+                aircraftSeen[aircraftId].appendObservations(observation)
 
         elif sentence.sentence_type == 'RMC':
             # this sentence contains the current date
-
             groundstation.setDate(sentence.datestamp)
             groundstation.set(sentence)
-            # update the date in the groundstation. the date is very important!
-            #print("course true:", sentence.true_course)
         elif (sentence.sentence_type == 'GGA'
                 and groundstation.validDate()
                 and commas == 14):
@@ -132,69 +129,6 @@ def eachAircraft():
 
     return
 
-def processNmeaStream():
-
-    aircraftSeen = {
-    }
-
-    from aircraft import Aircraft
-
-    nmea = open('data.nmea', 'r')
-
-    for line in nmea:
-        #line = nmea.readline()
-        try:
-            sentence = pynmea2.parse(line, True)
-            #print(sentence)
-        except pynmea2.ChecksumError:
-            # ignore sentences that produce a checksum error
-            continue
-        except pynmea2.ParseError:
-            # ignore sentences that can't be parsed
-            continue
-        except:
-             # ignore sentences that raise any other error
-             continue
-
-        #print(repr(sentence))
-
-        #print(type(sentence))
-
-        # don't do anything with Flarm sentences until the groundstation
-        # has a valid datestamp.
-        if (isinstance(sentence, pynmea2.nmea.ProprietarySentence) and
-                groundstation.validTime()):
-            if sentence.manufacturer == "FLA":
-                # this is a Flarm sentence. try to set it.
-
-                if observation.set(groundstation, sentence):
-                    aircraftId = observation.getAircraftId()
-                    if not (aircraftId in aircraftSeen):
-                        aircraftSeen[aircraftId] = Aircraft(aircraftId)
-                    aircraftSeen[aircraftId].appendObservations(sentence)
-                    observation.printt()
-
-
-        elif sentence.sentence_type == 'RMC':
-            # this sentence contains the current date
-
-            # update the date in the groundstation. the date is very important!
-            groundstation.setDatestamp(sentence.datestamp)
-            #print("course true:", sentence.true_course)
-        elif (sentence.sentence_type == 'GGA'
-            and groundstation.validDate()):
-            #and line.count(',') == 14):
-            # this sentence has the groundstation timestamp, lat, lon, elevation
-#            print('comma count:', line.count(','))
-            print("found^^")
-            groundstation.set(sentence)
-
-    #print(aircraftSeen['C-GDQK'].getAircraftId())
-    #print(len(aircraftSeen['C-GDQK'].getSentences()))
-    #print(aircraftSeen['C-GDQK'].getSentences())
-
-    groundstation.report()
-    observation.report()
 
 # ============================================================================
 

@@ -1,5 +1,7 @@
 import math
 
+import pynmea2
+
 #import geopy
 #import geopy.distance
 
@@ -14,6 +16,48 @@ class Observation:
 
     @staticmethod
     def r_earth(): return 6378.137 # radius of Earth in kms
+
+    @staticmethod
+    def isPflauSentence(sentence):
+        if not (isinstance(sentence, pynmea2.nmea.ProprietarySentence)):
+            return False
+
+        if not (sentence.manufacturer == "FLA"):
+            return False
+
+        try:
+            ndx = Observation.pflaaIndex.get('pflaaRecordIndicator')
+            sentenceType = sentence.data[ndx]
+        except Exception as e:
+            print(nmea_flaa, ":", e)
+            sys.exit()
+
+        # the sentence type must be 'U'.
+        if not (sentenceType == 'U'):
+            return False
+
+        return True
+
+    @staticmethod
+    def isPflaaSentence(sentence):
+        if not (isinstance(sentence, pynmea2.nmea.ProprietarySentence)):
+            return False
+
+        if not (sentence.manufacturer == "FLA"):
+            return False
+
+        try:
+            ndx = Observation.pflaaIndex.get('pflaaRecordIndicator')
+            sentenceType = sentence.data[ndx]
+        except Exception as e:
+            print(nmea_flaa, ":", e)
+            sys.exit()
+
+        # the sentence type must be 'A'.
+        if not (sentenceType == 'A'):
+            return False
+
+        return True
 
     pflaaIndex = {
         'pflaaRecordIndicator' : 0, # PFLAA
