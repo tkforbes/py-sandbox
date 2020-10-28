@@ -60,6 +60,7 @@ class Groundstation:
         self.datestamp = d
 
     def setTime(self, ti):
+        # don't permit the time to be set until after the date has been set
         if (self.datestamp is None): return
 
         d = self.datestamp
@@ -149,11 +150,11 @@ class Groundstation:
         print("End:   %24s" % str(self.timestampMax.astimezone(Groundstation.timezone())))
         print("Dur:   %19s" % str(self.timestampMax - self.timestampMin))
         print("Elevation",
-                "min:%.1f" % self.elevationMin,
-                "max:%.1f" % self.elevationMax,
-                "curr:%.1f" % self.elevation,
-                "avg:%.1f" % avg
-                )
+              "min:%.1f" % self.elevationMin,
+              "max:%.1f" % self.elevationMax,
+              "curr:%.1f" % self.elevation,
+              "avg:%.1f" % avg
+              )
         print("observations:", self.observations)
 
     @staticmethod
@@ -165,10 +166,6 @@ class Groundstation:
     def set(self, nmea):
         if (nmea.sentence_type == 'GGA'):
             gga = nmea
-
-            #print(repr(gga))
-
-            ## UTC time
             try:
                 timestamp = gga.timestamp
             except Exception as e:
@@ -178,13 +175,13 @@ class Groundstation:
             # position fix indicator
             try:
                 gpsQual = int(gga.gps_qual)
-                if not (0 <= gpsQual <= 6):
+                if not 0 <= gpsQual <= 6:
                     raise Exception("position fix indicator must be between 1 and 6")
             except Exception as e:
                 print(gga, ":", e)
                 sys.exit()
 
-            if not (gpsQual in [1, 2]):
+            if gpsQual not in [1, 2]:
                 # the fix method must be something useful to us
                 #print(gpsQual, "gpsQual must be 1 or 2.")
                 return False
@@ -295,14 +292,14 @@ class Groundstation:
                 print(gga, ":", e)
                 sys.exit()
 
-            if (Groundstation.isvalid(gga)):
+            if Groundstation.isvalid(gga):
 
                 self.elevation = altitude
                 self.setElevationMax()
                 self.setElevationMin()
 
                 # convert lat to negative when South
-                if (latDir in ['S']): lat *= -1
+                if latDir in ['S']: lat *= -1
 
                 # convert lon to negative when West
                 if (lonDir in ['W']): lon *= -1
@@ -310,7 +307,6 @@ class Groundstation:
                 self.setTime(timestamp)
                 self.lat = Groundstation.toDecimalDegrees(lat)
                 self.lon = Groundstation.toDecimalDegrees(lon)
-                #print("time:", self.timestamp, "lat:", self.lat, "lon:", self.lon)
 
                 # this is for the 'average' calculation
                 self.elevationCumulative += self.elevation
@@ -318,7 +314,7 @@ class Groundstation:
 
                 return True
 
-        elif (nmea.sentence_type == 'RMC'):
+        elif nmea.sentence_type == 'RMC':
 
             rmc = nmea
 
@@ -337,7 +333,7 @@ class Groundstation:
                 print(rmc, ":", e)
                 sys.exit()
 
-            if not (status in ['A']):
+            if status not in ['A']:
                 # if status is not 'A', data is not valid
                 return False
 
@@ -352,7 +348,7 @@ class Groundstation:
             try:
                 latDir = rmc.lat_dir
                 if not (latDir in ['N', 'S']):
-                    print (latDir)
+                    print(latDir)
                     raise Exception("lat dir must be N or S.")
             except Exception as e:
                 print(rmc, ":", e)
@@ -379,7 +375,7 @@ class Groundstation:
             try:
                 #print(repr(rmc))
                 groundSpeed = rmc.spd_over_grnd
-                if not (0 <= groundSpeed <= 300):
+                if not 0 <= groundSpeed <= 300:
                     print(groundSpeed)
                     raise Exception("groundspeed is out of range.")
             except Exception as e:
