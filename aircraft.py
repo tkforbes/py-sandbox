@@ -59,25 +59,26 @@ class Aircraft:
         return self.aircraft_type
 
     @staticmethod
-    def trim(timeframeOfWindow, window):
+    def trim(timeframe_of_window, window):
         '''
-        check the tail of a window of observations for observations beyond
+        check the tail of a window of observations for any beyond
         the expected timeframe. trim the window to just the expected
         timeframe.
         '''
 
         time_start = window[0].getTimestamp()
-        time_max = time_start + datetime.timedelta(seconds=timeframeOfWindow)
-        # print(tStart, tMax)
+        time_max = time_start + datetime.timedelta(seconds=timeframe_of_window)
 
         # remove observations that are out of range
         for count in range(0, len(window)):
-            # remove tail observation if beyond timeframe
-            if time_start <= window[-1].getTimestamp() <= time_max:
-                # don't look any further.
+            if window[-1].getTimestamp() > time_max:
+                # tail observation not withing timeframe. remove.
+                window.pop()
+            else:
+                # when the tail observation is within the timeframe,
+                # don't waste more time looping because the remainder
+                # are also within the timeframe.
                 break
-
-            window.pop()
 
     @staticmethod
     def detectTrack(window):
@@ -107,7 +108,7 @@ class Aircraft:
 
     def detectTakeoff(self, window):
 
-        if not len(window) > 0:
+        if not window:
             return Aircraft.event_not_detected
 
         # takeoff inital rolling speed
@@ -148,7 +149,7 @@ class Aircraft:
 
     def detectLanding(self, window):
 
-        if not len(window) > 0:
+        if not window:
             return Aircraft.event_not_detected
 
         # ensure rollout speed
@@ -188,13 +189,10 @@ class Aircraft:
 
         observation_period = Aircraft.observation_period()
 
-
-        n = len(self.getObservations()) - 1
-
         # move through the list, one observation at a time
-        for x in range(0, n):
+        for count in range(0, len(self.getObservations())):
 
-            of_interest = slice(x, x+observation_period)
+            of_interest = slice(count, count + observation_period)
 
             # slice an observation window giving the maximum possible view
             # of interest for takeoff
