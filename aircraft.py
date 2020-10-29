@@ -66,12 +66,12 @@ class Aircraft:
         timeframe.
         '''
 
-        time_start = window[0].getTimestamp()
+        time_start = window[0].get_timestamp()
         time_max = time_start + datetime.timedelta(seconds=timeframe_of_window)
 
         # remove observations that are out of range
         for count in range(0, len(window)):
-            if window[-1].getTimestamp() > time_max:
+            if window[-1].get_timestamp() > time_max:
                 # tail observation not withing timeframe. remove.
                 window.pop()
             else:
@@ -87,12 +87,12 @@ class Aircraft:
 
         for ndx, observation in enumerate(window):
             if Groundstation.atGroundLevel(
-                    observation.getAltitudeAGL() and
+                    observation.get_alt_agl() and
                     observation.speed.kph() > 10):
 
                 # this won't work for North, where values are near 360 and 0
 
-                track += observation.getTrack()
+                track += observation.get_track()
                 count += 1
 
         # calculate the average
@@ -130,20 +130,20 @@ class Aircraft:
             return Aircraft.event_not_detected
 
         # must be close to the ground initially
-        if not Groundstation.atGroundLevel(rolling.getAltitudeAGL()):
+        if not Groundstation.atGroundLevel(rolling.get_alt_agl()):
             return Aircraft.event_not_detected
 
         # must be at least this much higher during climbout
-        if not climbout.getAltitudeAGL() >= rolling.getAltitudeAGL() + Aircraft.climbout_alt_min():
+        if not climbout.get_alt_agl() >= rolling.get_alt_agl() + Aircraft.climbout_alt_min():
             return Aircraft.event_not_detected
 
         track = Aircraft.detect_track(window)
 
-        takeoff = TakeoffEvent(rolling.getTimestamp(), rolling.lat, rolling.lon,
-                               rolling.getAltitudeAGL(), track, rolling.speed)
+        takeoff = TakeoffEvent(rolling.get_timestamp(), rolling.lat, rolling.lon,
+                               rolling.get_alt_agl(), track, rolling.speed)
         self.events.append(takeoff)
 
-        return rolling.getTimestamp()
+        return rolling.get_timestamp()
 
     def detect_landing(self, window):
 
@@ -157,7 +157,7 @@ class Aircraft:
             return Aircraft.event_not_detected
 
         # ensure on the ground
-        if not Groundstation.atGroundLevel(rollout.getAltitudeAGL()):
+        if not Groundstation.atGroundLevel(rollout.get_alt_agl()):
             return Aircraft.event_not_detected
 
         approach = window[0]
@@ -167,16 +167,16 @@ class Aircraft:
             return Aircraft.event_not_detected
 
         # ensure approaching from altitude
-        if not approach.getAltitudeAGL() >= rollout.getAltitudeAGL() + Aircraft.approach_alt_min():
+        if not approach.get_alt_agl() >= rollout.get_alt_agl() + Aircraft.approach_alt_min():
             return Aircraft.event_not_detected
 
         track = Aircraft.detect_track(window)
 
-        landing = LandingEvent(rollout.getTimestamp(), rollout.lat, rollout.lon,
-                               rollout.getAltitudeAGL(), track, rollout.speed)
+        landing = LandingEvent(rollout.get_timestamp(), rollout.lat, rollout.lon,
+                               rollout.get_alt_agl(), track, rollout.speed)
         self.events.append(landing)
 
-        return rollout.getTimestamp()
+        return rollout.get_timestamp()
 
     def detect_events(self):
 
@@ -206,7 +206,7 @@ class Aircraft:
             # values from the tail
             Aircraft.trim(observation_period, landing_observations)
 
-            t1 = landing_observations[0].getTimestamp()
+            t1 = landing_observations[0].get_timestamp()
 
             # detect takeoff, but skip ahead if takeoff just detected
             if (takeoff_time + datetime.timedelta(seconds=observation_period) > t1 or

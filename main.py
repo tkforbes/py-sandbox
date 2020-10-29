@@ -34,16 +34,16 @@ def eachAircraft():
             continue
 
         # ignore Flarm PFLAU sentences
-        if Observation.isPflauSentence(sentence):
+        if Observation.is_pflau_sentence(sentence):
             continue
 
         # The groundstation must have received the UTC time from the GPS
         # before we permit any processing of Flarm PFLAA observations.
         if (groundstation.validTime() and
-                Observation.isPflaaSentence(sentence)):
+                Observation.is_pflaa_sentence(sentence)):
             observation = Observation()
             if observation.set(groundstation, sentence):
-                aircraft_id = observation.getAircraftId()
+                aircraft_id = observation.get_aircraft_id()
                 if aircraft_id not in aircraft_seen:
                     aircraft_seen[aircraft_id] = Aircraft(aircraft_id)
                 aircraft_seen[aircraft_id].append_observations(observation)

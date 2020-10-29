@@ -18,7 +18,7 @@ class Observation:
     def r_earth(): return 6378.137 # radius of Earth in kms
 
     @staticmethod
-    def isPflauSentence(sentence):
+    def is_pflau_sentence(sentence):
         if not (isinstance(sentence, pynmea2.nmea.ProprietarySentence)):
             return False
 
@@ -39,7 +39,7 @@ class Observation:
         return True
 
     @staticmethod
-    def isPflaaSentence(sentence):
+    def is_pflaa_sentence(sentence):
         if not (isinstance(sentence, pynmea2.nmea.ProprietarySentence)):
             return False
 
@@ -78,28 +78,28 @@ class Observation:
         self.observations = 0
         self.maxDistance = 0
 
-    def getTrack(self):
+    def get_track(self):
         return self.track
 
-    def getTimestamp(self):
+    def get_timestamp(self):
         return self.timestamp
 
-    def getAltitudeAGL(self):
+    def get_alt_agl(self):
         return self.relativeVertical - Groundstation.heightOfGroundstationAGL()
 
-    def getDistance(self):
+    def get_distance(self):
         n = abs(self.relativeNorth)
         e = abs(self.relativeEast)
         return int(math.sqrt( n*n+e*e))
 
-    def getAircraftId(self):
+    def get_aircraft_id(self):
         return self.aircraftId
 
-    def setMaxDistance(self):
-        if (self.getDistance() > self.maxDistance ):
-            self.maxDistance = self.getDistance()
+    def set_max_distance(self):
+        if (self.get_distance() > self.maxDistance ):
+            self.maxDistance = self.get_distance()
 
-    def displaceLatLong(self, groundstation):
+    def displace_lat_lon(self, groundstation):
 
         self.lat = groundstation.getLat()
         + (self.relativeNorth / 1000 / Observation.r_earth()) * (180 / math.pi)
@@ -304,11 +304,11 @@ class Observation:
         self.climbRate = climbRate
 
         # set the lat, lon of the observation using rel north, rel east.
-        self.displaceLatLong(groundstation)
+        self.displace_lat_lon(groundstation)
 
         # distance is the hypotenuse of relativeNorth and relativeEast so,
         # now that those values are set, let's set our max distance
-        self.setMaxDistance();
+        self.set_max_distance();
 
         return True
 
