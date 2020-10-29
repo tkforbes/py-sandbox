@@ -36,8 +36,8 @@ class Aircraft:
     def landing_approachAltMin(): return +30
 
     def __init__(self, reg):
-        self.aircraftId = reg
-        self.aircraftType = ''
+        self.aircraft_id = reg
+        self.aircraft_type = ''
 
         # observations are the senquentially ordered sequence of
         # positions reported by an aircraft.
@@ -53,10 +53,10 @@ class Aircraft:
         return self.observations
 
     def getAircraftId(self):
-        return self.aircraftId
+        return self.aircraft_id
 
     def getAircraftType(self):
-        return self.aircraftType
+        return self.aircraft_type
 
     @staticmethod
     def trim(timeframeOfWindow, window):
@@ -66,14 +66,14 @@ class Aircraft:
         timeframe.
         '''
 
-        tStart = window[0].getTimestamp()
-        tMax = tStart + datetime.timedelta(seconds=timeframeOfWindow)
+        time_start = window[0].getTimestamp()
+        time_max = time_start + datetime.timedelta(seconds=timeframeOfWindow)
         # print(tStart, tMax)
 
         # remove observations that are out of range
         for count in range(0, len(window)):
             # remove tail observation if beyond timeframe
-            if tStart <= window[-1].getTimestamp() <= tMax:
+            if time_start <= window[-1].getTimestamp() <= time_max:
                 # don't look any further.
                 break
 
@@ -83,14 +83,15 @@ class Aircraft:
     def detectTrack(window):
         track = 0
         count = 0
-        for obs in range(0, len(window)):
+
+        for ndx, observation in enumerate(window):
             if Groundstation.atGroundLevel(
-                    window[obs].getAltitudeAGL() and
-                    window[obs].speed.kph() > 10):
+                    observation.getAltitudeAGL() and
+                    observation.speed.kph() > 10):
 
                 # this won't work for North, where values are near 360 and 0
 
-                track += window[obs].getTrack()
+                track += observation.getTrack()
                 count += 1
 
         # calculate the average
