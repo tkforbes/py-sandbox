@@ -115,16 +115,16 @@ class Aircraft:
         # gets included! The heading of the towplane is wrong at that point,
         # which messes with runway calculation.
 
-        initial_speed = window[0].speed.kph()
+        initial_speed = window[0].speed
         initial_time = window[0].getTimestamp()
         rolling_low = Aircraft.takeoff_rolling_low()
         rolling_high = Aircraft.takeoff_rolling_high()
-        if not rolling_low <= initial_speed <= rolling_high:
+        if not rolling_low <= initial_speed.kph() <= rolling_high:
             return Aircraft.event_not_detected
 
         # climbout speed at least this
-        final_speed = window[-1].speed.kph()
-        if not final_speed >= Aircraft.takeoff_climboutSpeedMin():
+        final_speed = window[-1].speed
+        if not final_speed.kph() >= Aircraft.takeoff_climboutSpeedMin():
             return Aircraft.event_not_detected
 
         # must be close to the ground initially
@@ -163,8 +163,8 @@ class Aircraft:
             return Aircraft.event_not_detected
 
         # ensure approaching at speed
-        initial_speed = window[0].speed.kph()
-        if not initial_speed >= Aircraft.landing_approachSpeedMin():
+        initial_speed = window[0].speed
+        if not initial_speed.kph() >= Aircraft.landing_approachSpeedMin():
             return Aircraft.event_not_detected
 
         # ensure approaching from altitude
