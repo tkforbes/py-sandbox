@@ -216,49 +216,47 @@ class Aircraft:
 
 
     def reportEvents(self):
-        n = 1
-        tTakeoffTimestamp = Aircraft.event_not_detected
-        tLandingTimestamp = Aircraft.event_not_detected
-        tTotal = datetime.timedelta(seconds=0)
 
-        for e in self.events:
-            if isinstance(e, TakeoffEvent):
-                tTakeoffTimestamp = e.getTimestamp()
-                takeoffRwy = e.getRwy()
-                takeoffAltAGL = e.getAltitudeAGL()
-                takeoffSpeed = e.speed.kph()
+        takeoff_time = Aircraft.event_not_detected
+        landing_time = Aircraft.event_not_detected
+        total_duration = datetime.timedelta(seconds=0)
 
-            if isinstance(e, LandingEvent):
-                tLandingTimestamp = e.getTimestamp()
-                landingRwy = e.getRwy()
-                landingAltAGL = e.getAltitudeAGL()
-                landingSpeed = e.speed.kph()
+        for count, event in enumerate(self.events):
+            if isinstance(event, TakeoffEvent):
+                takeoff_time = event.getTimestamp()
+                takeoff_rwy = event.getRwy()
+                takeoff_alt_agl = event.getAltitudeAGL()
+                takeoff_speed = event.speed
 
-                tDuration = tLandingTimestamp - tTakeoffTimestamp
-                tTotal += tDuration
+            if isinstance(event, LandingEvent):
+                landing_time = event.getTimestamp()
+                landing_rwy = event.getRwy()
+                landing_alt_agl = event.getAltitudeAGL()
+                landing_speed = event.speed
 
-                if tLandingTimestamp < tTakeoffTimestamp + datetime.timedelta(hours=16):
+                duration = landing_time - takeoff_time
+                total_duration += duration
+
+                if landing_time < takeoff_time + datetime.timedelta(hours=16):
                     print(
-                        "%2d " % n,
-                        "%s" % str(tTakeoffTimestamp.astimezone(Groundstation.timezone())),
-                        " R%02d" % takeoffRwy,
-                        " %+3dagl" % takeoffAltAGL,
-                        " %3dkph" % takeoffSpeed,
+                        "%2d " % count,
+                        "%s" % str(takeoff_time.astimezone(Groundstation.timezone())),
+                        " R%02d" % takeoff_rwy,
+                        " %+3dagl" % takeoff_alt_agl,
+                        " %3dkph" % takeoff_speed.kph(),
                         "%6s" % " ==>> ",
-                        "%s" % str(tLandingTimestamp.astimezone(Groundstation.timezone())),
-                        " R%02d" % landingRwy,
-                        " %+3dagl" % landingAltAGL,
-                        " %3dkph " % landingSpeed,
-                        tDuration,
+                        "%s" % str(landing_time.astimezone(Groundstation.timezone())),
+                        " R%02d" % landing_rwy,
+                        " %+3dagl" % landing_alt_agl,
+                        " %3dkph " % landing_speed.kph(),
+                        duration,
                         sep='')
-                    n += 1
-                    # print("Takeoff", tTakeoff, "Landing", tLanding, "Duration:", tDuration)
                 else:
-                    print("Landing", tLandingTimestamp)
+                    print("Landing", landing_time)
 
         print("%104s" % "======= ")
         print("%95s" % " ",
-              tTotal)
+              total_duration)
 
     def printObservations(self):
 
