@@ -1,9 +1,9 @@
+
 import datetime
 import pytz
+
 from groundstation import Groundstation
-#from event import Event
-from event import TakeoffEvent
-from event import LandingEvent
+from event import TakeoffEvent, LandingEvent
 
 
 class Aircraft:
@@ -142,8 +142,6 @@ class Aircraft:
         return t1
 
     def detectLanding(self, window):
-        t1 = window[0].getTimestamp()
-        windowSize = len(window)
 
         if not len(window) > 0:
             return Aircraft.event_not_detected
@@ -257,10 +255,9 @@ class Aircraft:
               tTotal)
 
     def printObservations(self):
-        observations = self.getObservations()
-        for s in observations:
-            if (s.getSource() == "PFLAA"):
-                s.printt()
+
+        for obs in self.getObservations():
+            obs.printt()
 
     def getMaxDistance(self):
         maxDistance = 0
