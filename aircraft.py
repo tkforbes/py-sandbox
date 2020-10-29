@@ -208,7 +208,7 @@ class Aircraft:
 
             # detect takeoff, but skip ahead if takeoff just detected
             if (takeoff_time + datetime.timedelta(seconds=observation_period) > t1 or
-                landing_time + datetime.timedelta(seconds=observation_period) > t1):
+                    landing_time + datetime.timedelta(seconds=observation_period) > t1):
                 pass
             else:
                 takeoff_time = self.detectTakeoff(takeoff_observations)
@@ -264,11 +264,12 @@ class Aircraft:
             obs.printt()
 
     def getMaxDistance(self):
-        maxDistance = 0
+
+        distance_max = 0
         observations = self.getObservations()
-        for s in observations:
-            distance = s.getDistance()
-            if distance > maxDistance:
-                maxDistance = distance
-                altitudeAGL = s.getAltitudeAGL()
-        return maxDistance, altitudeAGL
+        for observation in observations:
+            distance = observation.getDistance()
+            if distance > distance_max:
+                distance_max = distance
+                altitude_agl = observation.getAltitudeAGL()
+        return distance_max, altitude_agl
