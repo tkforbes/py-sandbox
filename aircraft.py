@@ -73,8 +73,8 @@ class Aircraft:
             if tStart <= window[-1].getTimestamp() <= tMax:
                 # don't look any further.
                 break
-            else:
-                window.pop()
+
+            window.pop()
 
     @staticmethod
     def detectTrack(window):
@@ -100,7 +100,7 @@ class Aircraft:
 
         return int(track)
 
-    def detectTakeoff(self, timeframeOfWindow, window):
+    def detectTakeoff(self, window):
         t1 = window[0].getTimestamp()
 
         if not len(window) > 0:
@@ -141,7 +141,7 @@ class Aircraft:
 
         return t1
 
-    def detectLanding(self, timeframeOfWindow, window):
+    def detectLanding(self, window):
         t1 = window[0].getTimestamp()
         windowSize = len(window)
 
@@ -206,8 +206,8 @@ class Aircraft:
                 tLanding + datetime.timedelta(seconds=observationPeriod) > t1):
                 pass
             else:
-                tTakeoff = self.detectTakeoff(observationPeriod, takeoffObservations)
-                tLanding = self.detectLanding(observationPeriod, landingObservations)
+                tTakeoff = self.detectTakeoff(takeoffObservations)
+                tLanding = self.detectLanding(landingObservations)
 
 
     def reportEvents(self):
@@ -251,10 +251,6 @@ class Aircraft:
                     # print("Takeoff", tTakeoff, "Landing", tLanding, "Duration:", tDuration)
                 else:
                     print("Landing", tLandingTimestamp)
-
-                tTakeoff = Aircraft.event_not_detected
-                tLanding = Aircraft.event_not_detected
-
 
         print("%104s" % "======= ")
         print("%95s" % " ",
