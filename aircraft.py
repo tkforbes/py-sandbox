@@ -115,7 +115,7 @@ class Aircraft:
         # which messes with runway calculation.
 
         initial_speed = window[0].speed.kph()
-        initial_time = window[0].getTimestamp().astimezone(Groundstation.timezone())
+        initial_time = window[0].getTimestamp()
         rolling_low = Aircraft.takeoff_rolling_low()
         rolling_high = Aircraft.takeoff_rolling_high()
         if not rolling_low <= initial_speed <= rolling_high:
@@ -152,7 +152,7 @@ class Aircraft:
 
         # ensure rollout speed
         final_speed = window[-1].speed
-        final_time = window[-1].getTimestamp().astimezone(Groundstation.timezone())
+        final_time = window[-1].getTimestamp()
         if not final_speed.kph() <= Aircraft.landing_final_speedMax():
             return Aircraft.event_not_detected
 
@@ -239,13 +239,12 @@ class Aircraft:
                 if tLandingTimestamp < tTakeoffTimestamp + datetime.timedelta(hours=16):
                     print(
                         "%2d " % n,
-                        # "%8s" % "Takeoff ",
-                        tTakeoffTimestamp,
+                        "%s" % str(tTakeoffTimestamp.astimezone(Groundstation.timezone())),
                         " R%02d" % takeoffRwy,
                         " %+3dagl" % takeoffAltAGL,
                         " %3dkph" % takeoffSpeed,
                         "%6s" % " ==>> ",
-                        tLandingTimestamp,
+                        "%s" % str(tLandingTimestamp.astimezone(Groundstation.timezone())),
                         " R%02d" % landingRwy,
                         " %+3dagl" % landingAltAGL,
                         " %3dkph " % landingSpeed,
