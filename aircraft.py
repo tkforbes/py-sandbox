@@ -15,25 +15,25 @@ class Aircraft:
     def observation_period(): return 45
 
     @staticmethod
-    def takeoff_rolling_low(): return 7
+    def takeoff_rolling_limits():
+        min = 7
+        max = 19
+        return min, max
 
     @staticmethod
-    def takeoff_rolling_high(): return 19
+    def climbout_speed_min(): return 50
 
     @staticmethod
-    def takeoff_climboutSpeedMin(): return 50
+    def climbout_alt_min(): return +30
 
     @staticmethod
-    def takeoff_climboutAltMin(): return +30
+    def rolling_speed_max(): return 16
 
     @staticmethod
-    def landing_final_speedMax(): return 16
+    def approach_speed_min(): return 40
 
     @staticmethod
-    def landing_approachSpeedMin(): return 40
-
-    @staticmethod
-    def landing_approachAltMin(): return +30
+    def approach_alt_min(): return +30
 
     def __init__(self, reg):
         self.aircraft_id = reg
@@ -116,71 +116,67 @@ class Aircraft:
         # gets included! The heading of the towplane is wrong at that point,
         # which messes with runway calculation.
 
-        initial_speed = window[0].speed
-        initial_time = window[0].getTimestamp()
-        rolling_low = Aircraft.takeoff_rolling_low()
-        rolling_high = Aircraft.takeoff_rolling_high()
-        if not rolling_low <= initial_speed.kph() <= rolling_high:
+        rolling = window[0]
+        # rolling_low = Aircraft.takeoff_rolling_min()
+        # rolling_high = Aircraft.takeoff_rolling_max()
+        lower_limit, higher_limit = Aircraft.takeoff_rolling_limits()
+        if not lower_limit <= rolling.speed.kph() <= higher_limit:
             return Aircraft.event_not_detected
 
+        climbout = window[-1]
+
         # climbout speed at least this
-        final_speed = window[-1].speed
-        if not final_speed.kph() >= Aircraft.takeoff_climboutSpeedMin():
+        if not climbout.speed.kph() >= Aircraft.climbout_speed_min():
             return Aircraft.event_not_detected
 
         # must be close to the ground initially
-        takeoff_alt_agl = window[0].getAltitudeAGL()
-        if not Groundstation.atGroundLevel(takeoff_alt_agl):
+        if not Groundstation.atGroundLevel(rolling.getAltitudeAGL()):
             return Aircraft.event_not_detected
 
         # must be at least this much higher during climbout
-        final_alt_agl = window[-1].getAltitudeAGL()
-        if not final_alt_agl >= takeoff_alt_agl + Aircraft.takeoff_climboutAltMin():
+        if not climbout.getAltitudeAGL() >= rolling.getAltitudeAGL() + Aircraft.climbout_alt_min():
             return Aircraft.event_not_detected
 
         track = Aircraft.detectTrack(window)
 
-        # speed stored as metres per second
-        takeoff = TakeoffEvent(initial_time, 0, 0, takeoff_alt_agl,
-                               track, window[0].speed)
+        takeoff = TakeoffEvent(rolling.getTimestamp(), rolling.lat, rolling.lon,
+                               rolling.getAltitudeAGL(), track, rolling.speed)
         self.events.append(takeoff)
 
-        return initial_time
+        return rolling.getTimestamp()
 
     def detectLanding(self, window):
 
         if not window:
             return Aircraft.event_not_detected
 
+        rollout = window[-1]
+
         # ensure rollout speed
-        final_speed = window[-1].speed
-        final_time = window[-1].getTimestamp()
-        if not final_speed.kph() <= Aircraft.landing_final_speedMax():
+        if not rollout.speed.kph() <= Aircraft.rolling_speed_max():
             return Aircraft.event_not_detected
 
         # ensure on the ground
-        final_alt_agl = window[-1].getAltitudeAGL()
-        if not Groundstation.atGroundLevel(final_alt_agl):
+        if not Groundstation.atGroundLevel(rollout.getAltitudeAGL()):
             return Aircraft.event_not_detected
 
+        approach = window[0]
+
         # ensure approaching at speed
-        initial_speed = window[0].speed
-        if not initial_speed.kph() >= Aircraft.landing_approachSpeedMin():
+        if not approach.speed.kph() >= Aircraft.approach_speed_min():
             return Aircraft.event_not_detected
 
         # ensure approaching from altitude
-        takeoff_alt_agl = window[0].getAltitudeAGL()
-        if not takeoff_alt_agl >= final_alt_agl + Aircraft.landing_approachAltMin():
+        if not approach.getAltitudeAGL() >= rollout.getAltitudeAGL() + Aircraft.approach_alt_min():
             return Aircraft.event_not_detected
 
         track = Aircraft.detectTrack(window)
 
-        # store speed in M/S
-        landing = LandingEvent(final_time, 0, 0, final_alt_agl,
-                               track, final_speed)
+        landing = LandingEvent(rollout.getTimestamp(), rollout.lat, rollout.lon,
+                               rollout.getAltitudeAGL(), track, rollout.speed)
         self.events.append(landing)
 
-        return final_time
+        return rollout.getTimestamp()
 
     def detectEvents(self):
 
