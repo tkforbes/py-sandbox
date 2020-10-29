@@ -46,7 +46,7 @@ def eachAircraft():
                 aircraft_id = observation.getAircraftId()
                 if aircraft_id not in aircraft_seen:
                     aircraft_seen[aircraft_id] = Aircraft(aircraft_id)
-                aircraft_seen[aircraft_id].appendObservations(observation)
+                aircraft_seen[aircraft_id].append_observations(observation)
 
         elif sentence.sentence_type == 'RMC':
             # this sentence contains the current date
@@ -74,12 +74,12 @@ def eachAircraft():
     for aircraft in list(aircraft_seen.keys()):
         print("")
         print(aircraft)
-        aircraft_seen[aircraft].detectEvents()
-        aircraft_seen[aircraft].reportEvents()
+        aircraft_seen[aircraft].detect_events()
+        aircraft_seen[aircraft].report_events()
 
     flight_sheet = []
     for aircraft in list(aircraft_seen.keys()):
-        reg = aircraft_seen[aircraft].getAircraftId()
+        reg = aircraft_seen[aircraft].get_aircraft_id()
         the_events = aircraft_seen[aircraft].events
         for event in the_events:
             if isinstance(event, TakeoffEvent):

@@ -46,16 +46,16 @@ class Aircraft:
         # occurences of importance detected by processing the observations.
         self.events = []
 
-    def appendObservations(self, observation):
+    def append_observations(self, observation):
         self.observations.append(observation)
 
-    def getObservations(self):
+    def get_observations(self):
         return self.observations
 
-    def getAircraftId(self):
+    def get_aircraft_id(self):
         return self.aircraft_id
 
-    def getAircraftType(self):
+    def get_aircraft_type(self):
         return self.aircraft_type
 
     @staticmethod
@@ -81,7 +81,7 @@ class Aircraft:
                 break
 
     @staticmethod
-    def detectTrack(window):
+    def detect_track(window):
         track = 0
         count = 0
 
@@ -106,7 +106,7 @@ class Aircraft:
 
         return int(track)
 
-    def detectTakeoff(self, window):
+    def detect_takeoff(self, window):
 
         if not window:
             return Aircraft.event_not_detected
@@ -137,7 +137,7 @@ class Aircraft:
         if not climbout.getAltitudeAGL() >= rolling.getAltitudeAGL() + Aircraft.climbout_alt_min():
             return Aircraft.event_not_detected
 
-        track = Aircraft.detectTrack(window)
+        track = Aircraft.detect_track(window)
 
         takeoff = TakeoffEvent(rolling.getTimestamp(), rolling.lat, rolling.lon,
                                rolling.getAltitudeAGL(), track, rolling.speed)
@@ -145,7 +145,7 @@ class Aircraft:
 
         return rolling.getTimestamp()
 
-    def detectLanding(self, window):
+    def detect_landing(self, window):
 
         if not window:
             return Aircraft.event_not_detected
@@ -170,7 +170,7 @@ class Aircraft:
         if not approach.getAltitudeAGL() >= rollout.getAltitudeAGL() + Aircraft.approach_alt_min():
             return Aircraft.event_not_detected
 
-        track = Aircraft.detectTrack(window)
+        track = Aircraft.detect_track(window)
 
         landing = LandingEvent(rollout.getTimestamp(), rollout.lat, rollout.lon,
                                rollout.getAltitudeAGL(), track, rollout.speed)
@@ -178,7 +178,7 @@ class Aircraft:
 
         return rollout.getTimestamp()
 
-    def detectEvents(self):
+    def detect_events(self):
 
         takeoff_time = Aircraft.event_not_detected
         landing_time = Aircraft.event_not_detected
@@ -186,7 +186,7 @@ class Aircraft:
         observation_period = Aircraft.observation_period()
 
         # move through the list, one observation at a time
-        for count in range(0, len(self.getObservations())):
+        for count in range(0, len(self.get_observations())):
 
             of_interest = slice(count, count + observation_period)
 
@@ -213,11 +213,11 @@ class Aircraft:
                     landing_time + datetime.timedelta(seconds=observation_period) > t1):
                 pass
             else:
-                takeoff_time = self.detectTakeoff(takeoff_observations)
-                landing_time = self.detectLanding(landing_observations)
+                takeoff_time = self.detect_takeoff(takeoff_observations)
+                landing_time = self.detect_landing(landing_observations)
 
 
-    def reportEvents(self):
+    def report_events(self):
 
         takeoff_time = Aircraft.event_not_detected
         landing_time = Aircraft.event_not_detected
@@ -260,17 +260,17 @@ class Aircraft:
         print("%95s" % " ",
               total_duration)
 
-    def printObservations(self):
+    def print_observations(self):
 
-        for obs in self.getObservations():
+        for obs in self.get_observations():
             obs.printt()
 
-    def getMaxDistance(self):
+    def get_max_distance(self):
 
         distance_max = 0
-        observations = self.getObservations()
+        observations = self.get_observations()
         for observation in observations:
-            distance = observation.getDistance()
+            distance = observation.get_distance()
             if distance > distance_max:
                 distance_max = distance
                 altitude_agl = observation.getAltitudeAGL()
