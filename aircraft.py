@@ -186,22 +186,30 @@ class Aircraft:
         takeoff_time = Aircraft.event_not_detected
         landing_time = Aircraft.event_not_detected
 
-
-        # num of seconds of an observation period. The period is used
-        # in determining flight events like takeoff and landing.
         observation_period = Aircraft.observation_period()
 
 
-        n = len(self.getObservations())
-        if n > 0: n -= 1  # correct for zero-based index
+        n = len(self.getObservations()) - 1
 
         # move through the list, one observation at a time
         for x in range(0, n):
 
-            # create a smaller, look-ahead views of a limited timeframe.
-            takeoff_observations = self.observations[x:x+observation_period]
+            of_interest = slice(x, x+observation_period)
+
+            # slice an observation window giving the maximum possible view
+            # of interest for takeoff
+            takeoff_observations = self.observations[of_interest]
+
+            # now trim the window of observations to discard out-of-range
+            # values from the tail
             Aircraft.trim(observation_period, takeoff_observations)
-            landing_observations = self.observations[x:x+observation_period]
+
+            # slice an observation window giving the maximum possible view
+            # of interest for landing
+            landing_observations = self.observations[of_interest]
+
+            # now trim the window of observations to discard out-of-range
+            # values from the tail
             Aircraft.trim(observation_period, landing_observations)
 
             t1 = landing_observations[0].getTimestamp()
