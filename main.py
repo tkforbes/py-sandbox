@@ -83,8 +83,9 @@ def eachAircraft():
         the_events = aircraft_seen[aircraft].events
         for event in the_events:
             if isinstance(event, TakeoffEvent):
-                launch_event = LaunchEvent(reg, event.getTimestamp(), event.getLat(), event.getLon(),
-                                           event.getAltitudeAGL(), event.getTrack(), event.speed)
+                launch_event = LaunchEvent(
+                    reg, event.getTimestamp(), event.getLat(), event.getLon(),
+                    event.getAltitudeAGL(), event.getTrack(), event.speed)
                 flight_sheet.append(launch_event)
 
     flight_sheet.sort()

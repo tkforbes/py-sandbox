@@ -12,10 +12,13 @@ class Aircraft:
     event_not_detected = pytz.utc.localize(datetime.datetime.min)
 
     @staticmethod
-    def takeoff_initialSpeedLowerBound(): return 7
+    def observation_period(): return 45
 
     @staticmethod
-    def takeoff_initialSpeedUpperBound(): return 19
+    def takeoff_rolling_low(): return 7
+
+    @staticmethod
+    def takeoff_rolling_high(): return 19
 
     @staticmethod
     def takeoff_climboutSpeedMin(): return 50
@@ -24,7 +27,7 @@ class Aircraft:
     def takeoff_climboutAltMin(): return +30
 
     @staticmethod
-    def landing_finalSpeedMax(): return 16
+    def landing_final_speedMax(): return 16
 
     @staticmethod
     def landing_approachSpeedMin(): return 40
@@ -68,7 +71,7 @@ class Aircraft:
         # print(tStart, tMax)
 
         # remove observations that are out of range
-        for y in range(0, len(window)):
+        for count in range(0, len(window)):
             # remove tail observation if beyond timeframe
             if tStart <= window[-1].getTimestamp() <= tMax:
                 # don't look any further.
@@ -79,18 +82,19 @@ class Aircraft:
     @staticmethod
     def detectTrack(window):
         track = 0
-        n = 0
+        count = 0
         for obs in range(0, len(window)):
-            if Groundstation.atGroundLevel(window[obs].getAltitudeAGL() and
-                window[obs].speed.kph() > 10):
+            if Groundstation.atGroundLevel(
+                    window[obs].getAltitudeAGL() and
+                    window[obs].speed.kph() > 10):
 
                 # this won't work for North, where values are near 360 and 0
 
                 track += window[obs].getTrack()
-                n += 1
+                count += 1
 
         # calculate the average
-        track = int(track/n)
+        track = int(track/count)
 
         # correct for known runways. This is Kars specific, for now.
         if 220 <= track <= 270:
@@ -101,7 +105,6 @@ class Aircraft:
         return int(track)
 
     def detectTakeoff(self, window):
-        t1 = window[0].getTimestamp()
 
         if not len(window) > 0:
             return Aircraft.event_not_detected
@@ -111,35 +114,36 @@ class Aircraft:
         # gets included! The heading of the towplane is wrong at that point,
         # which messes with runway calculation.
 
-        initialSpeed = window[0].speed.kph()
-        initialSpeedLowerBound = Aircraft.takeoff_initialSpeedLowerBound()
-        initialSpeedUpperBound = Aircraft.takeoff_initialSpeedUpperBound()
-        if not initialSpeedLowerBound <= initialSpeed <= initialSpeedUpperBound:
+        initial_speed = window[0].speed.kph()
+        initial_time = window[0].getTimestamp().astimezone(Groundstation.timezone())
+        rolling_low = Aircraft.takeoff_rolling_low()
+        rolling_high = Aircraft.takeoff_rolling_high()
+        if not rolling_low <= initial_speed <= rolling_high:
             return Aircraft.event_not_detected
 
         # climbout speed at least this
-        finalSpeed = window[-1].speed.kph()
-        if not finalSpeed >= Aircraft.takeoff_climboutSpeedMin():
+        final_speed = window[-1].speed.kph()
+        if not final_speed >= Aircraft.takeoff_climboutSpeedMin():
             return Aircraft.event_not_detected
 
         # must be close to the ground initially
-        initialAltAGL = window[0].getAltitudeAGL()
-        if not Groundstation.atGroundLevel(initialAltAGL):
+        takeoff_alt_agl = window[0].getAltitudeAGL()
+        if not Groundstation.atGroundLevel(takeoff_alt_agl):
             return Aircraft.event_not_detected
 
         # must be at least this much higher during climbout
-        finalAltAGL = window[-1].getAltitudeAGL()
-        if not finalAltAGL >= initialAltAGL + Aircraft.takeoff_climboutAltMin():
+        final_alt_agl = window[-1].getAltitudeAGL()
+        if not final_alt_agl >= takeoff_alt_agl + Aircraft.takeoff_climboutAltMin():
             return Aircraft.event_not_detected
 
         track = Aircraft.detectTrack(window)
 
         # speed stored as metres per second
-        e = TakeoffEvent(window[0].getTimestamp().astimezone(Groundstation.timezone()),
-                         0, 0, initialAltAGL, track, window[0].speed)
-        self.events.append(e)
+        takeoff = TakeoffEvent(initial_time, 0, 0, takeoff_alt_agl,
+                               track, window[0].speed)
+        self.events.append(takeoff)
 
-        return t1
+        return initial_time
 
     def detectLanding(self, window):
 
@@ -147,42 +151,44 @@ class Aircraft:
             return Aircraft.event_not_detected
 
         # ensure rollout speed
-        finalSpeed = window[-1].speed.kph()
-        if not finalSpeed <= Aircraft.landing_finalSpeedMax():
+        final_speed = window[-1].speed
+        final_time = window[-1].getTimestamp().astimezone(Groundstation.timezone())
+        if not final_speed.kph() <= Aircraft.landing_final_speedMax():
             return Aircraft.event_not_detected
 
         # ensure on the ground
-        finalAltAGL = window[-1].getAltitudeAGL()
-        if not Groundstation.atGroundLevel(finalAltAGL):
+        final_alt_agl = window[-1].getAltitudeAGL()
+        if not Groundstation.atGroundLevel(final_alt_agl):
             return Aircraft.event_not_detected
 
         # ensure approaching at speed
-        initialSpeed = window[0].speed.kph()
-        if not initialSpeed >= Aircraft.landing_approachSpeedMin():
+        initial_speed = window[0].speed.kph()
+        if not initial_speed >= Aircraft.landing_approachSpeedMin():
             return Aircraft.event_not_detected
 
         # ensure approaching from altitude
-        initialAltAGL = window[0].getAltitudeAGL()
-        if not initialAltAGL >= finalAltAGL + Aircraft.landing_approachAltMin():
+        takeoff_alt_agl = window[0].getAltitudeAGL()
+        if not takeoff_alt_agl >= final_alt_agl + Aircraft.landing_approachAltMin():
             return Aircraft.event_not_detected
 
         track = Aircraft.detectTrack(window)
 
         # store speed in M/S
-        e = LandingEvent(window[-1].getTimestamp().astimezone(Groundstation.timezone()),
-                         0, 0, finalAltAGL, track, window[-1].speed)
-        self.events.append(e)
+        landing = LandingEvent(final_time, 0, 0, final_alt_agl,
+                               track, final_speed)
+        self.events.append(landing)
 
-        return window[-1].getTimestamp()
+        return final_time
 
     def detectEvents(self):
 
-        tTakeoff = Aircraft.event_not_detected
-        tLanding = Aircraft.event_not_detected
+        takeoff_time = Aircraft.event_not_detected
+        landing_time = Aircraft.event_not_detected
+
 
         # num of seconds of an observation period. The period is used
         # in determining flight events like takeoff and landing.
-        observationPeriod = 45
+        observation_period = Aircraft.observation_period()
 
 
         n = len(self.getObservations())
@@ -192,20 +198,20 @@ class Aircraft:
         for x in range(0, n):
 
             # create a smaller, look-ahead views of a limited timeframe.
-            takeoffObservations = self.observations[x:x+observationPeriod]
-            Aircraft.trim(observationPeriod, takeoffObservations)
-            landingObservations = self.observations[x:x+observationPeriod]
-            Aircraft.trim(observationPeriod, landingObservations)
+            takeoff_observations = self.observations[x:x+observation_period]
+            Aircraft.trim(observation_period, takeoff_observations)
+            landing_observations = self.observations[x:x+observation_period]
+            Aircraft.trim(observation_period, landing_observations)
 
-            t1 = landingObservations[0].getTimestamp()
+            t1 = landing_observations[0].getTimestamp()
 
             # detect takeoff, but skip ahead if takeoff just detected
-            if (tTakeoff + datetime.timedelta(seconds=observationPeriod) > t1 or
-                tLanding + datetime.timedelta(seconds=observationPeriod) > t1):
+            if (takeoff_time + datetime.timedelta(seconds=observation_period) > t1 or
+                landing_time + datetime.timedelta(seconds=observation_period) > t1):
                 pass
             else:
-                tTakeoff = self.detectTakeoff(takeoffObservations)
-                tLanding = self.detectLanding(landingObservations)
+                takeoff_time = self.detectTakeoff(takeoff_observations)
+                landing_time = self.detectLanding(landing_observations)
 
 
     def reportEvents(self):
