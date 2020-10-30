@@ -85,7 +85,7 @@ class Observation:
         return self.timestamp
 
     def get_alt_agl(self):
-        return self.relativeVertical - Groundstation.heightOfGroundstationAGL()
+        return self.relativeVertical - Groundstation.height_of_groundstation()
 
     def get_distance(self):
         n = abs(self.relativeNorth)
@@ -101,11 +101,11 @@ class Observation:
 
     def displace_lat_lon(self, groundstation):
 
-        self.lat = groundstation.getLat()
+        self.lat = groundstation.get_lat()
         + (self.relativeNorth / 1000 / Observation.r_earth()) * (180 / math.pi)
 
-        self.lon = groundstation.getLon()
-        + (self.relativeEast / 1000 / Observation.r_earth()) * (180 / math.pi) / math.cos(groundstation.getLat() * math.pi/180)
+        self.lon = groundstation.get_lon()
+        + (self.relativeEast / 1000 / Observation.r_earth()) * (180 / math.pi) / math.cos(groundstation.get_lat() * math.pi/180)
         return
 
     def set(self, groundstation, nmea_flaa):

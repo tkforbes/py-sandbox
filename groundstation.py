@@ -1,16 +1,6 @@
 import sys
-
-#import pynmea2
-
-#import geopy
-#import geopy.distance
-
 import datetime
 import pytz
-#import re
-
-#import math
-
 
 class Groundstation:
 
@@ -18,24 +8,24 @@ class Groundstation:
     def timezone(): return pytz.timezone('US/Eastern')
 
     @staticmethod
-    def groundLevelLowerLimitAGL(): return -30
+    def groundlevel_lower_limit(): return -30
 
     @staticmethod
-    def groundLevelUpperLimitAGL(): return +30
+    def groundlevel_upper_limit(): return +30
 
     # returns the height (in metres) of the grounstation's GPS AGL
     # e.g. a tower-mounted groundstation might be 9m AGL.
     @staticmethod
-    def heightOfGroundstationAGL(): return 0
+    def height_of_groundstation(): return 0
 
     @staticmethod
-    def atGroundLevel(alt):
+    def at_groundlevel(alt):
         '''
         upper and lower boundardies of AGL zero that are
         sufficiently close to the ground to be considered as good as AGL zero.
         '''
 
-        if alt in range(Groundstation.groundLevelLowerLimitAGL(), Groundstation.groundLevelUpperLimitAGL()):
+        if Groundstation.groundlevel_lower_limit() <= alt <= Groundstation.groundlevel_upper_limit():
             return True
 
         return False
@@ -56,10 +46,10 @@ class Groundstation:
         self.timestampMax = None
 
 
-    def setDate(self, d):
+    def set_date(self, d):
         self.datestamp = d
 
-    def setTime(self, ti):
+    def set_time(self, ti):
         # don't permit the time to be set until after the date has been set
         if self.datestamp is None: return
 
@@ -75,7 +65,7 @@ class Groundstation:
         #utc_now = pytz.utc.localize(datetime.datetime.utcnow())
 
         self.timestamp = t
-        self.setTimestampMax()
+        self.set_timestamp_max()
         return
 
     @staticmethod
@@ -86,18 +76,18 @@ class Groundstation:
         except ValueError:
             return False
 
-    def validDate(self):
+    def valid_date(self):
         if self.datestamp is None: return False
 
         return True
 
-    def validTime(self):
+    def valid_time(self):
         if self.timestamp is None: return False
 
         return True
 
     @staticmethod
-    def isvalid(nmea_gga):
+    def is_valid(nmea_gga):
 
         if nmea_gga.altitude is None:
             return False # elevation missing from observation
@@ -110,39 +100,39 @@ class Groundstation:
 
         return True
 
-    def setTimestampMax(self):
+    def set_timestamp_max(self):
         if self.timestamp > self.timestampMax:
             self.timestampMax = self.timestamp
 
-    def setElevationMax(self):
+    def set_elevation_max(self):
         if self.elevation is None: return
 
         if self.elevation > self.elevationMax:
             self.elevationMax = self.elevation
 
-    def setElevationMin(self):
+    def set_elevation_min(self):
         if self.elevation is None: return
 
         if self.elevation < self.elevationMin:
             self.elevationMin = self.elevation
 
-    def setDatestamp(self, datestamp):
+    def set_datestamp(self, datestamp):
         self.datestamp = datestamp
 
-    def getLat(self):
+    def get_lat(self):
         return self.lat
 
-    def getLon(self):
+    def get_lon(self):
         return self.lon
 
-    def averageElevation(self):
+    def average_elevation(self):
         if self.observations == 0: return 0
 
         return self.elevationCumulative / self.observations
 
     def report(self):
 
-        avg = self.averageElevation()
+        avg = self.average_elevation()
 
         print("")
         print("Groundstation report")
@@ -160,7 +150,7 @@ class Groundstation:
         print("observations:", self.observations)
 
     @staticmethod
-    def toDecimalDegrees(dddmmDOTmmmm):
+    def to_decimal_degrees(dddmmDOTmmmm):
         deg = int(dddmmDOTmmmm/100)
         x = dddmmDOTmmmm - deg*100
         return deg+x/60
@@ -294,11 +284,11 @@ class Groundstation:
                 print(gga, ":", e)
                 sys.exit()
 
-            if Groundstation.isvalid(gga):
+            if Groundstation.is_valid(gga):
 
                 self.elevation = altitude
-                self.setElevationMax()
-                self.setElevationMin()
+                self.set_elevation_max()
+                self.set_elevation_min()
 
                 # convert lat to negative when South
                 if latDir in ['S']: lat *= -1
@@ -306,9 +296,9 @@ class Groundstation:
                 # convert lon to negative when West
                 if lonDir in ['W']: lon *= -1
 
-                self.setTime(timestamp)
-                self.lat = Groundstation.toDecimalDegrees(lat)
-                self.lon = Groundstation.toDecimalDegrees(lon)
+                self.set_time(timestamp)
+                self.lat = Groundstation.to_decimal_degrees(lat)
+                self.lon = Groundstation.to_decimal_degrees(lon)
 
                 # this is for the 'average' calculation
                 self.elevationCumulative += self.elevation
@@ -384,6 +374,6 @@ class Groundstation:
                 print(rmc, ":", e)
                 sys.exit()
 
-            self.setTime(rmc.timestamp)
+            self.set_time(rmc.timestamp)
 
             return True

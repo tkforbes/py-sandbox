@@ -86,7 +86,7 @@ class Aircraft:
         count = 0
 
         for ndx, observation in enumerate(window):
-            if Groundstation.atGroundLevel(
+            if Groundstation.at_groundlevel(
                     observation.get_alt_agl() and
                     observation.speed.kph() > 10):
 
@@ -130,7 +130,7 @@ class Aircraft:
             return Aircraft.event_not_detected
 
         # must be close to the ground initially
-        if not Groundstation.atGroundLevel(rolling.get_alt_agl()):
+        if not Groundstation.at_groundlevel(rolling.get_alt_agl()):
             return Aircraft.event_not_detected
 
         # must be at least this much higher during climbout
@@ -157,7 +157,7 @@ class Aircraft:
             return Aircraft.event_not_detected
 
         # ensure on the ground
-        if not Groundstation.atGroundLevel(rollout.get_alt_agl()):
+        if not Groundstation.at_groundlevel(rollout.get_alt_agl()):
             return Aircraft.event_not_detected
 
         approach = window[0]

@@ -39,7 +39,7 @@ def eachAircraft():
 
         # The groundstation must have received the UTC time from the GPS
         # before we permit any processing of Flarm PFLAA observations.
-        if (groundstation.validTime() and
+        if (groundstation.valid_time() and
                 Observation.is_pflaa_sentence(sentence)):
             observation = Observation()
             if observation.set(groundstation, sentence):
@@ -50,10 +50,10 @@ def eachAircraft():
 
         elif sentence.sentence_type == 'RMC':
             # this sentence contains the current date
-            groundstation.setDate(sentence.datestamp)
+            groundstation.set_date(sentence.datestamp)
             groundstation.set(sentence)
         elif (sentence.sentence_type == 'GGA'
-              and groundstation.validDate()
+              and groundstation.valid_date()
               and commas == 14):
 
             # this sentence has the groundstation timestamp, lat, lon, elevation
