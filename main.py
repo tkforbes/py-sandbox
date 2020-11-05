@@ -14,8 +14,6 @@ from event import TakeoffEvent
 from event import LaunchEvent
 from aircraft import Aircraft
 
-conn = sqlite3.connect('flightevents.db')
-c = conn.cursor()
 
 
 
@@ -144,4 +142,6 @@ def eachAircraft():
 # ============================================================================
 
 #processNmeaStream()
+global conn
+conn = sqlite3.connect('flightevents.db')
 eachAircraft()

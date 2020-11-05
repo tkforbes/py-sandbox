@@ -326,21 +326,37 @@ class Observation:
 
 
 # Insert a row of data
-        print("%s" % "INSERT INTO observations VALUES (",
+        statement = "INSERT INTO observations VALUES (%d, %s, %d, %f, %f, %d, %d, %d, %d, %d, %f);" % (
+                int(groundstation.timestamp.timestamp()),
+                theOgnReg.getAircraft(radioId),
+                2,
+                self.lat,
+                self.lon,
+                relative_north,
+                relative_east,
+                relative_vertical,
+                track,
+                ground_speed,
+                climb_rate
+                )
+              #
+              #
+              # "2,",
+              # "%f," % self.lat,
+              # "%f," % self.lon,
+              # "%d," % relative_north,
+              # "%d," % relative_east,
+              # "%d," % relative_vertical,
+              # "%d," % track,
+              # "%d," % ground_speed,
+              # "%f)" % climb_rate
+              # )
 
-              "%d," % int(groundstation.timestamp.timestamp()),
-              "'%s'," % theOgnReg.getAircraft(radioId),
-              "2,",
-              "%f," % self.lat,
-              "%f," % self.lon,
-              "%d," % relative_north,
-              "%d," % relative_east,
-              "%d," % relative_vertical,
-              "%d," % track,
-              "%d," % ground_speed,
-              "%f)" % climb_rate
-              )
+        print(statement)
+        global conn
+        c = conn.cursor()
 
+        c.execute(statement)
 # # c.execute('''INSERT INTO observations VALUES (
 # # '2006-01-05','BUY','RHAT',100,35.14
 # # )''')
