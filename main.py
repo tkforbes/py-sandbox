@@ -3,6 +3,7 @@ import datetime
 import pynmea2
 #import geopy
 #import geopy.distance
+import sqlite3
 
 from groundstation import Groundstation
 from observation import Observation
@@ -12,6 +13,10 @@ from event import TakeoffEvent
 #from event import LandingEvent
 from event import LaunchEvent
 from aircraft import Aircraft
+
+conn = sqlite3.connect('flightevents.db')
+c = conn.cursor()
+
 
 
 def eachAircraft():

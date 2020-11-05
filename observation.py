@@ -1,6 +1,7 @@
 import math
 
 import pynmea2
+import sqlite3
 
 #import geopy
 #import geopy.distance
@@ -309,6 +310,44 @@ class Observation:
         # distance is the hypotenuse of relative_north and relative_east so,
         # now that those values are set, let's set our max distance
         self.set_max_distance();
+
+# tstamp int,
+# radioid char(6),
+# aircraft_type int,
+# lat double,
+# lon double,
+# relative_north int,
+# relative_east int,
+# relative_vertical int,
+# track int,
+# speed int,
+# climb_rate double,
+# PRIMARY KEY (tstamp, radioid)
+
+
+# Insert a row of data
+        print("%s" % "INSERT INTO observations VALUES (",
+
+              "%d," % int(groundstation.timestamp.timestamp()),
+              "'%s'," % theOgnReg.getAircraft(radioId),
+              "2,",
+              "%f," % self.lat,
+              "%f," % self.lon,
+              "%d," % relative_north,
+              "%d," % relative_east,
+              "%d," % relative_vertical,
+              "%d," % track,
+              "%d," % ground_speed,
+              "%f)" % climb_rate
+              )
+
+# # c.execute('''INSERT INTO observations VALUES (
+# # '2006-01-05','BUY','RHAT',100,35.14
+# # )''')
+#
+# # Save (commit) the changes
+# conn.commit()
+
 
         return True
 
