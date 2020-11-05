@@ -1,3 +1,5 @@
+import sys
+import traceback
 import math
 
 import pynmea2
@@ -109,7 +111,7 @@ class Observation:
         + (self.relative_east / 1000 / Observation.r_earth()) * (180 / math.pi) / math.cos(groundstation.get_lat() * math.pi/180)
         return
 
-    def set(self, groundstation, nmea_flaa):
+    def set(self, conn, groundstation, nmea_flaa):
 
         # must be a PFLAA sentence type i.e. value must be 'A'
         try:
@@ -293,6 +295,8 @@ class Observation:
             print(nmea_flaa, ":", e)
             sys.exit()
 
+
+
         theOgnReg = OgnRegistration()
         self.aircraft_id = theOgnReg.getAircraft(radioId)
         self.timestamp = groundstation.timestamp
@@ -326,7 +330,7 @@ class Observation:
 
 
 # Insert a row of data
-        statement = "INSERT INTO observations VALUES (%d, %s, %d, %f, %f, %d, %d, %d, %d, %d, %f);" % (
+        statement = "INSERT INTO observations VALUES (%d, '%s', %d, %f, %f, %d, %d, %d, %d, %d, %f);" % (
                 int(groundstation.timestamp.timestamp()),
                 theOgnReg.getAircraft(radioId),
                 2,
@@ -352,11 +356,20 @@ class Observation:
               # "%f)" % climb_rate
               # )
 
-        print(statement)
-        global conn
-        c = conn.cursor()
 
-        c.execute(statement)
+        c = conn.cursor()
+        try:
+            c.execute(statement)
+            conn.commit()
+        except sqlite3.Error as er:
+            print(statement)
+            print('SQLite error: %s' % (' '.join(er.args)))
+            print("Exception class is: ", er.__class__)
+            print('SQLite traceback: ')
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            print(traceback.format_exception(exc_type, exc_value, exc_tb))
+            conn.rollback()
+
 # # c.execute('''INSERT INTO observations VALUES (
 # # '2006-01-05','BUY','RHAT',100,35.14
 # # )''')

@@ -3,6 +3,7 @@ import datetime
 import pynmea2
 #import geopy
 #import geopy.distance
+
 import sqlite3
 
 from groundstation import Groundstation
@@ -22,6 +23,8 @@ def eachAircraft():
     groundstation = Groundstation()
 
     aircraft_seen = {}
+
+    conn = sqlite3.connect('flightevents.db')
 
     nmea = open('data.nmea', 'r')
 
@@ -45,7 +48,7 @@ def eachAircraft():
         if (groundstation.valid_time() and
                 Observation.is_pflaa_sentence(sentence)):
             observation = Observation()
-            if observation.set(groundstation, sentence):
+            if observation.set(conn, groundstation, sentence):
                 aircraft_id = observation.get_aircraft_id()
                 if aircraft_id not in aircraft_seen:
                     aircraft_seen[aircraft_id] = Aircraft(aircraft_id)
@@ -61,6 +64,10 @@ def eachAircraft():
 
             # this sentence has the groundstation timestamp, lat, lon, elevation
             groundstation.set(sentence)
+
+
+    conn.close()
+
 
     print("%s" % list(aircraft_seen.keys()))
 
@@ -142,6 +149,4 @@ def eachAircraft():
 # ============================================================================
 
 #processNmeaStream()
-global conn
-conn = sqlite3.connect('flightevents.db')
 eachAircraft()
