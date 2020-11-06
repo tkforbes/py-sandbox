@@ -102,14 +102,15 @@ class Observation:
         if (self.get_distance() > self.distance_max ):
             self.distance_max = self.get_distance()
 
-    def displace_lat_lon(self, groundstation):
+    @staticmethod
+    def displace_lat_lon(groundstation, relative_north, relative_east):
 
-        self.lat = groundstation.get_lat()
-        + (self.relative_north / 1000 / Observation.r_earth()) * (180 / math.pi)
+        lat = groundstation.get_lat()
+        + (relative_north / 1000 / Observation.r_earth()) * (180 / math.pi)
 
-        self.lon = groundstation.get_lon()
-        + (self.relative_east / 1000 / Observation.r_earth()) * (180 / math.pi) / math.cos(groundstation.get_lat() * math.pi/180)
-        return
+        lon = groundstation.get_lon()
+        + (relative_east / 1000 / Observation.r_earth()) * (180 / math.pi) / math.cos(groundstation.get_lat() * math.pi/180)
+        return lat, lon
 
     def set(self, conn, groundstation, nmea_flaa):
 
@@ -296,11 +297,14 @@ class Observation:
             sys.exit()
 
 
+        # set the lat, lon of the observation using rel north, rel east.
+        lat, lon = self.displace_lat_lon(groundstation, relative_north, relative_east)
 
         theOgnReg = OgnRegistration()
         self.aircraft_id = theOgnReg.getAircraft(radioId)
         self.timestamp = groundstation.timestamp
-
+        self.lat = lat
+        self.lon = lon
         self.relative_north = relative_north
         self.relative_east = relative_east
         self.relative_vertical = relative_vertical
@@ -308,8 +312,6 @@ class Observation:
         self.speed = ground_speed
         self.climb_rate = climb_rate
 
-        # set the lat, lon of the observation using rel north, rel east.
-        self.displace_lat_lon(groundstation)
 
         # distance is the hypotenuse of relative_north and relative_east so,
         # now that those values are set, let's set our max distance
@@ -328,14 +330,17 @@ class Observation:
 # climb_rate double,
 # PRIMARY KEY (tstamp, radioid)
 
+        # the_time = "'%s %s'" % (self.timestamp.date(), self.timestamp.time())
+        # the_time = int(groundstation.timestamp.timestamp())
 
 # Insert a row of data
-        statement = "INSERT INTO observations VALUES (%d, '%s', %d, %f, %f, %d, %d, %d, %d, %d, %f);" % (
+
+        statement = "INSERT INTO observations VALUES (datetime(%d, 'unixepoch'), '%s', %d, %f, %f, %d, %d, %d, %d, %d, %f);" % (
                 int(groundstation.timestamp.timestamp()),
                 theOgnReg.getAircraft(radioId),
-                2,
-                self.lat,
-                self.lon,
+                int(aircraft_type),
+                lat,
+                lon,
                 relative_north,
                 relative_east,
                 relative_vertical,
